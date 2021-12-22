@@ -51,6 +51,9 @@ public class VM
 		this.tw = tw;
 		initString = string.Intern("init");
 		defineNative("clock", clock);
+		// to avoid warnings
+		frame = new CallFrame();
+		chunk = new Chunk();
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -87,32 +90,29 @@ public class VM
 		var closure = new ObjClosure(function);
 		push(OBJ_VAL(closure));
 		call(closure, 0);
-		return run();
+		return Run();
 	}
 
-
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	byte ReadByte() => chunk.code[frame.ip++];
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	byte READ_BYTE() => chunk.code[frame.ip++];
-
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	ushort READ_SHORT()
+	ushort ReadShort()
 	{
 		frame.ip += 2;
 		return (ushort)((chunk.code[frame.ip - 2] << 8) | chunk.code[frame.ip - 1]);
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	Value READ_CONSTANT() => chunk.constants[READ_BYTE()];
+	Value ReadConstant() => chunk.constants[ReadByte()];
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	string READ_STRING() => AS_STRING(READ_CONSTANT());
+	string ReadString() => AS_STRING(ReadConstant());
 
 	bool hasRuntimeError;
 
-	public InterpretResult run()
+	public InterpretResult Run()
 	{
-		InterpretResult iresult = INTERPRET_OK;
 		while (true)
 		{
 			if (hasRuntimeError) return INTERPRET_RUNTIME_ERROR;
@@ -128,7 +128,7 @@ public class VM
 			Console.WriteLine();
 			frame.closure!.function.chunk.disassembleInstruction(frame.ip, Console.Out);
 #endif
-			var instruction = (OpCode)READ_BYTE();
+			var instruction = (OpCode)ReadByte();
 			switch (instruction)
 			{
 				case OP_NOT:
@@ -137,19 +137,19 @@ public class VM
 				case OP_NEGATE:	Negate(); break;
 				case OP_JUMP:
 					{
-						ushort offset = READ_SHORT();
+						ushort offset = ReadShort();
 						frame.ip += offset;
 						break;
 					}
 				case OP_JUMP_IF_FALSE:
 					{
-						ushort offset = READ_SHORT();
+						ushort offset = ReadShort();
 						if (isFalsey(peek(0))) frame.ip += offset;
 						break;
 					}
 				case OP_LOOP:
 					{
-						ushort offset = READ_SHORT();
+						ushort offset = ReadShort();
 						frame.ip -= offset;
 						break;
 					}
@@ -157,7 +157,7 @@ public class VM
 					tw.WriteLine(pop());
 					break;
 				case OP_CONSTANT:
-					Value constant = READ_CONSTANT();
+					Value constant = ReadConstant();
 					push(constant);
 					break;
 				case OP_NIL: push(NIL_VAL); break;
@@ -166,13 +166,13 @@ public class VM
 				case OP_POP: pop(); break;
 				case OP_GET_LOCAL:
 					{
-						byte slot = READ_BYTE();
+						byte slot = ReadByte();
 						push(stack[frame.slotIndex + slot]);
 						break;
 					}
 				case OP_SET_LOCAL:
 					{
-						byte slot = READ_BYTE();
+						byte slot = ReadByte();
 						stack[frame.slotIndex + slot] = peek(0);
 						break;
 					}
@@ -185,12 +185,12 @@ public class VM
 				case OP_SET_PROPERTY: SetProperty(); break;
 				case OP_GET_SUPER: GetSuper(); break;
 				case OP_EQUAL: Equal(); break;
-				case OP_GREATER: iresult = PopAndOp((a, b) => BOOL_VAL(a > b)); break;
-				case OP_LESS: iresult = PopAndOp((a, b) => BOOL_VAL(a < b)); break;
+				case OP_GREATER: PopAndOp((a, b) => BOOL_VAL(a > b)); break;
+				case OP_LESS: PopAndOp((a, b) => BOOL_VAL(a < b)); break;
 				case OP_ADD:	Add(); break;
-				case OP_SUBTRACT: iresult = PopAndOp((a, b) => NUMBER_VAL(a - b)); break;
-				case OP_MULTIPLY: iresult = PopAndOp((a, b) => NUMBER_VAL(a * b)); break;
-				case OP_DIVIDE: iresult = PopAndOp((a, b) => NUMBER_VAL(a / b)); break;
+				case OP_SUBTRACT: PopAndOp((a, b) => NUMBER_VAL(a - b)); break;
+				case OP_MULTIPLY:  PopAndOp((a, b) => NUMBER_VAL(a * b)); break;
+				case OP_DIVIDE: PopAndOp((a, b) => NUMBER_VAL(a / b)); break;
 				case OP_CALL: Call(); break;
 				case OP_INVOKE: Invoke(); break;
 				case OP_CLOSURE: Closure(); break;
@@ -203,16 +203,15 @@ public class VM
 					if (Return()) return INTERPRET_OK;
 					break;
 				case OP_CLASS:
-					push(OBJ_VAL(new ObjClass(READ_STRING())));
+					push(OBJ_VAL(new ObjClass(ReadString())));
 					break;
 				case OP_INHERIT:
 					Inherit();
 					break;
 				case OP_METHOD:
-					defineMethod(READ_STRING());
+					defineMethod(ReadString());
 					break;
 			}
-			if (iresult != INTERPRET_OK) return iresult;
 		}
 	}
 	void Negate()
@@ -226,7 +225,7 @@ public class VM
 	}
 	void GetGlobal()
 	{
-		string name = READ_STRING();
+		string name = ReadString();
 		if (!tableGet(globals, name, out var value))
 		{
 			runtimeError($"Undefined variable '{ name}'.");
@@ -236,13 +235,13 @@ public class VM
 	}
 	void DefineGlobal()
 	{
-		string name = READ_STRING();
+		string name = ReadString();
 		tableSet(globals, name, peek(0));
 		pop();
 	}
 	void SetGlobal()
 	{
-		string name = READ_STRING();
+		string name = ReadString();
 		if (tableSet(globals, name, peek(0)))
 		{
 			tableDelete(globals, name);
@@ -251,14 +250,14 @@ public class VM
 	}
 	void GetUpValue()
 	{
-		byte slot = READ_BYTE();
+		byte slot = ReadByte();
 		var upvalue = frame.closure!.upvalues[slot];
 		int slotIndex = upvalue.slotIndex;
 		push(slotIndex >= 0 ? stack[slotIndex] : upvalue.closed);
 	}
 	void SetUpValue()
 	{
-		byte slot = READ_BYTE();
+		byte slot = ReadByte();
 		var upvalue = frame.closure!.upvalues[slot];
 		int slotIndex = upvalue.slotIndex;
 		if (slotIndex >= 0) stack[slotIndex] = peek(0);
@@ -272,7 +271,7 @@ public class VM
 			return ;
 		}
 		ObjInstance instance = AS_INSTANCE(peek(0));
-		string name = READ_STRING();
+		string name = ReadString();
 		if (tableGet(instance.fields, name, out var value))
 		{
 			pop(); // Instance.
@@ -290,22 +289,22 @@ public class VM
 			return ;
 		}
 		ObjInstance instance = AS_INSTANCE(peek(1));
-		tableSet(instance.fields, READ_STRING(), peek(0));
+		tableSet(instance.fields, ReadString(), peek(0));
 		Value value = pop();
 		pop();
 		push(value);
 	}
 	void GetSuper()
 	{
-		string name = READ_STRING();
+		string name = ReadString();
 		ObjClass superclass = AS_CLASS(pop());
 		if (!bindMethod(superclass, name))
 			hasRuntimeError = true;
 	}
 	void Invoke()
 	{
-		string method = READ_STRING();
-		int argCount = READ_BYTE();
+		string method = ReadString();
+		int argCount = ReadByte();
 		if (!invoke(method, argCount))
 			hasRuntimeError = true;
 	}
@@ -333,19 +332,19 @@ public class VM
 
 	void Call()
 	{
-		int argCount = READ_BYTE();
+		int argCount = ReadByte();
 		if (!callValue(peek(argCount), argCount))
 			hasRuntimeError = true;
 	}
 	void Closure()
 	{
-		ObjFunction function = AS_FUNCTION(READ_CONSTANT());
+		ObjFunction function = AS_FUNCTION(ReadConstant());
 		ObjClosure closure = new ObjClosure(function);
 		push(OBJ_VAL(closure));
 		for (int i = 0; i < closure.upvalueCount; i++)
 		{
-			byte isLocal = READ_BYTE();
-			byte index = READ_BYTE();
+			byte isLocal = ReadByte();
+			byte index = ReadByte();
 			if (isLocal != 0)
 			{
 				closure.upvalues[i] = captureUpvalue(frame.slotIndex + index);
@@ -359,8 +358,8 @@ public class VM
 
 	void SuperInvoke()
 	{
-		string method = READ_STRING();
-		int argCount = READ_BYTE();
+		string method = ReadString();
+		int argCount = ReadByte();
 		ObjClass superclass = AS_CLASS(pop());
 		if (!invokeFromClass(superclass, method, argCount))
 			hasRuntimeError = true;
@@ -553,17 +552,16 @@ public class VM
 		push(OBJ_VAL(result));
 	}
 
-	InterpretResult PopAndOp(Func<double, double, Value> func)
+	void PopAndOp(Func<double, double, Value> func)
 	{
 		if (!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1)))
 		{
 			runtimeError("Operands must be numbers.");
-			return INTERPRET_RUNTIME_ERROR;
+			return;
 		}
 		double b = AS_NUMBER(pop());
 		double a = AS_NUMBER(pop());
 		push(func(a, b));
-		return INTERPRET_OK;
 	}
 
 	void runtimeError(string msg)
