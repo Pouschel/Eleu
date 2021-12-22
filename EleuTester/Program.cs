@@ -93,7 +93,7 @@ class Program
 
 	void RunActionInDir(string dir, Action<string> action)
 	{
-		var files = Directory.GetFiles(dir, "*.lox");
+		var files = Directory.GetFiles(dir, "*.eleu");
 		foreach (var file in files)
 		{
 			if (IsIgnored(file)) continue;
@@ -121,7 +121,7 @@ class Program
 		Parallel.ForEach(Directory.GetDirectories(dir), idir =>
 			RunActionInDirParallel(idir, action));
 
-		var files = Directory.GetFiles(dir, "*.lox");
+		var files = Directory.GetFiles(dir, "*.eleu");
 		Parallel.ForEach(files, file =>
 		{
 			if (IsIgnored(file)) return;
