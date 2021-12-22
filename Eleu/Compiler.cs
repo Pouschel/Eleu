@@ -300,7 +300,7 @@ internal class Compiler
 		block();
 
 		ObjFunction function = endCompiler();
-		emitBytes(OP_CLOSURE, makeConstant(OBJ_VAL(function)));
+		emitBytes(OP_CLOSURE, makeConstant(CreateObjVal(function)));
 		for (int i = 0; i < function.upvalueCount; i++)
 		{
 			emitByte((byte)(compiler.upvalues[i].isLocal ? 1 : 0));
@@ -655,7 +655,7 @@ internal class Compiler
 	void number(bool canAssign)
 	{
 		double value = double.Parse(parser.previous.StringValue, CultureInfo.InvariantCulture);
-		emitConstant(NUMBER_VAL(value));
+		emitConstant(CreateNumberVal(value));
 	}
 	void literal(bool canAssign)
 	{
@@ -669,7 +669,7 @@ internal class Compiler
 	}
 	void _string(bool canAssign)
 	{
-		emitConstant(OBJ_VAL(parser.previous.StringStringValue));
+		emitConstant(CreateStringVal(parser.previous.StringStringValue));
 	}
 	void grouping(bool canAssign)
 	{

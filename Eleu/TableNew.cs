@@ -33,7 +33,7 @@ class Table
 
 		ref Entry entry = ref findEntry(entries, key);
 		bool isNewKey = entry.key == null;
-		if (isNewKey && IS_NIL(entry.value)) count++;
+		if (isNewKey && IsNil(entry.value)) count++;
 		entry.key = key;
 		entry.value = val;
 		return isNewKey;
@@ -51,7 +51,7 @@ class Table
 			ref Entry entry = ref entries[index];
 			if (entry.key == null)
 			{
-				if (IS_NIL(entry.value))
+				if (IsNil(entry.value))
 				{
 					if (tomestoneIndex < 0) return ref entry;
 					return ref entries[tomestoneIndex];
@@ -91,7 +91,7 @@ class Table
 
 	public bool Get(string key, out Value value)
 	{
-		value = NIL_VAL;
+		value = Nil;
 		if (count == 0) return false;
 		ref Entry entry = ref findEntry(entries, key);
 		if (entry.key == null) return false;
@@ -109,7 +109,7 @@ class Table
 
 		// Place a tombstone in the entry.
 		entry.key = null;
-		entry.value = BOOL_TRUE;
+		entry.value = BoolTrue;
 		return true;
 	}
 

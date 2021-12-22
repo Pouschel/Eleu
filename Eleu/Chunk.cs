@@ -39,7 +39,7 @@ class Chunk
 	{
 		for (int i = 0; i < consCount; i++)
 		{
-			if (valuesEqual(constants[i], value))
+			if (ValuesEqual(constants[i], value))
 				return i;
 		}
 		if (consCount >= constants.Length)

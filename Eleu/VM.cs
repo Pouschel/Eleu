@@ -88,7 +88,7 @@ public class VM
 	internal InterpretResult Interpret(ObjFunction function)
 	{
 		var closure = new ObjClosure(function);
-		Push(OBJ_VAL(closure));
+		Push(CreateObjVal(closure));
 		Call(closure, 0);
 		return Run();
 	}
@@ -132,7 +132,7 @@ public class VM
 			switch (instruction)
 			{
 				case OP_NOT:
-					Push(BOOL_VAL(isFalsey(Pop())));
+					Push(BoolVal(IsFalsey(Pop())));
 					break;
 				case OP_NEGATE:	Negate(); break;
 				case OP_JUMP:
@@ -144,7 +144,7 @@ public class VM
 				case OP_JUMP_IF_FALSE:
 					{
 						ushort offset = ReadShort();
-						if (isFalsey(Peek(0))) frame.ip += offset;
+						if (IsFalsey(Peek(0))) frame.ip += offset;
 						break;
 					}
 				case OP_LOOP:
@@ -160,9 +160,9 @@ public class VM
 					Value constant = ReadConstant();
 					Push(constant);
 					break;
-				case OP_NIL: Push(NIL_VAL); break;
-				case OP_TRUE: Push(BOOL_VAL(true)); break;
-				case OP_FALSE: Push(BOOL_VAL(false)); break;
+				case OP_NIL: Push(Nil); break;
+				case OP_TRUE: Push(BoolVal(true)); break;
+				case OP_FALSE: Push(BoolVal(false)); break;
 				case OP_POP: Pop(); break;
 				case OP_GET_LOCAL:
 					{
@@ -185,12 +185,12 @@ public class VM
 				case OP_SET_PROPERTY: SetProperty(); break;
 				case OP_GET_SUPER: GetSuper(); break;
 				case OP_EQUAL: Equal(); break;
-				case OP_GREATER: PopAndOp((a, b) => BOOL_VAL(a > b)); break;
-				case OP_LESS: PopAndOp((a, b) => BOOL_VAL(a < b)); break;
+				case OP_GREATER: PopAndOp((a, b) => BoolVal(a > b)); break;
+				case OP_LESS: PopAndOp((a, b) => BoolVal(a < b)); break;
 				case OP_ADD:	Add(); break;
-				case OP_SUBTRACT: PopAndOp((a, b) => NUMBER_VAL(a - b)); break;
-				case OP_MULTIPLY:  PopAndOp((a, b) => NUMBER_VAL(a * b)); break;
-				case OP_DIVIDE: PopAndOp((a, b) => NUMBER_VAL(a / b)); break;
+				case OP_SUBTRACT: PopAndOp((a, b) => CreateNumberVal(a - b)); break;
+				case OP_MULTIPLY:  PopAndOp((a, b) => CreateNumberVal(a * b)); break;
+				case OP_DIVIDE: PopAndOp((a, b) => CreateNumberVal(a / b)); break;
 				case OP_CALL: Call(); break;
 				case OP_INVOKE: Invoke(); break;
 				case OP_CLOSURE: Closure(); break;
@@ -203,7 +203,7 @@ public class VM
 					if (Return()) return INTERPRET_OK;
 					break;
 				case OP_CLASS:
-					Push(OBJ_VAL(new ObjClass(ReadString())));
+					Push(CreateObjVal(new ObjClass(ReadString())));
 					break;
 				case OP_INHERIT:
 					Inherit();
@@ -216,12 +216,12 @@ public class VM
 	}
 	void Negate()
 	{
-		if (!IS_NUMBER(Peek(0)))
+		if (!IsNumber(Peek(0)))
 		{
 			RuntimeError("Operand must be a number.");
 			return ;
 		}
-		Push(NUMBER_VAL(-AS_NUMBER(Pop())));
+		Push(CreateNumberVal(-AsNumber(Pop())));
 	}
 	void GetGlobal()
 	{
@@ -312,7 +312,7 @@ public class VM
 	{
 		Value b = Pop();
 		Value a = Pop();
-		Push(BOOL_VAL(valuesEqual(a, b)));
+		Push(BoolVal(ValuesEqual(a, b)));
 	}
 	void Add()
 	{
@@ -320,11 +320,11 @@ public class VM
 		{
 			Concatenate();
 		}
-		else if (IS_NUMBER(Peek(0)) && IS_NUMBER(Peek(1)))
+		else if (IsNumber(Peek(0)) && IsNumber(Peek(1)))
 		{
-			double b = AS_NUMBER(Pop());
-			double a = AS_NUMBER(Pop());
-			Push(NUMBER_VAL(a + b));
+			double b = AsNumber(Pop());
+			double a = AsNumber(Pop());
+			Push(CreateNumberVal(a + b));
 		}
 		else
 			RuntimeError("Operands must be two numbers or two strings.");
@@ -340,7 +340,7 @@ public class VM
 	{
 		ObjFunction function = AS_FUNCTION(ReadConstant());
 		ObjClosure closure = new ObjClosure(function);
-		Push(OBJ_VAL(closure));
+		Push(CreateObjVal(closure));
 		for (int i = 0; i < closure.upvalueCount; i++)
 		{
 			byte isLocal = ReadByte();
@@ -435,7 +435,7 @@ public class VM
 	}
 	bool CallValue(Value callee, int argCount)
 	{
-		if (IS_OBJ(callee))
+		if (IsObj(callee))
 		{
 			switch (OBJ_TYPE(callee))
 			{
@@ -448,7 +448,7 @@ public class VM
 				case OBJ_CLASS:
 					{
 						ObjClass klass = AS_CLASS(callee);
-						stack[stackTop - argCount - 1] = OBJ_VAL(new ObjInstance(klass));
+						stack[stackTop - argCount - 1] = CreateObjVal(new ObjInstance(klass));
 						Value initializer;
 						if (tableGet(klass.methods, initString, out initializer))
 						{
@@ -518,13 +518,13 @@ public class VM
 		}
 		ObjBoundMethod bound = new ObjBoundMethod(Peek(0), AS_CLOSURE(method));
 		Pop();
-		Push(OBJ_VAL(bound));
+		Push(CreateObjVal(bound));
 		return true;
 	}
 	void DefineNative(string name, NativeFn function)
 	{
 		var oname = name;
-		var ofun = OBJ_VAL(new ObjNative(function));
+		var ofun = CreateObjVal(new ObjNative(function));
 		tableSet(globals, oname, ofun);
 	}
 	bool Call(ObjClosure closure, int argCount)
@@ -549,18 +549,18 @@ public class VM
 		string b = AS_STRING(Pop());
 		string a = AS_STRING(Pop());
 		var result = a + b;
-		Push(OBJ_VAL(result));
+		Push(CreateStringVal(result));
 	}
 
 	void PopAndOp(Func<double, double, Value> func)
 	{
-		if (!IS_NUMBER(Peek(0)) || !IS_NUMBER(Peek(1)))
+		if (!IsNumber(Peek(0)) || !IsNumber(Peek(1)))
 		{
 			RuntimeError("Operands must be numbers.");
 			return;
 		}
-		double b = AS_NUMBER(Pop());
-		double a = AS_NUMBER(Pop());
+		double b = AsNumber(Pop());
+		double a = AsNumber(Pop());
 		Push(func(a, b));
 	}
 
