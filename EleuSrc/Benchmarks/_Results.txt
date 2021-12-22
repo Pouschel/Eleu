@@ -122,3 +122,15 @@ trees             : 12,384 ms
 zoo               :  1,828 ms
 zoo_batch         : 10,001 ms
             Total :   59.1 s
+--- 12/22/2021 17:21:41 ---
+binary_trees      :  5,927 ms
+equality          : 16,513 ms
+fib               :  5,252 ms
+instantiation     :  1,695 ms
+invocation        :  1,769 ms
+method_call       :  1,071 ms
+properties        :  3,114 ms
+trees             : 12,379 ms
+zoo               :  1,935 ms
+zoo_batch         : 10,010 ms
+            Total :   59.7 s

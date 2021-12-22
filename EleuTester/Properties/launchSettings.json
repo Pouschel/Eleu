@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "CsLoxTester": {
+      "commandName": "Project",
+      "commandLineArgs": "-test C:\\Code\\Eleu\\EleuSrc\\Tests C:\\Code\\Eleu\\EleuSrc\\Examples\\Ex1.lox"
+    }
+  }
+}
