@@ -50,24 +50,24 @@ public class VM
 		}
 		this.tw = tw;
 		initString = string.Intern("init");
-		defineNative("clock", clock);
+		DefineNative("clock", clock);
 		// to avoid warnings
 		frame = new CallFrame();
 		chunk = new Chunk();
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	private void push(Value val)
+	private void Push(Value val)
 	{
 		if (stackTop == stack.Length)
 			ExpandArray(ref stack);
 		stack[stackTop++] = val;
 	}
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	private Value pop() => stack[--stackTop];
+	private Value Pop() => stack[--stackTop];
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	Value peek(int distance) => stack[stackTop - 1 - distance];
+	Value Peek(int distance) => stack[stackTop - 1 - distance];
 
 	void PushFrame(ObjClosure closure, int argCount)
 	{
@@ -85,11 +85,11 @@ public class VM
 		chunk = frame.closure!.function!.chunk;
 	}
 
-	internal InterpretResult interpret(ObjFunction function)
+	internal InterpretResult Interpret(ObjFunction function)
 	{
 		var closure = new ObjClosure(function);
-		push(OBJ_VAL(closure));
-		call(closure, 0);
+		Push(OBJ_VAL(closure));
+		Call(closure, 0);
 		return Run();
 	}
 
@@ -132,7 +132,7 @@ public class VM
 			switch (instruction)
 			{
 				case OP_NOT:
-					push(BOOL_VAL(isFalsey(pop())));
+					Push(BOOL_VAL(isFalsey(Pop())));
 					break;
 				case OP_NEGATE:	Negate(); break;
 				case OP_JUMP:
@@ -144,7 +144,7 @@ public class VM
 				case OP_JUMP_IF_FALSE:
 					{
 						ushort offset = ReadShort();
-						if (isFalsey(peek(0))) frame.ip += offset;
+						if (isFalsey(Peek(0))) frame.ip += offset;
 						break;
 					}
 				case OP_LOOP:
@@ -154,26 +154,26 @@ public class VM
 						break;
 					}
 				case OP_PRINT:
-					tw.WriteLine(pop());
+					tw.WriteLine(Pop());
 					break;
 				case OP_CONSTANT:
 					Value constant = ReadConstant();
-					push(constant);
+					Push(constant);
 					break;
-				case OP_NIL: push(NIL_VAL); break;
-				case OP_TRUE: push(BOOL_VAL(true)); break;
-				case OP_FALSE: push(BOOL_VAL(false)); break;
-				case OP_POP: pop(); break;
+				case OP_NIL: Push(NIL_VAL); break;
+				case OP_TRUE: Push(BOOL_VAL(true)); break;
+				case OP_FALSE: Push(BOOL_VAL(false)); break;
+				case OP_POP: Pop(); break;
 				case OP_GET_LOCAL:
 					{
 						byte slot = ReadByte();
-						push(stack[frame.slotIndex + slot]);
+						Push(stack[frame.slotIndex + slot]);
 						break;
 					}
 				case OP_SET_LOCAL:
 					{
 						byte slot = ReadByte();
-						stack[frame.slotIndex + slot] = peek(0);
+						stack[frame.slotIndex + slot] = Peek(0);
 						break;
 					}
 				case OP_GET_GLOBAL: GetGlobal(); break;
@@ -196,56 +196,56 @@ public class VM
 				case OP_CLOSURE: Closure(); break;
 				case OP_SUPER_INVOKE: SuperInvoke(); break;
 				case OP_CLOSE_UPVALUE:
-					closeUpvalues(stackTop - 1);
-					pop();
+					CloseUpvalues(stackTop - 1);
+					Pop();
 					break;
 				case OP_RETURN:
 					if (Return()) return INTERPRET_OK;
 					break;
 				case OP_CLASS:
-					push(OBJ_VAL(new ObjClass(ReadString())));
+					Push(OBJ_VAL(new ObjClass(ReadString())));
 					break;
 				case OP_INHERIT:
 					Inherit();
 					break;
 				case OP_METHOD:
-					defineMethod(ReadString());
+					DefineMethod(ReadString());
 					break;
 			}
 		}
 	}
 	void Negate()
 	{
-		if (!IS_NUMBER(peek(0)))
+		if (!IS_NUMBER(Peek(0)))
 		{
-			runtimeError("Operand must be a number.");
+			RuntimeError("Operand must be a number.");
 			return ;
 		}
-		push(NUMBER_VAL(-AS_NUMBER(pop())));
+		Push(NUMBER_VAL(-AS_NUMBER(Pop())));
 	}
 	void GetGlobal()
 	{
 		string name = ReadString();
 		if (!tableGet(globals, name, out var value))
 		{
-			runtimeError($"Undefined variable '{ name}'.");
+			RuntimeError($"Undefined variable '{ name}'.");
 			return;
 		}
-		push(value);
+		Push(value);
 	}
 	void DefineGlobal()
 	{
 		string name = ReadString();
-		tableSet(globals, name, peek(0));
-		pop();
+		tableSet(globals, name, Peek(0));
+		Pop();
 	}
 	void SetGlobal()
 	{
 		string name = ReadString();
-		if (tableSet(globals, name, peek(0)))
+		if (tableSet(globals, name, Peek(0)))
 		{
 			tableDelete(globals, name);
-			runtimeError($"Undefined variable '{name}'.");
+			RuntimeError($"Undefined variable '{name}'.");
 		}
 	}
 	void GetUpValue()
@@ -253,101 +253,101 @@ public class VM
 		byte slot = ReadByte();
 		var upvalue = frame.closure!.upvalues[slot];
 		int slotIndex = upvalue.slotIndex;
-		push(slotIndex >= 0 ? stack[slotIndex] : upvalue.closed);
+		Push(slotIndex >= 0 ? stack[slotIndex] : upvalue.closed);
 	}
 	void SetUpValue()
 	{
 		byte slot = ReadByte();
 		var upvalue = frame.closure!.upvalues[slot];
 		int slotIndex = upvalue.slotIndex;
-		if (slotIndex >= 0) stack[slotIndex] = peek(0);
-		else upvalue.closed = peek(0);
+		if (slotIndex >= 0) stack[slotIndex] = Peek(0);
+		else upvalue.closed = Peek(0);
 	}
 	void GetProperty()
 	{
-		if (!IS_INSTANCE(peek(0)))
+		if (!IS_INSTANCE(Peek(0)))
 		{
-			runtimeError("Only instances have properties.");
+			RuntimeError("Only instances have properties.");
 			return ;
 		}
-		ObjInstance instance = AS_INSTANCE(peek(0));
+		ObjInstance instance = AS_INSTANCE(Peek(0));
 		string name = ReadString();
 		if (tableGet(instance.fields, name, out var value))
 		{
-			pop(); // Instance.
-			push(value);
+			Pop(); // Instance.
+			Push(value);
 			return;
 		}
-		if (!bindMethod(instance.klass, name))
+		if (!BindMethod(instance.klass, name))
 			hasRuntimeError = true;
 	}
 	void SetProperty()
 	{
-		if (!IS_INSTANCE(peek(1)))
+		if (!IS_INSTANCE(Peek(1)))
 		{
-			runtimeError("Only instances have fields.");
+			RuntimeError("Only instances have fields.");
 			return ;
 		}
-		ObjInstance instance = AS_INSTANCE(peek(1));
-		tableSet(instance.fields, ReadString(), peek(0));
-		Value value = pop();
-		pop();
-		push(value);
+		ObjInstance instance = AS_INSTANCE(Peek(1));
+		tableSet(instance.fields, ReadString(), Peek(0));
+		Value value = Pop();
+		Pop();
+		Push(value);
 	}
 	void GetSuper()
 	{
 		string name = ReadString();
-		ObjClass superclass = AS_CLASS(pop());
-		if (!bindMethod(superclass, name))
+		ObjClass superclass = AS_CLASS(Pop());
+		if (!BindMethod(superclass, name))
 			hasRuntimeError = true;
 	}
 	void Invoke()
 	{
 		string method = ReadString();
 		int argCount = ReadByte();
-		if (!invoke(method, argCount))
+		if (!Invoke(method, argCount))
 			hasRuntimeError = true;
 	}
 	void Equal()
 	{
-		Value b = pop();
-		Value a = pop();
-		push(BOOL_VAL(valuesEqual(a, b)));
+		Value b = Pop();
+		Value a = Pop();
+		Push(BOOL_VAL(valuesEqual(a, b)));
 	}
 	void Add()
 	{
-		if (IS_STRING(peek(0)) && IS_STRING(peek(1)))
+		if (IS_STRING(Peek(0)) && IS_STRING(Peek(1)))
 		{
-			concatenate();
+			Concatenate();
 		}
-		else if (IS_NUMBER(peek(0)) && IS_NUMBER(peek(1)))
+		else if (IS_NUMBER(Peek(0)) && IS_NUMBER(Peek(1)))
 		{
-			double b = AS_NUMBER(pop());
-			double a = AS_NUMBER(pop());
-			push(NUMBER_VAL(a + b));
+			double b = AS_NUMBER(Pop());
+			double a = AS_NUMBER(Pop());
+			Push(NUMBER_VAL(a + b));
 		}
 		else
-			runtimeError("Operands must be two numbers or two strings.");
+			RuntimeError("Operands must be two numbers or two strings.");
 	}
 
 	void Call()
 	{
 		int argCount = ReadByte();
-		if (!callValue(peek(argCount), argCount))
+		if (!CallValue(Peek(argCount), argCount))
 			hasRuntimeError = true;
 	}
 	void Closure()
 	{
 		ObjFunction function = AS_FUNCTION(ReadConstant());
 		ObjClosure closure = new ObjClosure(function);
-		push(OBJ_VAL(closure));
+		Push(OBJ_VAL(closure));
 		for (int i = 0; i < closure.upvalueCount; i++)
 		{
 			byte isLocal = ReadByte();
 			byte index = ReadByte();
 			if (isLocal != 0)
 			{
-				closure.upvalues[i] = captureUpvalue(frame.slotIndex + index);
+				closure.upvalues[i] = CaptureUpvalue(frame.slotIndex + index);
 			}
 			else
 			{
@@ -360,38 +360,38 @@ public class VM
 	{
 		string method = ReadString();
 		int argCount = ReadByte();
-		ObjClass superclass = AS_CLASS(pop());
-		if (!invokeFromClass(superclass, method, argCount))
+		ObjClass superclass = AS_CLASS(Pop());
+		if (!InvokeFromClass(superclass, method, argCount))
 			hasRuntimeError = true;
 	}
 	bool Return()
 	{
-		Value result = pop();
-		closeUpvalues(frame.slotIndex);
+		Value result = Pop();
+		CloseUpvalues(frame.slotIndex);
 		if (frameCount == 1)
 		{
-			pop();
+			Pop();
 			return true;
 		}
 		stackTop = frame.slotIndex;
 		PopFrame();
-		push(result);
+		Push(result);
 		return false;
 	}
 
 	void Inherit()
 	{
-		Value superclass = peek(1);
+		Value superclass = Peek(1);
 		if (!IS_CLASS(superclass))
 		{
-			runtimeError("Superclass must be a class.");
+			RuntimeError("Superclass must be a class.");
 			return;
 		}
-		ObjClass subclass = AS_CLASS(peek(0));
+		ObjClass subclass = AS_CLASS(Peek(0));
 		tableAddAll(AS_CLASS(superclass).methods, subclass.methods);
-		pop(); // Subclass.
+		Pop(); // Subclass.
 	}
-	void closeUpvalues(int last)
+	void CloseUpvalues(int last)
 	{
 		while (openUpvalues != null && openUpvalues.slotIndex >= last)
 		{
@@ -401,14 +401,14 @@ public class VM
 			openUpvalues = upvalue.next;
 		}
 	}
-	void defineMethod(string name)
+	void DefineMethod(string name)
 	{
-		Value method = peek(0);
-		ObjClass klass = AS_CLASS(peek(1));
+		Value method = Peek(0);
+		ObjClass klass = AS_CLASS(Peek(1));
 		tableSet(klass.methods, name, method);
-		pop();
+		Pop();
 	}
-	ObjUpvalue captureUpvalue(int local)
+	ObjUpvalue CaptureUpvalue(int local)
 	{
 		ObjUpvalue? prevUpvalue = null;
 		ObjUpvalue? upvalue = this.openUpvalues;
@@ -433,7 +433,7 @@ public class VM
 		}
 		return createdUpvalue;
 	}
-	bool callValue(Value callee, int argCount)
+	bool CallValue(Value callee, int argCount)
 	{
 		if (IS_OBJ(callee))
 		{
@@ -443,7 +443,7 @@ public class VM
 					{
 						ObjBoundMethod bound = AS_BOUND_METHOD(callee);
 						stack[stackTop - argCount - 1] = bound.receiver;
-						return call(bound.method, argCount);
+						return Call(bound.method, argCount);
 					}
 				case OBJ_CLASS:
 					{
@@ -452,17 +452,17 @@ public class VM
 						Value initializer;
 						if (tableGet(klass.methods, initString, out initializer))
 						{
-							return call(AS_CLOSURE(initializer), argCount);
+							return Call(AS_CLOSURE(initializer), argCount);
 						}
 						else if (argCount != 0)
 						{
-							runtimeError($"Expected 0 arguments but got {argCount}.");
+							RuntimeError($"Expected 0 arguments but got {argCount}.");
 							return false;
 						}
 						return true;
 					}
 				case OBJ_CLOSURE:
-					return call(AS_CLOSURE(callee), argCount);
+					return Call(AS_CLOSURE(callee), argCount);
 				case OBJ_NATIVE:
 					{
 						NativeFn native = AS_NATIVE(callee);
@@ -473,110 +473,110 @@ public class VM
 						}
 						Value result = native(args);
 						stackTop -= argCount + 1;
-						push(result);
+						Push(result);
 						return true;
 					}
 				default:
 					break; // Non-callable object type.
 			}
 		}
-		runtimeError("Can only call functions and classes.");
+		RuntimeError("Can only call functions and classes.");
 		return false;
 	}
-	bool invokeFromClass(ObjClass klass, string name, int argCount)
+	bool InvokeFromClass(ObjClass klass, string name, int argCount)
 	{
 		if (!tableGet(klass.methods, name, out var method))
 		{
-			runtimeError($"Undefined property '{name}'.");
+			RuntimeError($"Undefined property '{name}'.");
 			return false;
 		}
-		return call(AS_CLOSURE(method), argCount);
+		return Call(AS_CLOSURE(method), argCount);
 	}
-	bool invoke(string name, int argCount)
+	bool Invoke(string name, int argCount)
 	{
-		Value receiver = peek(argCount);
+		Value receiver = Peek(argCount);
 		if (!IS_INSTANCE(receiver))
 		{
-			runtimeError("Only instances have methods.");
+			RuntimeError("Only instances have methods.");
 			return false;
 		}
 		ObjInstance instance = AS_INSTANCE(receiver);
 		if (tableGet(instance.fields, name, out var value))
 		{
 			stack[stackTop - argCount - 1] = value;
-			return callValue(value, argCount);
+			return CallValue(value, argCount);
 		}
-		return invokeFromClass(instance.klass, name, argCount);
+		return InvokeFromClass(instance.klass, name, argCount);
 	}
-	bool bindMethod(ObjClass klass, string name)
+	bool BindMethod(ObjClass klass, string name)
 	{
 		Value method;
 		if (!tableGet(klass.methods, name, out method))
 		{
-			runtimeError($"Undefined property '{name}'.");
+			RuntimeError($"Undefined property '{name}'.");
 			return false;
 		}
-		ObjBoundMethod bound = new ObjBoundMethod(peek(0), AS_CLOSURE(method));
-		pop();
-		push(OBJ_VAL(bound));
+		ObjBoundMethod bound = new ObjBoundMethod(Peek(0), AS_CLOSURE(method));
+		Pop();
+		Push(OBJ_VAL(bound));
 		return true;
 	}
-	void defineNative(string name, NativeFn function)
+	void DefineNative(string name, NativeFn function)
 	{
 		var oname = name;
 		var ofun = OBJ_VAL(new ObjNative(function));
 		tableSet(globals, oname, ofun);
 	}
-	bool call(ObjClosure closure, int argCount)
+	bool Call(ObjClosure closure, int argCount)
 	{
 		var function = closure.function;
 		if (argCount != function.arity)
 		{
-			runtimeError($"Expected {function.arity} arguments but got {argCount}.");
+			RuntimeError($"Expected {function.arity} arguments but got {argCount}.");
 			return false;
 		}
 		if (frameCount >= FRAMES_MAX)
 		{
-			runtimeError("Stack overflow.");
+			RuntimeError("Stack overflow.");
 			return false;
 		}
 		PushFrame(closure, argCount + 1);
 		return true;
 	}
 
-	void concatenate()
+	void Concatenate()
 	{
-		string b = AS_STRING(pop());
-		string a = AS_STRING(pop());
+		string b = AS_STRING(Pop());
+		string a = AS_STRING(Pop());
 		var result = a + b;
-		push(OBJ_VAL(result));
+		Push(OBJ_VAL(result));
 	}
 
 	void PopAndOp(Func<double, double, Value> func)
 	{
-		if (!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1)))
+		if (!IS_NUMBER(Peek(0)) || !IS_NUMBER(Peek(1)))
 		{
-			runtimeError("Operands must be numbers.");
+			RuntimeError("Operands must be numbers.");
 			return;
 		}
-		double b = AS_NUMBER(pop());
-		double a = AS_NUMBER(pop());
-		push(func(a, b));
+		double b = AS_NUMBER(Pop());
+		double a = AS_NUMBER(Pop());
+		Push(func(a, b));
 	}
 
-	void runtimeError(string msg)
+	void RuntimeError(string msg)
 	{
 		int instruction = frame.ip - 1;
 		int line = chunk.lines[instruction];
 		var text = string.IsNullOrEmpty(chunk.FileName) ? msg : $"{chunk.FileName}({line}): {msg}";
 		tw.WriteLine(text);
 		Trace.WriteLine(text);
-		if (DumpStackOnError) dumpStack();
-		resetStack();
+		if (DumpStackOnError) DumpStack();
+		ResetStack();
 		hasRuntimeError = true;
 	}
 
-	void dumpStack()
+	void DumpStack()
 	{
 		for (int i = frameCount - 1; i >= 0; i--)
 		{
@@ -587,7 +587,7 @@ public class VM
 		}
 	}
 
-	void resetStack()
+	void ResetStack()
 	{
 		stackTop = 0;
 	}

@@ -16,7 +16,7 @@
 		if (function == null)
 			return INTERPRET_COMPILE_ERROR;
 		VM vm = new VM(tw);
-		return vm.interpret(function);
+		return vm.Interpret(function);
 	}
 
 	public static bool RunFile(string path, TextWriter tw, bool debugPrintCode = false)
@@ -36,7 +36,7 @@
 		{
 			DumpStackOnError = false
 		};
-		InterpretResult result = vm.interpret(function);
+		InterpretResult result = vm.Interpret(function);
 		return result == INTERPRET_OK;
 	}
 
