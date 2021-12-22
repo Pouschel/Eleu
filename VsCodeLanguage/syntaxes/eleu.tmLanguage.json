@@ -1,0 +1,147 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "eleu",
+	"patterns": [
+		{
+			"include": "#comments"
+		},
+		{
+			"include": "#keywords"
+		},
+		{
+			"include": "#statements"
+		},
+		{
+			"include": "#callables"
+		},
+		{
+			"include": "#ident"
+		},
+		{
+			"include": "#strings"
+		},
+		{
+			"include": "#digits"
+		}
+	],
+	"repository": {
+		"keywords": {
+			"patterns": [
+				{
+					"name": "keyword.control.eleu",
+					"match": "\\b(if|else|while|for|return|and|or)\\b"
+				},
+				{
+					"name": "constant.language.null.eleu",
+					"match": "\\b(nil)\\b"
+				},
+				{
+					"name": "constant.language.boolean.eleu",
+					"match": "\\b(true|false)\\b"
+				},
+				{
+					"name": "support.function.builtin.eleu",
+					"match": "\\b(print)\\b"
+				},
+				{
+					"name": "variable.language.this.eleu",
+					"match": "\\b(this)\\b"
+				},
+				{
+					"name": "variable.language.super.eleu",
+					"match": "\\b(super)\\b"
+				}
+			]
+		},
+		"statements": {
+			"patterns": [
+				{
+					"match": "\\b(var)\\s+([A-Za-z_][A-Za-z0-9_]*)\\b",
+					"captures": {
+						"1": {
+							"name": "storage.type.eleu"
+						},
+						"2": {
+							"name": "support.variable.eleu"
+						}
+					}
+				},
+				{
+					"match": "\\b(fun)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*\\(([A-Za-z0-9,\\s]*)\\)",
+					"captures": {
+						"1": {
+							"name":"storage.type.function.eleu"
+						},
+						"2": {
+							"name":"entity.name.function.eleu"
+						},
+						"3": {
+							"patterns": [
+								{
+									"match": "\\b[A-Za-z_][A-Za-z0-9_]*\\b",
+									"name": "variable.parameter.eleu"
+								}
+							]
+						}
+					}
+				},
+				{
+					"match": "\\b(class)\\s+([A-Za-z_][A-Za-z0-9_]*)(?:\\s*(<)\\s*([A-Za-z_][A-Za-z0-9_]*))?\\b",
+					"captures": {
+						"1": {
+							"name": "storage.type.class.eleu"
+						},
+						"2": {
+							"name": "entity.name.type.class.eleu"
+						},
+						"3": {
+							"name": "storage.modifier.eleu"
+						},
+						"4": {
+							"name": "entity.name.type.class.eleu"
+						}
+					}
+				}
+			]
+		},
+		"callables": {
+			"patterns": [
+				{
+					"match": "([A-Za-z_][A-Za-z0-9_]*)\\(",
+					"name": "support.function.eleu"
+				}
+			]
+		},
+		"strings": {
+			"name": "string.quoted.double.eleu",
+			"begin": "\"",
+			"end": "\"",
+			"patterns": []
+		},
+		"digits": {
+			"patterns": [
+				{
+					"name": "constant.numeric.eleu",
+					"match": "\\b[0-9]+(?:.[0-9]+)?\\b"
+				}
+			]
+		},
+		"ident": {
+			"patterns": [
+				{
+					"name": "variable.other.readwrite.eleu",
+					"match": "\\b[A-Za-z_][A-Za-z0-9_]*\\b"
+				}
+			]
+		},
+		"comments": {
+			"patterns": [
+				{
+					"name": "comment.line.double-slash.eleu",
+					"match": "\\/\\/.*"
+				}
+			]
+		}
+	},
+	"scopeName": "source.eleu"
+}

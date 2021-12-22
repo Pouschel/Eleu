@@ -36,5 +36,4 @@ packages*/
 out/
 *.old
 __pycache__
-/CsLoxTester/Readme.html
-/README.html
+*.html

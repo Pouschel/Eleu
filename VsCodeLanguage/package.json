@@ -1,0 +1,53 @@
+{
+    "name": "eleu-language",
+    "displayName": "Eleu Language",
+    "description": "Syntax highlighting for Eleu based on lox language.",
+    "version": "0.0.1",
+    "publisher": "dberezin",
+    "author": "dberezin",
+    "icon": "images/EleuLogo.png",
+    "engines": {
+        "vscode": "^1.24.0"
+    },
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [
+            {
+                "id": "eleu",
+                "aliases": [
+                    "eleu",
+                    "eleu"
+                ],
+                "extensions": [
+                    ".eleu"
+                ],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "eleu",
+                "scopeName": "source.eleu",
+                "path": "./syntaxes/eleu.tmLanguage.json"
+            }
+        ]
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Pouschel/Eleu.git"
+    },
+    "keywords": [
+        "eleu",
+        "eleu-language",
+        "vscode",
+        "vscode-extension",
+        "vscode-language"
+    ],
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/Pouschel/Eleu/issues"
+    },
+    "homepage": "https://github.com/Pouschel/Eleu"
+}
