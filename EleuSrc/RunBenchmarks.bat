@@ -1,1 +1,1 @@
-C:\Code\Eleu\EleuTester\bin\Release\net6.0\CsLoxTester.exe -benchmark C:\Code\Eleu\EleuSrc\Benchmarks
+C:\Code\Eleu\EleuTester\bin\Release\net6.0\EleuTester.exe -benchmark C:\Code\Eleu\EleuSrc\Benchmarks

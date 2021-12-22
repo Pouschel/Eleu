@@ -168,7 +168,7 @@ class Program
 	public static void Main(string[] args)
 	{
 		Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-		Console.WriteLine("CsLox Tester v1");
+		Console.WriteLine("Eleu Tester v1");
 		Console.WriteLine(
 @"Arguments: 
 -test TestDir [FileToExecute]

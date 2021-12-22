@@ -134,3 +134,29 @@ trees             : 12,379 ms
 zoo               :  1,935 ms
 zoo_batch         : 10,010 ms
             Total :   59.7 s
+--- 12/22/2021 19:12:02 ---
+            Total :        s
+--- 12/22/2021 19:14:08 ---
+binary_trees      :  5,783 ms
+equality          : 16,410 ms
+fib               :  5,240 ms
+instantiation     :  1,797 ms
+invocation        :  1,768 ms
+method_call       :  1,069 ms
+properties        :  3,214 ms
+trees             : 12,938 ms
+zoo               :  1,749 ms
+zoo_batch         : 10,002 ms
+            Total :     60 s
+--- 12/22/2021 19:21:46 ---
+binary_trees      :  5,960 ms
+equality          : 16,098 ms
+fib               :  5,181 ms
+instantiation     :  1,872 ms
+invocation        :  1,610 ms
+method_call       :  1,055 ms
+properties        :  2,658 ms
+trees             : 13,151 ms
+zoo               :  1,761 ms
+zoo_batch         : 10,005 ms
+            Total :   59.4 s

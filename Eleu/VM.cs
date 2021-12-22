@@ -80,29 +80,30 @@ public class VM
 		return run();
 	}
 
+	 
+	CallFrame frame => frames[frameCount - 1];
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	Chunk chunk() => frames[frameCount - 1].closure!.function!.chunk;
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	byte READ_BYTE() => chunk().code[frame.ip++];
+	
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	ushort READ_SHORT()
+	{
+		frame.ip += 2;
+		return (ushort)((chunk().code[frame.ip - 2] << 8) | chunk().code[frame.ip - 1]);
+	}
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	Value READ_CONSTANT() => chunk().constants[READ_BYTE()];
+
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	string READ_STRING() => AS_STRING(READ_CONSTANT());
+
 	public InterpretResult run()
 	{
-		CallFrame frame = frames[frameCount - 1];
-		
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		Chunk chunk() => frame.closure!.function!.chunk;
-		
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		byte READ_BYTE() => chunk().code[frame.ip++];
-		
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		ushort READ_SHORT()
-		{
-			frame.ip += 2;
-			return (ushort)((chunk().code[frame.ip - 2] << 8) | chunk().code[frame.ip - 1]);
-		}
-		
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		Value READ_CONSTANT() => chunk().constants[READ_BYTE()];
-		
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		string READ_STRING() => AS_STRING(READ_CONSTANT());
-
 		InterpretResult iresult = INTERPRET_OK;
 		while (true)
 		{
@@ -305,7 +306,6 @@ public class VM
 						{
 							return INTERPRET_RUNTIME_ERROR;
 						}
-						frame = frames[frameCount - 1];
 						break;
 					}
 				case OP_INVOKE:
@@ -316,7 +316,6 @@ public class VM
 						{
 							return INTERPRET_RUNTIME_ERROR;
 						}
-						frame = frames[frameCount - 1];
 						break;
 					}
 				case OP_CLOSURE:
@@ -348,7 +347,6 @@ public class VM
 						{
 							return INTERPRET_RUNTIME_ERROR;
 						}
-						frame = frames[frameCount - 1];
 						break;
 					}
 				case OP_CLOSE_UPVALUE:
@@ -359,15 +357,14 @@ public class VM
 					{
 						Value result = pop();
 						closeUpvalues(frame.slotIndex);
-						frameCount--;
-						if (frameCount == 0)
+						if (frameCount == 1)
 						{
 							pop();
 							return INTERPRET_OK;
 						}
 						stackTop = frame.slotIndex;
+						frameCount--;
 						push(result);
-						frame = frames[frameCount - 1];
 						break;
 					}
 				case OP_CLASS:
