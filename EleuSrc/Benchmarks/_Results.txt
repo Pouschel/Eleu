@@ -160,3 +160,29 @@ trees             : 13,151 ms
 zoo               :  1,761 ms
 zoo_batch         : 10,005 ms
             Total :   59.4 s
+// performance loss due to splitted run function
+--- 12/22/2021 19:49:42 ---
+binary_trees      :  6,904 ms
+equality          : 20,096 ms
+fib               :  6,077 ms
+instantiation     :  2,059 ms
+invocation        :  1,843 ms
+method_call       :  1,264 ms
+properties        :  3,074 ms
+trees             : 14,178 ms
+zoo               :  1,961 ms
+zoo_batch         : 10,011 ms
+            Total :   67.5 s
+// and down again by better caching of frame and chunk
+--- 12/22/2021 20:25:11 ---
+binary_trees      :  6,296 ms
+equality          : 15,750 ms
+fib               :  5,191 ms
+instantiation     :  1,907 ms
+invocation        :  1,917 ms
+method_call       :  1,159 ms
+properties        :  3,272 ms
+trees             : 12,958 ms
+zoo               :  1,977 ms
+zoo_batch         : 10,012 ms
+            Total :   60.4 s

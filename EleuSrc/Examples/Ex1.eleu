@@ -1,2 +1,5 @@
+fun f() {
+  if (true) return "ok";
+}
 
-print "Executed!";
+print f(); // expect: ok
