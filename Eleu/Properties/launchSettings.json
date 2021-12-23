@@ -2,7 +2,7 @@
   "profiles": {
     "CsLox": {
       "commandName": "Project",
-      "commandLineArgs": "C:\\Code\\CsLox\\Lox\\Examples\\PerfProfile.lox"
+      "commandLineArgs": "C:\\Code\\Eleu\\EleuSrc\\Examples\\Ex1.eleu"
     }
   }
 }

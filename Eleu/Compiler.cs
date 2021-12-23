@@ -87,6 +87,13 @@ class ClassCompiler
 	public bool hasSuperclass;
 }
 
+class EleuResult
+{
+	public InterpretResult Result;
+	public ObjFunction? Function;
+
+}
+
 internal class Compiler
 {
 	Scanner scanner;
@@ -94,9 +101,12 @@ internal class Compiler
 	CompilerState current;
 	ClassCompiler? currentClass;
 	string fileName;
-	TextWriter tw;
+
 	ParseRule[] rules;
-	public bool DEBUG_PRINT_CODE { get; set; }
+	EleuOptions options;
+
+	bool DEBUG_PRINT_CODE => options.PrintByteCode;
+	TextWriter tw => options.Output;
 
 	void InitTable()
 	{
@@ -153,17 +163,18 @@ internal class Compiler
 		}
 	}
 
-	public Compiler(string source, string fileName, TextWriter tw)
+	public Compiler(string source, string fileName, EleuOptions options)
 	{
 		rules = new ParseRule[(int)TOKEN_EOF + 1];
 		InitTable();
 		this.fileName = fileName;
-		this.tw = tw;
+		this.options = options;
 		scanner = new Scanner(source);
 		parser = new Parser();
 		current = initCompiler(TYPE_SCRIPT);
 	}
-	public ObjFunction? compile()
+
+	public EleuResult compile()
 	{
 		scanner.Reset();
 		advance();
@@ -172,7 +183,11 @@ internal class Compiler
 			declaration();
 		}
 		var function = endCompiler();
-		return parser.hadError ? null : function;
+		return new EleuResult
+		{
+			Result = parser.hadError ? INTERPRET_COMPILE_ERROR : INTERPRET_OK,
+			Function = parser.hadError ? null : function
+		};
 	}
 	void declaration()
 	{

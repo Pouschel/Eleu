@@ -22,14 +22,13 @@ class CallFrame
 public class VM
 {
 	public int FRAMES_MAX = 1000;
-	public bool DumpStackOnError = true;
+
 
 	Value[] stack;
 	int stackTop;
 	CallFrame[] frames;
 	int frameCount;
 	Table globals;
-	TextWriter tw;
 	string initString;
 	ObjUpvalue? openUpvalues;
 	//this current frame
@@ -37,9 +36,16 @@ public class VM
 
 	//the current code chunk
 	Chunk chunk;
+	
+	EleuOptions options;
+	EleuResult result;
 
-	internal VM(TextWriter tw)
+	TextWriter tw=>options.Output;
+
+	internal VM(EleuOptions options, EleuResult result)
 	{
+		this.options = options;
+		this.result = result;
 		stack = new Value[1000];
 		stackTop = 0;
 		globals = new();
@@ -48,7 +54,7 @@ public class VM
 		{
 			frames[i] = new CallFrame();
 		}
-		this.tw = tw;
+		
 		initString = string.Intern("init");
 		DefineNative("clock", clock);
 		// to avoid warnings
@@ -85,12 +91,13 @@ public class VM
 		chunk = frame.closure!.function!.chunk;
 	}
 
-	internal InterpretResult Interpret(ObjFunction function)
+	internal void Interpret()
 	{
+		ObjFunction function = result.Function!;
 		var closure = new ObjClosure(function);
 		Push(CreateObjVal(closure));
 		Call(closure, 0);
-		return Run();
+		result.Result = Run();
 	}
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -571,7 +578,7 @@ public class VM
 		var text = string.IsNullOrEmpty(chunk.FileName) ? msg : $"{chunk.FileName}({line}): {msg}";
 		tw.WriteLine(text);
 		Trace.WriteLine(text);
-		if (DumpStackOnError) DumpStack();
+		if (options.DumpStackOnError) DumpStack();
 		ResetStack();
 		hasRuntimeError = true;
 	}

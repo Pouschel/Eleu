@@ -1,4 +1,6 @@
-fun f() {
+fun f() 
+{
+  false="ups";
   if (true) return "ok";
 }
 

@@ -5,39 +5,46 @@
 		=> a.StringValue == b.StringValue;
 	internal static bool identifiersEqual(in Token a, string b)
 	=> a.StringValue == b;
-	internal static InterpretResult interpret(string source, string fileName, TextWriter tw
-		, bool debugPrintCode = false)
+
+	internal static EleuResult CompileAndRun(string fileName, EleuOptions options)
 	{
-		var compiler = new Compiler(source, fileName, tw)
-		{
-			DEBUG_PRINT_CODE = debugPrintCode
-		};
-		var function = compiler.compile();
-		if (function == null)
-			return INTERPRET_COMPILE_ERROR;
-		VM vm = new VM(tw);
-		return vm.Interpret(function);
+		var source = File.ReadAllText(fileName);
+		return CompileAndRun(source, fileName, options);
+	}
+
+	internal static EleuResult CompileAndRun(string source, string fileName, EleuOptions options)
+	{
+		var compiler = new Compiler(source, fileName, options);
+		var cresult = compiler.compile();
+		if (cresult.Result != INTERPRET_OK)
+			return cresult;
+
+		VM vm = new VM(options, cresult);
+		vm.Interpret();
+		return cresult;
 	}
 
 	public static bool RunFile(string path, TextWriter tw, bool debugPrintCode = false)
 	{
-		string source = File.ReadAllText(path);
-		InterpretResult result = interpret(source, path, tw, debugPrintCode);
-		return result == INTERPRET_OK;
+		var opt = new EleuOptions()
+		{
+			Output = tw,
+			PrintByteCode = debugPrintCode
+		};
+		var result= CompileAndRun(path, opt);
+		return result.Result == INTERPRET_OK;
 	}
 
 	public static bool RunTestCode(string source, TextWriter tw)
 	{
-		var compiler = new Compiler(source, "", tw);
-		var function = compiler.compile();
-		if (function == null)
-			return false;
-		VM vm = new VM(tw)
+		var opt = new EleuOptions()
 		{
-			DumpStackOnError = false
+			Output = tw,
+			PrintByteCode = false,
+			DumpStackOnError = false,
 		};
-		InterpretResult result = vm.Interpret(function);
-		return result == INTERPRET_OK;
+		var cres= CompileAndRun(source, "", opt);
+		return cres.Result == INTERPRET_OK;
 	}
 
 	internal static int ExpandArray<T>(ref T[] array)
