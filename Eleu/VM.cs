@@ -575,7 +575,7 @@ public class VM
 	{
 		int instruction = frame.ip - 1;
 		int line = chunk.lines[instruction];
-		var text = string.IsNullOrEmpty(chunk.FileName) ? msg : $"{chunk.FileName}({line}): {msg}";
+		var text = string.IsNullOrEmpty(chunk.FileName) ? msg : $"{chunk.FileName}({line}): Rerr: {msg}";
 		tw.WriteLine(text);
 		Trace.WriteLine(text);
 		if (options.DumpStackOnError) DumpStack();

@@ -2,7 +2,7 @@
   "profiles": {
     "CsLox": {
       "commandName": "Project",
-      "commandLineArgs": "C:\\Code\\Eleu\\EleuSrc\\Examples\\Ex1.eleu"
+      "commandLineArgs": "-waitAfterRun  -dumpByteCode C:\\Code\\Eleu\\EleuSrc\\Examples\\Ex1.eleu"
     }
   }
 }

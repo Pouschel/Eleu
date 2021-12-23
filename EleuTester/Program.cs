@@ -161,7 +161,7 @@ class Program
 		{
 			lines.Add($"{Path.GetFileNameWithoutExtension(kv.Key),-18}: {kv.Value.TotalMilliseconds,6:###,###} ms");
 		}
-		lines.Add($"            Total : {total,6:##,###.#} s");
+		lines.Add($"            Total : {total,6:##,###.##} s");
 		File.AppendAllLines(Path.Combine(dir, "_Results.txt"),lines);
 	}
 

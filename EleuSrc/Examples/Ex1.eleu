@@ -1,6 +1,6 @@
 fun f() 
 {
-  false="ups";
+  x=8;
   if (true) return "ok";
 }
 
