@@ -906,7 +906,7 @@ internal class Compiler
 		{
 			if (!parser.hadError)
 			{
-				currentChunk().disassemble(function.NameOrScript);
+				currentChunk().Disassemble(function.NameOrScript);
 			}
 		}
 		current = current.enclosing!;
@@ -926,8 +926,8 @@ internal class Compiler
 		emitByte(OP_RETURN);
 	}
 
-	void emitByte(byte by) => currentChunk().write(by, parser.previous.line);
-	void emitByte(OpCode op) => currentChunk().write(op, parser.previous.line);
+	void emitByte(byte by) => currentChunk().Write(by, parser.previous.line);
+	void emitByte(OpCode op) => currentChunk().Write(op, parser.previous.line);
 
 	void emitBytes(OpCode byte1, byte byte2)
 	{
@@ -951,7 +951,7 @@ internal class Compiler
 
 	byte makeConstant(Value value)
 	{
-		int constant = currentChunk().addConstant(value);
+		int constant = currentChunk().AddConstant(value);
 		if (constant > byte.MaxValue)
 		{
 			error("Too many constants in one chunk.");

@@ -1,4 +1,6 @@
 ﻿using System.Globalization;
+using System.Text;
+
 namespace CsLox;
 
 class Chunk
@@ -18,7 +20,7 @@ class Chunk
 		lines = new();
 	}
 
-	public void write(byte by, int line = 0)
+	public void Write(byte by, int line = 0)
 	{
 		if (count >= code.Length)
 			ExpandArray(ref code);
@@ -26,16 +28,9 @@ class Chunk
 		lines.Add(line);
 	}
 
-	public void write(OpCode oc, int line = 0) => write((byte)oc, line);
+	public void Write(OpCode oc, int line = 0) => Write((byte)oc, line);
 
-	public void writeConstant(Value val)
-	{
-		write(OP_CONSTANT);
-		var cons = addConstant(val);
-		write((byte)cons);
-	}
-
-	public int addConstant(Value value)
+	public int AddConstant(Value value)
 	{
 		for (int i = 0; i < consCount; i++)
 		{
@@ -48,26 +43,49 @@ class Chunk
 		return consCount - 1;
 	}
 
-	public void disassemble(string name, TextWriter? tw = null)
+	public void Disassemble(string name, TextWriter? tw = null)
 	{
 		tw ??= Console.Out;
 		tw.WriteLine($"== {name} ==");
 
 		for (int offset = 0; offset < count;)
 		{
-			offset = disassembleInstruction(offset, tw);
+			offset = DisassembleInstruction(offset, tw);
 		}
 	}
-	internal int disassembleInstruction(int offset, TextWriter tw)
+
+	static string GetInstructionString(string s)
+	{
+		var sb = new StringBuilder();
+		bool nextUpper = false;
+		for (int i = 0; i < s.Length; i++)
+		{
+			char c = s[i];
+			if (c == '_')
+			{
+				nextUpper = true; continue;
+			}
+			if (nextUpper)
+				c = char.ToUpper(c);
+			else
+				c = char.ToLower(c);
+			nextUpper = false;
+			sb.Append(c);
+		}
+		return sb.ToString();
+	}
+	internal int DisassembleInstruction(int offset, TextWriter tw)
 	{
 		tw.Write($"{offset:0000} ");
-		if (offset>=lines.Count || offset > 0 && lines[offset] == lines[offset - 1])
+		if (offset >= lines.Count || offset > 0 && lines[offset] == lines[offset - 1])
 			tw.Write("   | ");
 		else
 			tw.Write("{0,4} ", lines[offset]);
 
 		var instruction = (OpCode)code[offset];
-		var instructionString = $"{instruction.ToString()[3..],-16}";
+
+		var instructionString = GetInstructionString(instruction.ToString()[2..]);
+		instructionString	= $"{instructionString,-16}";
 		switch (instruction)
 		{
 			case OP_RETURN:
@@ -132,14 +150,14 @@ class Chunk
 						int isLocal = code[offset++];
 						int index = code[offset++];
 						tw.WriteLine("{0:0000}    |                     {1} {2}",
-									 offset - 2, isLocal !=0 ? "local" : "upvalue", index);
+									 offset - 2, isLocal != 0 ? "local" : "upvalue", index);
 					}
 					return offset;
 				}
 			case OP_JUMP:
 			case OP_JUMP_IF_FALSE:
 				return jumpInstruction(1);
-			case OP_LOOP:return jumpInstruction(-1);
+			case OP_LOOP: return jumpInstruction(-1);
 			default:
 				tw.WriteLine($"Unknown opcode {instruction}");
 				return offset + 1;
