@@ -13,6 +13,7 @@ enum ObjType
 	OBJ_INSTANCE,
 	OBJ_NATIVE,
 	OBJ_UPVALUE,
+	OBJ_LIST,
 }
 
 internal class Obj
@@ -141,6 +142,10 @@ class ObjBoundMethod : Obj
 	public override string ToString() => method.function.ToString();
 }
 
+class ValueList:List<Value>
+{
+}
+
 static class ObjStatics
 {
 	public static ObjType OBJ_TYPE(Value value) => AsObj(value).type;
@@ -149,12 +154,17 @@ static class ObjStatics
 	public static bool IS_CLOSURE(Value value) => IsObjType(value, OBJ_CLOSURE);
 	public static bool IS_FUNCTION(Value value) => IsObjType(value, OBJ_FUNCTION);
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static bool IS_INSTANCE(Value value) => IsObjType(value, OBJ_INSTANCE);
-	public static bool IS_NATIVE(Value value) => IsObjType(value, OBJ_NATIVE);
+	public static bool IsInstance(Value value) => value.oValue is ObjInstance; 
+	public static bool IS_NATIVE(Value value) => value.oValue is ObjNative; 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static bool IS_STRING(Value value) => value.type==VAL_STRING;
+	public static bool IsString(Value value) => value.type==VAL_STRING;
+
+	public static bool IsList(Value value) => value.type == VAL_LIST;
+
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static string AS_STRING(Value value) => ((string)value.oValue);
+	public static string AsString(Value value) => ((string)value.oValue);
+
+	public static ValueList AsList(Value value) => ((ValueList)value.oValue);
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static ObjClosure AS_CLOSURE(Value value) => ((ObjClosure)AsObj(value));
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]

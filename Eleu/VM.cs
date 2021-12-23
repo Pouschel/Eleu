@@ -107,7 +107,7 @@ public class VM
 	Value ReadConstant() => chunk.constants[ReadByte()];
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	string ReadString() => AS_STRING(ReadConstant());
+	string ReadString() => AsString(ReadConstant());
 
 	bool hasRuntimeError;
 
@@ -265,7 +265,7 @@ public class VM
 	}
 	void GetProperty()
 	{
-		if (!IS_INSTANCE(Peek(0)))
+		if (!IsInstance(Peek(0)))
 		{
 			RuntimeError("Only instances have properties.");
 			return ;
@@ -283,7 +283,7 @@ public class VM
 	}
 	void SetProperty()
 	{
-		if (!IS_INSTANCE(Peek(1)))
+		if (!IsInstance(Peek(1)))
 		{
 			RuntimeError("Only instances have fields.");
 			return ;
@@ -316,7 +316,7 @@ public class VM
 	}
 	void Add()
 	{
-		if (IS_STRING(Peek(0)) && IS_STRING(Peek(1)))
+		if (IsString(Peek(0)) && IsString(Peek(1)))
 		{
 			Concatenate();
 		}
@@ -495,7 +495,7 @@ public class VM
 	bool Invoke(string name, int argCount)
 	{
 		Value receiver = Peek(argCount);
-		if (!IS_INSTANCE(receiver))
+		if (!IsInstance(receiver))
 		{
 			RuntimeError("Only instances have methods.");
 			return false;
@@ -546,8 +546,8 @@ public class VM
 
 	void Concatenate()
 	{
-		string b = AS_STRING(Pop());
-		string a = AS_STRING(Pop());
+		string b = AsString(Pop());
+		string a = AsString(Pop());
 		var result = a + b;
 		Push(CreateStringVal(result));
 	}

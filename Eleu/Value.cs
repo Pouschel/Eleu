@@ -11,6 +11,7 @@ enum ValueType
 	VAL_BOOL,
 	VAL_NUMBER,
 	VAL_STRING,
+	VAL_LIST,  // List<Value>
 	VAL_OBJ
 }
 struct Value
