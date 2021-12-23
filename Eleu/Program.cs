@@ -7,7 +7,6 @@ public class EleuOptions
 	public bool PrintByteCode;
 	public bool DumpStackOnError = true;
 	public bool CreateDebugInfo = false;
-
 	public TextWriter Output = TextWriter.Null;
 
 }
@@ -22,6 +21,7 @@ class Program
 Eleu -dumpByteCode fileName
 -waitAfterRun      waits for an ENTER after running
 -dumpByteCode      dumps the byte code of all functions
+-debugInfo         creates debug info
 fileName           file to compile and run
 ");
 
@@ -36,6 +36,7 @@ fileName           file to compile and run
 			{
 				case "-waitAfterRun": waitAfterRun = true; break;
 				case "-dumpByteCode": options.PrintByteCode = true; break;
+				case "-debugInfo": options.CreateDebugInfo = true; break;
 				default: fileName = arg; break;
 			}
 		}

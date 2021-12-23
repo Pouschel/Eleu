@@ -10,7 +10,7 @@
       "type": "coreclr",
       "request": "launch",
       "program": "${workspaceFolder}/../Eleu/bin/Debug/net6.0/Eleu.dll",
-      "args": [ "${file}"],
+      "args": [ "-debugInfo", "${file}"],
       "cwd": "${workspaceFolder}",
       "stopAtEntry": false,
       "console": "internalConsole"

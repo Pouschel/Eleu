@@ -575,8 +575,13 @@ public class VM
 	void RuntimeError(string msg)
 	{
 		int instruction = frame.ip - 1;
-		int line = chunk.lines[instruction];
-		var text = string.IsNullOrEmpty(chunk.FileName) ? msg : $"{chunk.FileName}({line}): Rerr: {msg}";
+		string text = $"Rerr: {msg}";
+		var chunkInfo = result.DebugInfo?.GetChunkInfo(chunk);
+		if (chunkInfo != null)
+		{
+			int line = chunkInfo.GetLine(instruction, false);
+			text = $"{chunkInfo.FileName}({line}): {text}";
+		}
 		tw.WriteLine(text);
 		Trace.WriteLine(text);
 		if (options.DumpStackOnError) DumpStack();
@@ -591,7 +596,12 @@ public class VM
 			CallFrame frame = frames[i];
 			ObjFunction function = frame.closure!.function;
 			int instruction = frame.ip - 1;
-			tw.WriteLine($"[line {function.chunk.lines[instruction]}] in {function.NameOrScript}");
+			var chDebugInfo = result.DebugInfo?.GetChunkInfo(function.chunk);
+			string txt = function.NameOrScript;
+			int? line = chDebugInfo?.GetLine(instruction, false);
+			if (line.HasValue)
+				txt += $" at line {line.Value}";
+			tw.WriteLine(txt);
 		}
 	}
 

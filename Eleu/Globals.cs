@@ -1,6 +1,5 @@
 ﻿global using System;
-global using System.Collections.Generic;
-global using Eleu.Debug;
+global using Eleu.Debugger;
 global using static Eleu.OpCode;
 global using static Eleu.Globals;
 namespace Eleu;

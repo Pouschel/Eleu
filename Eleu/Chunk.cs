@@ -9,26 +9,21 @@ class Chunk
 	public int count;
 	internal Value[] constants;
 	int consCount;
-	internal List<int> lines;
-
-	public string FileName = "";
 
 	public Chunk()
 	{
 		code = new byte[8];
 		constants = new Value[4];
-		lines = new();
 	}
 
-	public void Write(byte by, int line = 0)
+	public void Write(byte by)
 	{
 		if (count >= code.Length)
 			ExpandArray(ref code);
 		code[count++] = by;
-		lines.Add(line);
 	}
 
-	public void Write(OpCode oc, int line = 0) => Write((byte)oc, line);
+	public void Write(OpCode oc) => Write((byte)oc);
 
 	public int AddConstant(Value value)
 	{
@@ -43,14 +38,14 @@ class Chunk
 		return consCount - 1;
 	}
 
-	public void Disassemble(string name, TextWriter? tw = null)
+	public void Disassemble(string name, DebugInfo? dinfo, TextWriter? tw = null)
 	{
 		tw ??= Console.Out;
 		tw.WriteLine($"== {name} ==");
-
+		var cinfo = dinfo?.GetChunkInfo(this);
 		for (int offset = 0; offset < count;)
 		{
-			offset = DisassembleInstruction(offset, tw);
+			offset = DisassembleInstruction(offset, cinfo, tw);
 		}
 	}
 
@@ -74,13 +69,14 @@ class Chunk
 		}
 		return sb.ToString();
 	}
-	internal int DisassembleInstruction(int offset, TextWriter tw)
+	internal int DisassembleInstruction(int offset, ChunkDebugInfo? dinfo, TextWriter tw)
 	{
 		tw.Write($"{offset:0000} ");
-		if (offset >= lines.Count || offset > 0 && lines[offset] == lines[offset - 1])
+		int line = dinfo?.GetLine(offset,true) ?? -1;
+		if (line<0)
 			tw.Write("   | ");
 		else
-			tw.Write("{0,4} ", lines[offset]);
+			tw.Write("{0,4} ", line);
 
 		var instruction = (OpCode)code[offset];
 

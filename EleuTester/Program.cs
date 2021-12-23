@@ -78,7 +78,8 @@ class Program
 			idx = line.IndexOf(searchRtErr);
 			if (idx >= 0)
 			{
-				sw.WriteLine(line.Substring(idx + searchRtErr.Length).TrimEnd());
+				var txt = "Rerr: " + line[(idx + searchRtErr.Length)..].TrimEnd();
+				sw.WriteLine(txt);
 			}
 			idx = line.IndexOf("//");
 			if (idx < 0) continue;

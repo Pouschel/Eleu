@@ -106,6 +106,8 @@ internal class Compiler
 
 	ParseRule[] rules;
 	EleuOptions options;
+	DebugInfo? debugInfo;
+	ChunkDebugInfo? chunkDebugInfo;
 
 	bool DEBUG_PRINT_CODE => options.PrintByteCode;
 	TextWriter tw => options.Output;
@@ -173,6 +175,7 @@ internal class Compiler
 		this.options = options;
 		scanner = new Scanner(source);
 		parser = new Parser();
+		if (options.CreateDebugInfo) debugInfo = new DebugInfo();
 		current = initCompiler(TYPE_SCRIPT);
 	}
 
@@ -188,7 +191,8 @@ internal class Compiler
 		return new EleuResult
 		{
 			Result = parser.hadError ? INTERPRET_COMPILE_ERROR : INTERPRET_OK,
-			Function = parser.hadError ? null : function
+			Function = parser.hadError ? null : function,
+			DebugInfo = debugInfo
 		};
 	}
 	void declaration()
@@ -231,7 +235,7 @@ internal class Compiler
 			addLocal(syntheticToken("super"));
 			defineVariable(0);
 			namedVariable(className, false);
-			emitByte(OP_INHERIT);
+			EmitByte(OP_INHERIT);
 			classCompiler.hasSuperclass = true;
 		}
 		namedVariable(className, false);
@@ -241,7 +245,7 @@ internal class Compiler
 			method();
 		}
 		consume(TOKEN_RIGHT_BRACE, "Expect '}' after class body.");
-		emitByte(OP_POP);
+		EmitByte(OP_POP);
 		if (classCompiler.hasSuperclass)
 			endScope();
 		this.currentClass = this.currentClass.enclosing;
@@ -281,11 +285,29 @@ internal class Compiler
 	{
 		var compiler = new CompilerState(type);
 		compiler.enclosing = current;
-		compiler.function.chunk.FileName = fileName;
+		if (debugInfo != null)
+		{
+			chunkDebugInfo = new ChunkDebugInfo(fileName, compiler.function);
+			debugInfo.Add(chunkDebugInfo);
+		}
 		if (type != TYPE_SCRIPT)
 			compiler.function.name = parser.previous.StringValue;
 		return compiler;
 	}
+	ObjFunction endCompiler()
+	{
+		emitReturn();
+		var function = current.function;
+		if (DEBUG_PRINT_CODE)
+		{
+			if (!parser.hadError)
+				currentChunk().Disassemble(function.NameOrScript, debugInfo, tw);
+		}
+		current = current.enclosing!;
+		chunkDebugInfo = current== null ? null: debugInfo?.GetChunkInfo(current.function.chunk);
+		return function;
+	}
+
 	void function(FunctionType type)
 	{
 		var compiler = initCompiler(type);
@@ -312,8 +334,8 @@ internal class Compiler
 		emitBytes(OP_CLOSURE, makeConstant(CreateObjVal(function)));
 		for (int i = 0; i < function.upvalueCount; i++)
 		{
-			emitByte((byte)(compiler.upvalues[i].isLocal ? 1 : 0));
-			emitByte(compiler.upvalues[i].index);
+			EmitByte((byte)(compiler.upvalues[i].isLocal ? 1 : 0));
+			EmitByte(compiler.upvalues[i].index);
 		}
 	}
 	void method()
@@ -345,7 +367,7 @@ internal class Compiler
 		{
 			byte argCount = argumentList();
 			emitBytes(OP_INVOKE, name);
-			emitByte(argCount);
+			EmitByte(argCount);
 		}
 		else
 		{
@@ -376,7 +398,7 @@ internal class Compiler
 			expression();
 		else
 		{
-			emitByte(OP_NIL);
+			EmitByte(OP_NIL);
 		}
 		consume(TOKEN_SEMICOLON, "Expect ';' after variable declaration.");
 
@@ -438,7 +460,7 @@ internal class Compiler
 				error("Can't return a value from an initializer.");
 			expression();
 			consume(TOKEN_SEMICOLON, "Expect ';' after return value.");
-			emitByte(OP_RETURN);
+			EmitByte(OP_RETURN);
 		}
 	}
 	void forStatement()
@@ -461,14 +483,14 @@ internal class Compiler
 
 			// Jump out of the loop if the condition is false.
 			exitJump = emitJump(OP_JUMP_IF_FALSE);
-			emitByte(OP_POP); // Condition.
+			EmitByte(OP_POP); // Condition.
 		}
 		if (!match(TOKEN_RIGHT_PAREN))
 		{
 			int bodyJump = emitJump(OP_JUMP);
 			int incrementStart = currentChunk().count;
 			expression();
-			emitByte(OP_POP);
+			EmitByte(OP_POP);
 			consume(TOKEN_RIGHT_PAREN, "Expect ')' after for clauses.");
 
 			emitLoop(loopStart);
@@ -481,7 +503,7 @@ internal class Compiler
 		if (exitJump != -1)
 		{
 			patchJump(exitJump);
-			emitByte(OP_POP); // Condition.
+			EmitByte(OP_POP); // Condition.
 		}
 		endScope();
 	}
@@ -494,11 +516,11 @@ internal class Compiler
 		consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
 
 		int exitJump = emitJump(OP_JUMP_IF_FALSE);
-		emitByte(OP_POP);
+		EmitByte(OP_POP);
 		statement();
 		emitLoop(loopStart);
 		patchJump(exitJump);
-		emitByte(OP_POP);
+		EmitByte(OP_POP);
 	}
 	void ifStatement()
 	{
@@ -506,18 +528,18 @@ internal class Compiler
 		expression();
 		consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
 		int thenJump = emitJump(OP_JUMP_IF_FALSE);
-		emitByte(OP_POP);
+		EmitByte(OP_POP);
 		statement();
 		int elseJump = emitJump(OP_JUMP);
 		patchJump(thenJump);
-		emitByte(OP_POP);
+		EmitByte(OP_POP);
 		if (match(TOKEN_ELSE)) statement();
 		patchJump(elseJump);
 	}
 	void and_(bool canAssign)
 	{
 		int endJump = emitJump(OP_JUMP_IF_FALSE);
-		emitByte(OP_POP);
+		EmitByte(OP_POP);
 		parsePrecedence(PREC_AND);
 		patchJump(endJump);
 	}
@@ -527,16 +549,16 @@ internal class Compiler
 		int endJump = emitJump(OP_JUMP);
 
 		patchJump(elseJump);
-		emitByte(OP_POP);
+		EmitByte(OP_POP);
 
 		parsePrecedence(PREC_OR);
 		patchJump(endJump);
 	}
 	int emitJump(OpCode instruction)
 	{
-		emitByte(instruction);
-		emitByte(0xff);
-		emitByte(0xff);
+		EmitByte(instruction);
+		EmitByte(0xff);
+		EmitByte(0xff);
 		return currentChunk().count - 2;
 	}
 	void patchJump(int offset)
@@ -569,10 +591,10 @@ internal class Compiler
 			&& current.locals[current.localCount - 1].depth > current.scopeDepth)
 		{
 			if (current.locals[current.localCount - 1].isCaptured)
-				emitByte(OP_CLOSE_UPVALUE);
+				EmitByte(OP_CLOSE_UPVALUE);
 			else
 			{
-				emitByte(OP_POP);
+				EmitByte(OP_POP);
 			}
 			current.localCount--;
 		}
@@ -582,7 +604,7 @@ internal class Compiler
 	{
 		expression();
 		consume(TOKEN_SEMICOLON, "Expect ';' after expression.");
-		emitByte(OP_POP);
+		EmitByte(OP_POP);
 	}
 
 	bool match(TokenType type)
@@ -603,7 +625,7 @@ internal class Compiler
 	{
 		expression();
 		consume(TOKEN_SEMICOLON, "Expect ';' after value.");
-		emitByte(OP_PRINT);
+		EmitByte(OP_PRINT);
 	}
 	void parsePrecedence(Precedence precedence)
 	{
@@ -649,9 +671,9 @@ internal class Compiler
 	{
 		switch (parser.previous.type)
 		{
-			case TOKEN_FALSE: emitByte(OP_FALSE); break;
-			case TOKEN_NIL: emitByte(OP_NIL); break;
-			case TOKEN_TRUE: emitByte(OP_TRUE); break;
+			case TOKEN_FALSE: EmitByte(OP_FALSE); break;
+			case TOKEN_NIL: EmitByte(OP_NIL); break;
+			case TOKEN_TRUE: EmitByte(OP_TRUE); break;
 			default: return; // Unreachable.
 		}
 	}
@@ -675,8 +697,8 @@ internal class Compiler
 		// Emit the operator instruction.
 		switch (operatorType)
 		{
-			case TOKEN_BANG: emitByte(OP_NOT); break;
-			case TOKEN_MINUS: emitByte(OP_NEGATE); break;
+			case TOKEN_BANG: EmitByte(OP_NOT); break;
+			case TOKEN_MINUS: EmitByte(OP_NEGATE); break;
 			default: return; // Unreachable.
 		}
 	}
@@ -689,15 +711,15 @@ internal class Compiler
 		switch (operatorType)
 		{
 			case TOKEN_BANG_EQUAL: emitBytes(OP_EQUAL, (byte)OP_NOT); break;
-			case TOKEN_EQUAL_EQUAL: emitByte(OP_EQUAL); break;
-			case TOKEN_GREATER: emitByte(OP_GREATER); break;
+			case TOKEN_EQUAL_EQUAL: EmitByte(OP_EQUAL); break;
+			case TOKEN_GREATER: EmitByte(OP_GREATER); break;
 			case TOKEN_GREATER_EQUAL: emitBytes(OP_LESS, (byte)OP_NOT); break;
-			case TOKEN_LESS: emitByte(OP_LESS); break;
+			case TOKEN_LESS: EmitByte(OP_LESS); break;
 			case TOKEN_LESS_EQUAL: emitBytes(OP_GREATER, (byte)OP_NOT); break;
-			case TOKEN_PLUS: emitByte(OP_ADD); break;
-			case TOKEN_MINUS: emitByte(OP_SUBTRACT); break;
-			case TOKEN_STAR: emitByte(OP_MULTIPLY); break;
-			case TOKEN_SLASH: emitByte(OP_DIVIDE); break;
+			case TOKEN_PLUS: EmitByte(OP_ADD); break;
+			case TOKEN_MINUS: EmitByte(OP_SUBTRACT); break;
+			case TOKEN_STAR: EmitByte(OP_MULTIPLY); break;
+			case TOKEN_SLASH: EmitByte(OP_DIVIDE); break;
 			default: return; // Unreachable.
 		}
 	}
@@ -731,7 +753,7 @@ internal class Compiler
 			byte argCount = argumentList();
 			namedVariable(syntheticToken("super"), false);
 			emitBytes(OP_SUPER_INVOKE, name);
-			emitByte(argCount);
+			EmitByte(argCount);
 		}
 		else
 		{
@@ -863,18 +885,6 @@ internal class Compiler
 
 	Chunk currentChunk() => current.function.chunk;
 
-	ObjFunction endCompiler()
-	{
-		emitReturn();
-		var function = current.function;
-		if (DEBUG_PRINT_CODE)
-		{
-			if (!parser.hadError)
-				currentChunk().Disassemble(function.NameOrScript);
-		}
-		current = current.enclosing!;
-		return function;
-	}
 
 	void emitReturn()
 	{
@@ -882,18 +892,27 @@ internal class Compiler
 			emitBytes(OP_GET_LOCAL, 0);
 		else
 		{
-			emitByte(OP_NIL);
+			EmitByte(OP_NIL);
 		}
-		emitByte(OP_RETURN);
+		EmitByte(OP_RETURN);
 	}
 
-	void emitByte(byte by) => currentChunk().Write(by, parser.previous.line);
-	void emitByte(OpCode op) => currentChunk().Write(op, parser.previous.line);
+	void EmitByte(byte by)
+	{
+		chunkDebugInfo?.AddLine(parser.previous.line);
+		currentChunk().Write(by);
+	}
+
+	void EmitByte(OpCode op)
+	{
+		chunkDebugInfo?.AddLine(parser.previous.line);
+		currentChunk().Write(op);
+	}
 
 	void emitBytes(OpCode byte1, byte byte2)
 	{
-		emitByte(byte1);
-		emitByte(byte2);
+		EmitByte(byte1);
+		EmitByte(byte2);
 	}
 
 	void emitConstant(Value value)
@@ -903,11 +922,11 @@ internal class Compiler
 
 	void emitLoop(int loopStart)
 	{
-		emitByte(OP_LOOP);
+		EmitByte(OP_LOOP);
 		int offset = currentChunk().count - loopStart + 2;
 		if (offset > ushort.MaxValue) error("Loop body too large.");
-		emitByte((byte)(offset >> 8 & 0xff));
-		emitByte((byte)(offset & 0xff));
+		EmitByte((byte)(offset >> 8 & 0xff));
+		EmitByte((byte)(offset & 0xff));
 	}
 
 	byte makeConstant(Value value)
