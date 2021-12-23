@@ -1,16 +1,16 @@
 {
     "name": "eleu-language",
     "displayName": "Eleu Language",
-    "description": "Syntax highlighting for Eleu based on lox language.",
-    "version": "0.0.1",
-    "publisher": "dberezin",
-    "author": "dberezin",
+    "description": "Syntax highlighting and debug support for Eleu based on lox language.",
+    "version": "0.1.0",
+    "publisher": "ts",
+    "author": "ts",
     "icon": "images/EleuLogo.png",
     "engines": {
         "vscode": "^1.24.0"
     },
     "categories": [
-        "Programming Languages"
+        "Programming Languages", "Debuggers"
     ],
     "contributes": {
         "languages": [
@@ -21,7 +21,7 @@
                     "eleu"
                 ],
                 "extensions": [
-                    ".eleu"
+                    ".eleu", ".lox"
                 ],
                 "configuration": "./language-configuration.json"
             }
@@ -32,6 +32,98 @@
                 "scopeName": "source.eleu",
                 "path": "./syntaxes/eleu.tmLanguage.json"
             }
+        ],
+        "breakpoints": [
+          {
+            "language": "eleu"
+          }
+        ],
+        "debuggers": [
+          {
+            "type": "eleu",
+            "languages": ["eleu"],
+            "label": "Eleu Debug",
+            "program": "C:/Downloads/vscode-mono-debug-0.16.2/vscode-mono-debug-0.16.2/bin/Debug/mono-debug.exe",
+            "args": ["--trace=response"],
+            "configurationAttributes": {
+              "launch": {
+                "required": [
+                  "program"
+                ],
+                "properties": {
+                  "program": {
+                    "type": "string",
+                    "description": "Absolute path to a text file.",
+                    "default": "${workspaceFolder}/${command:AskForProgramName}"
+                  },
+                  "stopOnEntry": {
+                    "type": "boolean",
+                    "description": "Automatically stop after launch.",
+                    "default": true
+                  },
+                  "trace": {
+                    "type": "boolean",
+                    "description": "Enable logging of the Debug Adapter Protocol.",
+                    "default": true
+                  },
+                  "compileError": {
+                    "type": "string",
+                    "description": "Simulates a compile error in 'launch' request.",
+                    "enum": [
+                      "default",
+                      "show",
+                      "hide"
+                    ],
+                    "enumDescriptions": [
+                      "default: show fake compile error to user",
+                      "show fake compile error to user",
+                      "do not show fake compile error to user"
+                    ]
+                  }
+                }
+              }
+            },
+            "initialConfigurations": [
+              {
+                "type": "eleu",
+                "request": "launch",
+                "name": "Run current file",
+                "program": "${workspaceFolder}/${command:AskForProgramName}",
+                "args": [ "-debugInfo", "${file}"],
+                "stopOnEntry": true
+              }
+            ],
+            "configurationSnippets": [
+              {
+                "label": "Eleu Release: Launch",
+                "description": "A new configuration for debugging an Eleu script.",
+                "body": {
+                  "type": "eleu",
+                  "request": "launch",
+                  "name": "Run current eleu script",
+                  "program": "^\"\\${workspaceFolder}/../Eleu/bin/Debug/net6.0/Eleu.exe\"",
+                  "args": [ "-debugInfo", "^\"\\${file}\""],
+                  "stopOnEntry": false,
+                  "console": "internalConsole"
+                }
+              },
+              {
+                "label": "Eleu Debug",
+                "description": "A new configuration for debugging an Eleu script.",
+                "body": {
+                  "type": "eleu",
+                  "request": "launch",
+                  "name": "Run current eleu script",
+                  "program": "^\"\\${file}\"",
+                  "stopOnEntry": true,
+                  "console": "internalConsole"
+                }
+              }
+            ],
+            "variables": {
+              "AskForProgramName": "extension.mock-debug.getProgramName"
+            }
+          }
         ]
     },
     "repository": {
