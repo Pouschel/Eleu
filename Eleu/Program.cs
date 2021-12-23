@@ -1,4 +1,5 @@
-﻿
+﻿using System.Runtime.CompilerServices;
+[assembly: InternalsVisibleTo("EleuDebugger")]
 
 namespace Eleu;
 

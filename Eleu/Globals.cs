@@ -1,8 +1,12 @@
-﻿global using System;
+﻿
+
+global using System;
 global using Eleu.Debugger;
 global using static Eleu.OpCode;
 global using static Eleu.Globals;
 namespace Eleu;
+
+
 
 public class Globals
 {

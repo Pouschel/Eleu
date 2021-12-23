@@ -10,7 +10,6 @@
       "name": "Run eleu script",
       "program": "C:/Downloads/vscode-mono-debug-0.16.2/vscode-mono-debug-0.16.2/bin/Debug/mono-debug.exe",
       "args": [
-        "-debugInfo",
         "${file}"
       ],
       "stopOnEntry": true,

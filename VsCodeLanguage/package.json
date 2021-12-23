@@ -43,7 +43,7 @@
             "type": "eleu",
             "languages": ["eleu"],
             "label": "Eleu Debug",
-            "program": "C:/Downloads/vscode-mono-debug-0.16.2/vscode-mono-debug-0.16.2/bin/Debug/mono-debug.exe",
+            "program": "C:/Code/Eleu/EleuDebugger/bin/Debug/net6.0/EleuDebugger.exe",
             "args": ["--trace=response"],
             "configurationAttributes": {
               "launch": {
@@ -89,7 +89,7 @@
                 "request": "launch",
                 "name": "Run current file",
                 "program": "${workspaceFolder}/${command:AskForProgramName}",
-                "args": [ "-debugInfo", "${file}"],
+                "args": [ "${file}"],
                 "stopOnEntry": true
               }
             ],
