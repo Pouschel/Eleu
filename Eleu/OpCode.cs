@@ -1,4 +1,4 @@
-﻿namespace CsLox;
+﻿namespace Eleu;
 
 enum OpCode : byte
 {

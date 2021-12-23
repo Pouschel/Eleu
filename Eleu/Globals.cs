@@ -1,4 +1,11 @@
-﻿public class Globals
+﻿global using System;
+global using System.Collections.Generic;
+global using Eleu.Debug;
+global using static Eleu.OpCode;
+global using static Eleu.Globals;
+namespace Eleu;
+
+public class Globals
 {
 	internal const int UINT8_COUNT = 256;
 	internal static bool identifiersEqual(in Token a, in Token b)
@@ -31,7 +38,7 @@
 			Output = tw,
 			PrintByteCode = debugPrintCode
 		};
-		var result= CompileAndRun(path, opt);
+		var result = CompileAndRun(path, opt);
 		return result.Result == INTERPRET_OK;
 	}
 
@@ -43,7 +50,7 @@
 			PrintByteCode = false,
 			DumpStackOnError = false,
 		};
-		var cres= CompileAndRun(source, "", opt);
+		var cres = CompileAndRun(source, "", opt);
 		return cres.Result == INTERPRET_OK;
 	}
 

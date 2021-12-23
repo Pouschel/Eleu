@@ -1,13 +1,12 @@
-﻿global using System;
-global using System.Collections.Generic;
-global using CsLox;
-global using static CsLox.OpCode;
-global using static Globals;
+﻿
+
+namespace Eleu;
 
 public class EleuOptions
 {
 	public bool PrintByteCode;
 	public bool DumpStackOnError = true;
+	public bool CreateDebugInfo = false;
 
 	public TextWriter Output = TextWriter.Null;
 

@@ -1,6 +1,6 @@
-﻿global using static CsLox.TableStatics;
+﻿global using static Eleu.TableStatics;
 
-namespace CsLox;
+namespace Eleu;
 
 
 struct Entry
@@ -27,9 +27,7 @@ class Table
 	public bool Set(string key, in Value val)
 	{
 		if (count + 1 > capacity * TABLE_MAX_LOAD)
-		{
 			adjustCapacity(capacity * 2);
-		}
 
 		ref Entry entry = ref findEntry(entries, key);
 		bool isNewKey = entry.key == null;
@@ -72,7 +70,7 @@ class Table
 
 	void adjustCapacity(int capacity)
 	{
-		Entry[] entries = new Entry[capacity];
+		var entries = new Entry[capacity];
 		this.count = 0;
 		for (int i = 0; i < this.capacity; i++)
 		{
@@ -127,9 +125,7 @@ static class TableStatics
 		{
 			ref Entry entry = ref from.entries[i];
 			if (entry.key != null)
-			{
 				tableSet(to, entry.key, entry.value);
-			}
 		}
 	}
 

@@ -1,8 +1,9 @@
-﻿global using static CsLox.ObjType;
-global using static CsLox.ObjStatics;
+﻿global using static Eleu.ObjType;
+global using static Eleu.ObjStatics;
 using System.Runtime.CompilerServices;
+using Eleu;
 
-namespace CsLox;
+namespace Eleu;
 
 enum ObjType
 {
@@ -33,13 +34,13 @@ internal class ObjFunction : Obj
 	public int upvalueCount;
 	public string name;
 
-	public ObjFunction():base(OBJ_FUNCTION)
+	public ObjFunction() : base(OBJ_FUNCTION)
 	{
 		this.arity = 0;
 		this.name = "";
 		this.chunk = new Chunk();
 	}
- 	public override string ToString() => $"<fn {NameOrScript}>";
+	public override string ToString() => $"<fn {NameOrScript}>";
 
 	public string NameOrScript
 	{
@@ -58,7 +59,7 @@ internal class ObjNative : Obj
 {
 	public readonly NativeFn function;
 
-	public ObjNative(NativeFn function): base(OBJ_NATIVE)
+	public ObjNative(NativeFn function) : base(OBJ_NATIVE)
 	{
 		this.function = function;
 	}
@@ -73,7 +74,7 @@ class ObjUpvalue : Obj
 	public Value closed;  // value when closed
 	public ObjUpvalue? next;
 
-	public ObjUpvalue(int local): base(OBJ_UPVALUE)
+	public ObjUpvalue(int local) : base(OBJ_UPVALUE)
 	{
 		this.slotIndex = local;
 		this.closed = Nil;
@@ -87,7 +88,7 @@ class ObjClosure : Obj
 	public ObjFunction function;
 	public ObjUpvalue[] upvalues;
 	public int upvalueCount;
-	public ObjClosure(ObjFunction function): base(OBJ_CLOSURE)
+	public ObjClosure(ObjFunction function) : base(OBJ_CLOSURE)
 	{
 		this.function = function;
 		this.upvalueCount = function.upvalueCount;
@@ -103,7 +104,7 @@ class ObjClass : Obj
 	public string name;
 	public Table methods;
 
-	public ObjClass(string name): base (OBJ_CLASS)
+	public ObjClass(string name) : base(OBJ_CLASS)
 	{
 		this.name = name;
 		this.methods = new Table();
@@ -118,7 +119,7 @@ class ObjInstance : Obj
 	public ObjClass klass;
 	public Table fields;
 
-	public ObjInstance(ObjClass klass): base(OBJ_INSTANCE)
+	public ObjInstance(ObjClass klass) : base(OBJ_INSTANCE)
 	{
 		this.klass = klass;
 		fields = new Table();
@@ -133,7 +134,7 @@ class ObjBoundMethod : Obj
 	public Value receiver;
 	public ObjClosure method;
 
-	public ObjBoundMethod(Value receiver, ObjClosure method): base(OBJ_BOUND_METHOD)
+	public ObjBoundMethod(Value receiver, ObjClosure method) : base(OBJ_BOUND_METHOD)
 	{
 		this.receiver = receiver;
 		this.method = method;
@@ -142,7 +143,7 @@ class ObjBoundMethod : Obj
 	public override string ToString() => method.function.ToString();
 }
 
-class ValueList:List<Value>
+class ValueList : List<Value>
 {
 }
 
@@ -154,10 +155,10 @@ static class ObjStatics
 	public static bool IS_CLOSURE(Value value) => IsObjType(value, OBJ_CLOSURE);
 	public static bool IS_FUNCTION(Value value) => IsObjType(value, OBJ_FUNCTION);
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static bool IsInstance(Value value) => value.oValue is ObjInstance; 
-	public static bool IS_NATIVE(Value value) => value.oValue is ObjNative; 
+	public static bool IsInstance(Value value) => value.oValue is ObjInstance;
+	public static bool IS_NATIVE(Value value) => value.oValue is ObjNative;
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static bool IsString(Value value) => value.type==VAL_STRING;
+	public static bool IsString(Value value) => value.type == VAL_STRING;
 
 	public static bool IsList(Value value) => value.type == VAL_LIST;
 

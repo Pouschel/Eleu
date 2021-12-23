@@ -1,9 +1,10 @@
 ﻿//#define DEBUG_TRACE_EXECUTION
-global using static CsLox.InterpretResult;
+global using static Eleu.InterpretResult;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using static CsLox.NativeFunctions;
-namespace CsLox;
+using Eleu;
+using static Eleu.NativeFunctions;
+namespace Eleu;
 
 public enum InterpretResult
 {

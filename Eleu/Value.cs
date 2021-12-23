@@ -1,9 +1,9 @@
-﻿global using static CsLox.ValueType;
-global using static CsLox.ValueStatics;
+﻿global using static Eleu.ValueType;
+global using static Eleu.ValueStatics;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 
-namespace CsLox;
+namespace Eleu;
 
 enum ValueType
 {

@@ -1,7 +1,9 @@
 ﻿using System.Globalization;
-using static CsLox.Precedence;
-using static CsLox.FunctionType;
-namespace CsLox;
+using static Eleu.Precedence;
+using static Eleu.FunctionType;
+
+
+namespace Eleu;
 
 enum Precedence
 {
@@ -73,7 +75,7 @@ class CompilerState
 		ref Local local = ref locals[localCount++];
 		local.depth = 0;
 		local.isCaptured = false;
-		if (type != FunctionType.TYPE_FUNCTION)
+		if (type != TYPE_FUNCTION)
 			local.name = "this";
 		else local.name = "";
 	}
@@ -91,7 +93,7 @@ class EleuResult
 {
 	public InterpretResult Result;
 	public ObjFunction? Function;
-
+	public DebugInfo? DebugInfo;
 }
 
 internal class Compiler
@@ -192,9 +194,7 @@ internal class Compiler
 	void declaration()
 	{
 		if (match(TOKEN_CLASS))
-		{
 			classDeclaration();
-		}
 		else if (match(TOKEN_FUN))
 		{
 			funDeclaration();
@@ -213,12 +213,12 @@ internal class Compiler
 	void classDeclaration()
 	{
 		consume(TOKEN_IDENTIFIER, "Expect class name.");
-		Token className = parser.previous;
+		var className = parser.previous;
 		byte nameConstant = identifierConstant(parser.previous);
 		declareVariable();
 		emitBytes(OP_CLASS, nameConstant);
 		defineVariable(nameConstant);
-		ClassCompiler classCompiler = new ClassCompiler();
+		var classCompiler = new ClassCompiler();
 		classCompiler.enclosing = this.currentClass;
 		this.currentClass = classCompiler;
 		if (match(TOKEN_LESS))
@@ -226,9 +226,7 @@ internal class Compiler
 			consume(TOKEN_IDENTIFIER, "Expect superclass name.");
 			variable(false);
 			if (identifiersEqual(className, parser.previous))
-			{
 				error("A class can't inherit from itself.");
-			}
 			beginScope();
 			addLocal(syntheticToken("super"));
 			defineVariable(0);
@@ -245,9 +243,7 @@ internal class Compiler
 		consume(TOKEN_RIGHT_BRACE, "Expect '}' after class body.");
 		emitByte(OP_POP);
 		if (classCompiler.hasSuperclass)
-		{
 			endScope();
-		}
 		this.currentClass = this.currentClass.enclosing;
 	}
 
@@ -283,7 +279,7 @@ internal class Compiler
 	}
 	CompilerState initCompiler(FunctionType type)
 	{
-		CompilerState compiler = new CompilerState(type);
+		var compiler = new CompilerState(type);
 		compiler.enclosing = current;
 		compiler.function.chunk.FileName = fileName;
 		if (type != TYPE_SCRIPT)
@@ -303,9 +299,7 @@ internal class Compiler
 			{
 				compiler.function.arity++;
 				if (compiler.function.arity > 255)
-				{
 					errorAtCurrent("Can't have more than 255 parameters.");
-				}
 				byte constant = parseVariable("Expect parameter name.");
 				defineVariable(constant);
 			} while (match(TOKEN_COMMA));
@@ -314,7 +308,7 @@ internal class Compiler
 		consume(TOKEN_LEFT_BRACE, "Expect '{' before function body.");
 		block();
 
-		ObjFunction function = endCompiler();
+		var function = endCompiler();
 		emitBytes(OP_CLOSURE, makeConstant(CreateObjVal(function)));
 		for (int i = 0; i < function.upvalueCount; i++)
 		{
@@ -326,11 +320,9 @@ internal class Compiler
 	{
 		consume(TOKEN_IDENTIFIER, "Expect method name.");
 		byte constant = identifierConstant(parser.previous);
-		FunctionType type = TYPE_METHOD;
+		var type = TYPE_METHOD;
 		if (parser.previous.StringValue == "init")
-		{
 			type = TYPE_INITIALIZER;
-		}
 		function(type);
 		emitBytes(OP_METHOD, constant);
 	}
@@ -369,9 +361,7 @@ internal class Compiler
 			{
 				expression();
 				if (argCount == byte.MaxValue)
-				{
 					error("Can't have more than 255 arguments.");
-				}
 				argCount++;
 			} while (match(TOKEN_COMMA));
 		}
@@ -383,9 +373,7 @@ internal class Compiler
 		byte global = parseVariable("Expect variable name.");
 
 		if (match(TOKEN_EQUAL))
-		{
 			expression();
-		}
 		else
 		{
 			emitByte(OP_NIL);
@@ -410,10 +398,7 @@ internal class Compiler
 	void statement()
 	{
 		if (match(TOKEN_PRINT))
-		{
 			printStatement();
-
-		}
 		else if (match(TOKEN_FOR))
 		{
 			forStatement();
@@ -444,19 +429,13 @@ internal class Compiler
 	void returnStatement()
 	{
 		if (current.type == TYPE_SCRIPT)
-		{
 			error("Can't return from top-level code.");
-		}
 		if (match(TOKEN_SEMICOLON))
-		{
 			emitReturn();
-		}
 		else
 		{
 			if (current.type == TYPE_INITIALIZER)
-			{
 				error("Can't return a value from an initializer.");
-			}
 			expression();
 			consume(TOKEN_SEMICOLON, "Expect ';' after return value.");
 			emitByte(OP_RETURN);
@@ -566,10 +545,8 @@ internal class Compiler
 		int jump = currentChunk().count - offset - 2;
 
 		if (jump > ushort.MaxValue)
-		{
 			error("Too much code to jump over.");
-		}
-		currentChunk().code[offset] = (byte)((jump >> 8) & 0xff);
+		currentChunk().code[offset] = (byte)(jump >> 8 & 0xff);
 		currentChunk().code[offset + 1] = (byte)(jump & 0xff);
 	}
 	void block()
@@ -592,9 +569,7 @@ internal class Compiler
 			&& current.locals[current.localCount - 1].depth > current.scopeDepth)
 		{
 			if (current.locals[current.localCount - 1].isCaptured)
-			{
 				emitByte(OP_CLOSE_UPVALUE);
-			}
 			else
 			{
 				emitByte(OP_POP);
@@ -648,9 +623,7 @@ internal class Compiler
 			infixRule!(canAssign);
 		}
 		if (canAssign && match(TOKEN_EQUAL))
-		{
 			error("Invalid assignment target.");
-		}
 	}
 
 	ParseRule getRule(TokenType type) => rules[(int)type];
@@ -694,7 +667,7 @@ internal class Compiler
 
 	void unary(bool canAssign)
 	{
-		TokenType operatorType = parser.previous.type;
+		var operatorType = parser.previous.type;
 
 		// Compile the operand.
 		parsePrecedence(PREC_UNARY);
@@ -709,8 +682,8 @@ internal class Compiler
 	}
 	void binary(bool canAssign)
 	{
-		TokenType operatorType = parser.previous.type;
-		ParseRule rule = getRule(operatorType);
+		var operatorType = parser.previous.type;
+		var rule = getRule(operatorType);
 		parsePrecedence(rule.precedence + 1);
 
 		switch (operatorType)
@@ -744,9 +717,7 @@ internal class Compiler
 	void super_(bool canAssign)
 	{
 		if (currentClass == null)
-		{
 			error("Can't use 'super' outside of a class.");
-		}
 		else if (!currentClass.hasSuperclass)
 		{
 			error("Can't use 'super' in a class with no superclass.");
@@ -809,9 +780,7 @@ internal class Compiler
 		}
 		int upvalue = resolveUpvalue(compiler.enclosing, name);
 		if (upvalue != -1)
-		{
 			return addUpvalue(compiler, (byte)upvalue, false);
-		}
 		return -1;
 	}
 	int addUpvalue(CompilerState compiler, byte index, bool isLocal)
@@ -819,11 +788,9 @@ internal class Compiler
 		int upvalueCount = compiler.function.upvalueCount;
 		for (int i = 0; i < upvalueCount; i++)
 		{
-			Upvalue upvalue = compiler.upvalues[i];
+			var upvalue = compiler.upvalues[i];
 			if (upvalue.index == index && upvalue.isLocal == isLocal)
-			{
 				return i;
-			}
 		}
 		if (upvalueCount == UINT8_COUNT)
 		{
@@ -842,9 +809,7 @@ internal class Compiler
 			if (identifiersEqual(name, local.name))
 			{
 				if (local.depth == -1)
-				{
 					error("Can't read local variable in its own initializer.");
-				}
 				return i;
 			}
 		}
@@ -880,7 +845,7 @@ internal class Compiler
 		int line = -1;
 		for (; ; )
 		{
-			Token token = scanner.scanToken();
+			var token = scanner.scanToken();
 			if (token.line != line)
 			{
 				tw.Write("{0,4} ", token.line);
@@ -901,13 +866,11 @@ internal class Compiler
 	ObjFunction endCompiler()
 	{
 		emitReturn();
-		ObjFunction function = current.function;
+		var function = current.function;
 		if (DEBUG_PRINT_CODE)
 		{
 			if (!parser.hadError)
-			{
 				currentChunk().Disassemble(function.NameOrScript);
-			}
 		}
 		current = current.enclosing!;
 		return function;
@@ -916,9 +879,7 @@ internal class Compiler
 	void emitReturn()
 	{
 		if (current.type == TYPE_INITIALIZER)
-		{
 			emitBytes(OP_GET_LOCAL, 0);
-		}
 		else
 		{
 			emitByte(OP_NIL);
@@ -945,7 +906,7 @@ internal class Compiler
 		emitByte(OP_LOOP);
 		int offset = currentChunk().count - loopStart + 2;
 		if (offset > ushort.MaxValue) error("Loop body too large.");
-		emitByte((byte)((offset >> 8) & 0xff));
+		emitByte((byte)(offset >> 8 & 0xff));
 		emitByte((byte)(offset & 0xff));
 	}
 
@@ -976,18 +937,14 @@ internal class Compiler
 	void declareVariable()
 	{
 		if (current.scopeDepth == 0) return;
-		Token name = parser.previous;
+		var name = parser.previous;
 		for (int i = current.localCount - 1; i >= 0; i--)
 		{
 			ref Local local = ref current.locals[i];
 			if (local.depth != -1 && local.depth < current.scopeDepth)
-			{
 				break;
-			}
 			if (identifiersEqual(name, local.name))
-			{
 				error("Already a variable with this name in this scope.");
-			}
 		}
 		addLocal(name);
 	}

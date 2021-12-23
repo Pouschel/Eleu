@@ -1,6 +1,6 @@
-﻿global using static CsLox.TokenType;
+﻿global using static Eleu.TokenType;
 
-namespace CsLox;
+namespace Eleu;
 
 enum TokenType
 {

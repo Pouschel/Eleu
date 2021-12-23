@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using System.Text;
 
-namespace CsLox;
+namespace Eleu;
 
 class Chunk
 {
