@@ -7,13 +7,15 @@ using System.Threading.Tasks;
 namespace Eleu.Debugger
 {
 	
-	public class ChunkDebugInfo
+	class ChunkDebugInfo
 	{
 		public readonly string FileName;
 
-		public readonly List<int> lines;
+		private readonly List<int> lines;
 
 		internal readonly ObjFunction Function;
+
+		public Chunk Chunk => Function.chunk;
 
 		internal ChunkDebugInfo(string fileName, ObjFunction function)
 		{
@@ -31,6 +33,8 @@ namespace Eleu.Debugger
 		}
 
 		internal void AddLine(int line) => lines.Add(line);
+
+		public bool HasLine(int line) => lines.Contains(line);
 	}
 
 	public class DebugInfo
@@ -47,6 +51,15 @@ namespace Eleu.Debugger
 		{
 			chunkInfos.TryGetValue(chunk, out var result);
 			return result;
+		}
+		internal ChunkDebugInfo? GetChunkInfo(string file, int line)
+		{
+			foreach (var cdi in chunkInfos.Values)
+			{
+				if (cdi.FileName != file) continue;
+				if (cdi.HasLine(line)) return cdi;
+			}
+			return null;
 		}
 
 		internal void Add(ChunkDebugInfo chDebugInfo)

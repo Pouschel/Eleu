@@ -35,10 +35,11 @@ public class VM
 	CallFrame frame;
 
 	//the current code chunk
-	Chunk chunk;
+	internal Chunk chunk;
 
 	EleuOptions options;
-	EleuResult result;
+	internal EleuResult result;
+	internal int Ip => frame.ip;
 
 	internal VM(EleuOptions options, EleuResult result)
 	{
@@ -88,15 +89,18 @@ public class VM
 		chunk = frame.closure!.function!.chunk;
 	}
 
-	internal void Interpret()
+	internal void Setup()
 	{
 		ObjFunction function = result.Function!;
 		var closure = new ObjClosure(function);
 		Push(CreateObjVal(closure));
 		Call(closure, 0);
+	}
+	internal void Interpret()
+	{
+		Setup();
 		result.Result = Run();
 	}
-
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	byte ReadByte() => chunk.code[frame.ip++];
 

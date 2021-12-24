@@ -25,9 +25,9 @@
 		Dictionary<Chunk, BreakpointInfo> breakpoints;
 		Dictionary<string, Chunk[]> breakChunksForFile;
 
-		public event Action? TargetStopped;
-		public event Action<string, int>? TargetHitBreakpoint;
-		public event Action? TargetRuntimeError;
+		public event Action<EleuDebugger>? TargetStopped;
+		public event Action<EleuDebugger,string, int>? TargetHitBreakpoint;
+		public event Action<EleuDebugger>? TargetRuntimeError;
 
 		enum State
 		{
@@ -70,6 +70,7 @@
 		}
 		void Runner()
 		{
+			vm.Setup();
 			while (true)
 			{
 				if (state == State.Ended)
@@ -84,7 +85,7 @@
 				{
 					state = State.Stopped;
 					evContinue.Reset();
-					TargetStopped?.Invoke();
+					TargetStopped?.Invoke(this);
 					continue;
 				}
 				// Check for breakpoint 
@@ -93,7 +94,7 @@
 				{
 					state = State.Stopped;
 					evContinue.Reset();
-					TargetHitBreakpoint?.Invoke(file, line);
+					TargetHitBreakpoint?.Invoke(this,file, line);
 					continue;
 				}
 				var result = vm.NextStep();
@@ -101,7 +102,7 @@
 				{
 					state = State.Ended;
 					if (result == EEleuResult.RuntimeError)
-						TargetRuntimeError?.Invoke();
+						TargetRuntimeError?.Invoke(this);
 					break;
 				}
 			}
