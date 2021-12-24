@@ -1,16 +1,16 @@
 ﻿//#define DEBUG_TRACE_EXECUTION
-global using static Eleu.InterpretResult;
+global using static Eleu.EEleuResult;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using Eleu;
 using static Eleu.NativeFunctions;
 namespace Eleu;
 
-public enum InterpretResult
+public enum EEleuResult
 {
-	INTERPRET_OK,
-	INTERPRET_COMPILE_ERROR,
-	INTERPRET_RUNTIME_ERROR
+	Ok,
+	CompileError,
+	RuntimeError,
+	NextStep
 }
 
 class CallFrame
@@ -23,7 +23,6 @@ class CallFrame
 public class VM
 {
 	public int FRAMES_MAX = 1000;
-
 
 	Value[] stack;
 	int stackTop;
@@ -40,7 +39,7 @@ public class VM
 
 	EleuOptions options;
 	EleuResult result;
-	
+
 	internal VM(EleuOptions options, EleuResult result)
 	{
 		this.options = options;
@@ -116,11 +115,8 @@ public class VM
 
 	bool hasRuntimeError;
 
-	public InterpretResult Run()
+	public EEleuResult NextStep()
 	{
-		while (true)
-		{
-			if (hasRuntimeError) return INTERPRET_RUNTIME_ERROR;
 #if DEBUG_TRACE_EXECUTION
 			Console.Write("          ");
 			for (int i = 0; i < stackTop; i++)
@@ -133,91 +129,102 @@ public class VM
 			Console.WriteLine();
 			frame.closure!.function.chunk.disassembleInstruction(frame.ip, Console.Out);
 #endif
-			var instruction = (OpCode)ReadByte();
-			switch (instruction)
-			{
-				case OP_NOT:
-					Push(BoolVal(IsFalsey(Pop())));
+		var instruction = (OpCode)ReadByte();
+		switch (instruction)
+		{
+			case OP_NOT:
+				Push(BoolVal(IsFalsey(Pop())));
+				break;
+			case OP_NEGATE: Negate(); break;
+			case OP_JUMP:
+				{
+					ushort offset = ReadShort();
+					frame.ip += offset;
 					break;
-				case OP_NEGATE: Negate(); break;
-				case OP_JUMP:
-					{
-						ushort offset = ReadShort();
-						frame.ip += offset;
-						break;
-					}
-				case OP_JUMP_IF_FALSE:
-					{
-						ushort offset = ReadShort();
-						if (IsFalsey(Peek(0))) frame.ip += offset;
-						break;
-					}
-				case OP_LOOP:
-					{
-						ushort offset = ReadShort();
-						frame.ip -= offset;
-						break;
-					}
-				case OP_PRINT:
-					options.Out.WriteLine(Pop());
+				}
+			case OP_JUMP_IF_FALSE:
+				{
+					ushort offset = ReadShort();
+					if (IsFalsey(Peek(0))) frame.ip += offset;
 					break;
-				case OP_CONSTANT:
-					Value constant = ReadConstant();
-					Push(constant);
+				}
+			case OP_LOOP:
+				{
+					ushort offset = ReadShort();
+					frame.ip -= offset;
 					break;
-				case OP_NIL: Push(Nil); break;
-				case OP_TRUE: Push(BoolVal(true)); break;
-				case OP_FALSE: Push(BoolVal(false)); break;
-				case OP_POP: Pop(); break;
-				case OP_GET_LOCAL:
-					{
-						byte slot = ReadByte();
-						Push(stack[frame.slotIndex + slot]);
-						break;
-					}
-				case OP_SET_LOCAL:
-					{
-						byte slot = ReadByte();
-						stack[frame.slotIndex + slot] = Peek(0);
-						break;
-					}
-				case OP_GET_GLOBAL: GetGlobal(); break;
-				case OP_DEFINE_GLOBAL: DefineGlobal(); break;
-				case OP_SET_GLOBAL: SetGlobal(); break;
-				case OP_GET_UPVALUE: GetUpValue(); break;
-				case OP_SET_UPVALUE: SetUpValue(); break;
-				case OP_GET_PROPERTY: GetProperty(); break;
-				case OP_SET_PROPERTY: SetProperty(); break;
-				case OP_GET_SUPER: GetSuper(); break;
-				case OP_EQUAL: Equal(); break;
-				case OP_GREATER: PopAndOp((a, b) => BoolVal(a > b)); break;
-				case OP_LESS: PopAndOp((a, b) => BoolVal(a < b)); break;
-				case OP_ADD: Add(); break;
-				case OP_SUBTRACT: PopAndOp((a, b) => CreateNumberVal(a - b)); break;
-				case OP_MULTIPLY: PopAndOp((a, b) => CreateNumberVal(a * b)); break;
-				case OP_DIVIDE: PopAndOp((a, b) => CreateNumberVal(a / b)); break;
-				case OP_CALL: Call(); break;
-				case OP_INVOKE: Invoke(); break;
-				case OP_CLOSURE: Closure(); break;
-				case OP_SUPER_INVOKE: SuperInvoke(); break;
-				case OP_CLOSE_UPVALUE:
-					CloseUpvalues(stackTop - 1);
-					Pop();
+				}
+			case OP_PRINT:
+				options.Out.WriteLine(Pop());
+				break;
+			case OP_CONSTANT:
+				Value constant = ReadConstant();
+				Push(constant);
+				break;
+			case OP_NIL: Push(Nil); break;
+			case OP_TRUE: Push(BoolVal(true)); break;
+			case OP_FALSE: Push(BoolVal(false)); break;
+			case OP_POP: Pop(); break;
+			case OP_GET_LOCAL:
+				{
+					byte slot = ReadByte();
+					Push(stack[frame.slotIndex + slot]);
 					break;
-				case OP_RETURN:
-					if (Return()) return INTERPRET_OK;
+				}
+			case OP_SET_LOCAL:
+				{
+					byte slot = ReadByte();
+					stack[frame.slotIndex + slot] = Peek(0);
 					break;
-				case OP_CLASS:
-					Push(CreateObjVal(new ObjClass(ReadString())));
-					break;
-				case OP_INHERIT:
-					Inherit();
-					break;
-				case OP_METHOD:
-					DefineMethod(ReadString());
-					break;
-			}
+				}
+			case OP_GET_GLOBAL: GetGlobal(); break;
+			case OP_DEFINE_GLOBAL: DefineGlobal(); break;
+			case OP_SET_GLOBAL: SetGlobal(); break;
+			case OP_GET_UPVALUE: GetUpValue(); break;
+			case OP_SET_UPVALUE: SetUpValue(); break;
+			case OP_GET_PROPERTY: GetProperty(); break;
+			case OP_SET_PROPERTY: SetProperty(); break;
+			case OP_GET_SUPER: GetSuper(); break;
+			case OP_EQUAL: Equal(); break;
+			case OP_GREATER: PopAndOp((a, b) => BoolVal(a > b)); break;
+			case OP_LESS: PopAndOp((a, b) => BoolVal(a < b)); break;
+			case OP_ADD: Add(); break;
+			case OP_SUBTRACT: PopAndOp((a, b) => CreateNumberVal(a - b)); break;
+			case OP_MULTIPLY: PopAndOp((a, b) => CreateNumberVal(a * b)); break;
+			case OP_DIVIDE: PopAndOp((a, b) => CreateNumberVal(a / b)); break;
+			case OP_CALL: Call(); break;
+			case OP_INVOKE: Invoke(); break;
+			case OP_CLOSURE: Closure(); break;
+			case OP_SUPER_INVOKE: SuperInvoke(); break;
+			case OP_CLOSE_UPVALUE:
+				CloseUpvalues(stackTop - 1);
+				Pop();
+				break;
+			case OP_RETURN:
+				if (Return()) return Ok;
+				break;
+			case OP_CLASS:
+				Push(CreateObjVal(new ObjClass(ReadString())));
+				break;
+			case OP_INHERIT:
+				Inherit();
+				break;
+			case OP_METHOD:
+				DefineMethod(ReadString());
+				break;
 		}
+		return hasRuntimeError ? EEleuResult.RuntimeError: EEleuResult.NextStep;
+	}
+
+	public EEleuResult Run()
+	{
+		EEleuResult result;
+		do
+		{
+			result = NextStep();
+		}
+		while (result == EEleuResult.NextStep);
+		return result;
 	}
 	void Negate()
 	{

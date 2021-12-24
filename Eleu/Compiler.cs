@@ -91,7 +91,7 @@ class ClassCompiler
 
 class EleuResult
 {
-	public InterpretResult Result;
+	public EEleuResult Result;
 	public ObjFunction? Function;
 	public DebugInfo? DebugInfo;
 }
@@ -189,7 +189,7 @@ internal class Compiler
 		var function = endCompiler();
 		return new EleuResult
 		{
-			Result = parser.hadError ? INTERPRET_COMPILE_ERROR : INTERPRET_OK,
+			Result = parser.hadError ? CompileError : Ok,
 			Function = parser.hadError ? null : function,
 			DebugInfo = debugInfo
 		};

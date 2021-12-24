@@ -21,7 +21,7 @@ internal class Program
 	private static void Main(string[] argv)
 	{
 		int port = -1;
-
+		if (File.Exists(LOG_FILE_PATH)) File.Delete(LOG_FILE_PATH);
 		// parse command line arguments
 		foreach (var a in argv)
 		{

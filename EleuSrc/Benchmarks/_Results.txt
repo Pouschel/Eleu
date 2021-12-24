@@ -23,3 +23,27 @@ string_equality   :  1,086 ms
 trees             :  1,112 ms
 zoo               :    192 ms
             Total :   6.57 s
+--- 12/24/2021 10:35:30 ---
+binary_trees      :    601 ms
+equality          :    779 ms
+fib               :    497 ms
+instantiation     :    396 ms
+invocation        :    338 ms
+method_call       :  1,081 ms
+properties        :    549 ms
+string_equality   :  1,054 ms
+trees             :  1,157 ms
+zoo               :    193 ms
+            Total :   6.76 s
+--- 12/24/2021 10:35:58 ---
+binary_trees      :    715 ms
+equality          :  1,026 ms
+fib               :    611 ms
+instantiation     :    445 ms
+invocation        :    441 ms
+method_call       :  1,313 ms
+properties        :    718 ms
+string_equality   :  1,211 ms
+trees             :  1,287 ms
+zoo               :    215 ms
+            Total :   7.99 s

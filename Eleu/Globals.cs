@@ -26,7 +26,7 @@ public class Globals
 	{
 		var compiler = new Compiler(source, fileName, options);
 		var cresult = compiler.compile();
-		if (cresult.Result != INTERPRET_OK)
+		if (cresult.Result != Ok)
 			return cresult;
 
 		VM vm = new VM(options, cresult);
@@ -42,7 +42,7 @@ public class Globals
 			PrintByteCode = debugPrintCode
 		};
 		var result = CompileAndRun(path, opt);
-		return result.Result == INTERPRET_OK;
+		return result.Result == Ok;
 	}
 
 	public static bool RunTestCode(string source, TextWriter tw)
@@ -55,7 +55,7 @@ public class Globals
 			DumpStackOnError = false,
 		};
 		var cres = CompileAndRun(source, "", opt);
-		return cres.Result == INTERPRET_OK;
+		return cres.Result == Ok;
 	}
 
 	internal static int ExpandArray<T>(ref T[] array)

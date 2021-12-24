@@ -1,6 +1,6 @@
 fun f() 
 {
-  va r x=8;
+  var x=8;
   if (true) return "ok";
 }
 

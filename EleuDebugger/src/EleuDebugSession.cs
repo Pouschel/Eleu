@@ -24,13 +24,19 @@ class DebugWriter : TextWriter
 			writeFunc(value);
 	}
 
+	public override void WriteLine(string? value)
+	{
+		if (value != null)
+			writeFunc.Invoke(value + "\r\n");
+	}
+
 	public override void Write(char value)
 	{
 		writeFunc(value.ToString());
 	}
 }
 
-internal class EleuDebugSession: DebugSession
+internal class EleuDebugSession : DebugSession
 {
 	TextWriter twDebug;
 	public EleuDebugSession()
@@ -40,7 +46,7 @@ internal class EleuDebugSession: DebugSession
 
 	public override void Initialize(Response response, dynamic args)
 	{
-		SendResponse(response, new Capabilities()
+		var cap = new Capabilities()
 		{
 			// This debug adapter does not need the configurationDoneRequest.
 			supportsConfigurationDoneRequest = false,
@@ -56,7 +62,9 @@ internal class EleuDebugSession: DebugSession
 
 			// This debug adapter does not support exception breakpoint filters
 			exceptionBreakpointFilters = new dynamic[0]
-		});
+
+		};
+		response.SetBody(cap);
 		twDebug.WriteLine("Eleu Debugger initialized!");
 		// Mono Debug is ready to accept breakpoints immediately
 		SendEvent(new InitializedEvent());
@@ -64,15 +72,28 @@ internal class EleuDebugSession: DebugSession
 
 	public override void Disconnect(Response response, dynamic arguments)
 	{
+		twDebug.WriteLine(">Disconnect");
 		//SendErrorResponse(response, 3001, "Property 'program' is missing or empty.", null);	 // dialog
+	}
+
+	public override void SetBreakpoints(Response response, dynamic arguments)
+	{
+
+	}
+
+	public override void Threads(Response response, dynamic arguments)
+	{
+		twDebug.WriteLine(">Threads");
+		var threads = new List<Thread>();
+		threads.Add(new Thread(1, "<script>"));
+		response.SetBody(new ThreadsResponseBody(threads));
 	}
 
 	public override void Launch(Response response, dynamic arguments)
 	{
 		try
 		{
-			var array = arguments.args;
-			var fileName = (string) array[0];
+			var fileName = (string)arguments.program;
 			var options = new EleuOptions
 			{
 				CreateDebugInfo = true,
@@ -82,12 +103,17 @@ internal class EleuDebugSession: DebugSession
 			var source = File.ReadAllText(fileName);
 			var compiler = new Compiler(source, fileName, options);
 			var cresult = compiler.compile();
-			if (cresult.Result == InterpretResult.INTERPRET_OK)
+			if (cresult.Result != EEleuResult.Ok)
 			{
-				VM vm = new VM(options, cresult);
-				vm.Interpret();
+				SendEvent(new TerminatedEvent());
+				return;
 			}
-			SendEvent(new TerminatedEvent());
+
+			VM vm = new VM(options, cresult);
+			SendEvent(new StoppedEvent("step"));
+			//vm.Interpret();
+
+
 		}
 		catch (Exception ex)
 		{

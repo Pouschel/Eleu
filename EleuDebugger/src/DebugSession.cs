@@ -130,7 +130,7 @@ namespace Eleu.Debugger
 
 	public class StoppedEvent : Event
 	{
-		public StoppedEvent(int tid, string reasn, string txt = null)
+		public StoppedEvent(string reasn, int tid = 1, string txt = null)
 			: base("stopped", new {
 				threadId = tid,
 				reason = reasn,
