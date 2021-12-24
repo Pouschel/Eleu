@@ -110,7 +110,6 @@ internal class Compiler
 	ChunkDebugInfo? chunkDebugInfo;
 
 	bool DEBUG_PRINT_CODE => options.PrintByteCode;
-	TextWriter tw => options.Output;
 
 	void InitTable()
 	{
@@ -301,7 +300,7 @@ internal class Compiler
 		if (DEBUG_PRINT_CODE)
 		{
 			if (!parser.hadError)
-				currentChunk().Disassemble(function.NameOrScript, debugInfo, tw);
+				currentChunk().Disassemble(function.NameOrScript, debugInfo, options.Err);
 		}
 		current = current.enclosing!;
 		chunkDebugInfo = current== null ? null: debugInfo?.GetChunkInfo(current.function.chunk);
@@ -856,7 +855,7 @@ internal class Compiler
 		parser.panicMode = true;
 		var msg = string.IsNullOrEmpty(fileName) ? message : $"{fileName}({token.line}): Cerr: {message}";
 		//msg = $"File \"{fileName}\", line {token.line}: Compiler error: {message}";
-		tw.WriteLine(msg);
+		options.Err.WriteLine(msg);
 		System.Diagnostics.Trace.WriteLine(msg);
 		parser.hadError = true;
 	}
@@ -865,6 +864,7 @@ internal class Compiler
 	{
 		scanner.Reset();
 		int line = -1;
+		var tw = options.Err;
 		for (; ; )
 		{
 			var token = scanner.scanToken();

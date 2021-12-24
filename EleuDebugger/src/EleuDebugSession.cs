@@ -57,7 +57,7 @@ internal class EleuDebugSession: DebugSession
 			// This debug adapter does not support exception breakpoint filters
 			exceptionBreakpointFilters = new dynamic[0]
 		});
-		twDebug.WriteLine("Debugger initialized!");
+		twDebug.WriteLine("Eleu Debugger initialized!");
 		// Mono Debug is ready to accept breakpoints immediately
 		SendEvent(new InitializedEvent());
 	}
@@ -72,14 +72,22 @@ internal class EleuDebugSession: DebugSession
 		try
 		{
 			var array = arguments.args;
-			var prog = (string) array[0];
+			var fileName = (string) array[0];
 			var options = new EleuOptions
 			{
 				CreateDebugInfo = true,
-				Output = new DebugWriter(this.WriteToStdOut),
+				Out = new DebugWriter(this.WriteToStdOut),
+				Err = new DebugWriter(this.WriteToStdErr),
 			};
-			var cresult = Globals.CompileAndRun(prog, options);
-			//SendResponse(response);
+			var source = File.ReadAllText(fileName);
+			var compiler = new Compiler(source, fileName, options);
+			var cresult = compiler.compile();
+			if (cresult.Result == InterpretResult.INTERPRET_OK)
+			{
+				VM vm = new VM(options, cresult);
+				vm.Interpret();
+			}
+			SendEvent(new TerminatedEvent());
 		}
 		catch (Exception ex)
 		{

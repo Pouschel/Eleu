@@ -8,7 +8,8 @@ public class EleuOptions
 	public bool PrintByteCode;
 	public bool DumpStackOnError = true;
 	public bool CreateDebugInfo = false;
-	public TextWriter Output = TextWriter.Null;
+	public TextWriter Out = TextWriter.Null;
+	public TextWriter Err = TextWriter.Null;
 
 }
 
@@ -27,7 +28,7 @@ fileName           file to compile and run
 ");
 
 		var options = new EleuOptions()
-		{ Output = Console.Out };
+		{ Out = Console.Out, Err=Console.Out };
 		bool waitAfterRun = false;
 		string? fileName=null;
 		for (int i = 0; i < args.Length; i++)

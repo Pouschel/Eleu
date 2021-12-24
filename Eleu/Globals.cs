@@ -38,7 +38,7 @@ public class Globals
 	{
 		var opt = new EleuOptions()
 		{
-			Output = tw,
+			Out = tw,
 			PrintByteCode = debugPrintCode
 		};
 		var result = CompileAndRun(path, opt);
@@ -49,7 +49,8 @@ public class Globals
 	{
 		var opt = new EleuOptions()
 		{
-			Output = tw,
+			Out = tw,
+			Err = tw,
 			PrintByteCode = false,
 			DumpStackOnError = false,
 		};

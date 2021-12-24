@@ -37,12 +37,10 @@ public class VM
 
 	//the current code chunk
 	Chunk chunk;
-	
+
 	EleuOptions options;
 	EleuResult result;
-
-	TextWriter tw=>options.Output;
-
+	
 	internal VM(EleuOptions options, EleuResult result)
 	{
 		this.options = options;
@@ -55,7 +53,7 @@ public class VM
 		{
 			frames[i] = new CallFrame();
 		}
-		
+
 		initString = string.Intern("init");
 		DefineNative("clock", clock);
 		// to avoid warnings
@@ -75,7 +73,6 @@ public class VM
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	Value Peek(int distance) => stack[stackTop - 1 - distance];
-
 	void PushFrame(ObjClosure closure, int argCount)
 	{
 		frame = frames[frameCount++];
@@ -88,7 +85,7 @@ public class VM
 	void PopFrame()
 	{
 		--frameCount;
-		frame = frames[frameCount-1];
+		frame = frames[frameCount - 1];
 		chunk = frame.closure!.function!.chunk;
 	}
 
@@ -142,7 +139,7 @@ public class VM
 				case OP_NOT:
 					Push(BoolVal(IsFalsey(Pop())));
 					break;
-				case OP_NEGATE:	Negate(); break;
+				case OP_NEGATE: Negate(); break;
 				case OP_JUMP:
 					{
 						ushort offset = ReadShort();
@@ -162,7 +159,7 @@ public class VM
 						break;
 					}
 				case OP_PRINT:
-					tw.WriteLine(Pop());
+					options.Out.WriteLine(Pop());
 					break;
 				case OP_CONSTANT:
 					Value constant = ReadConstant();
@@ -186,18 +183,18 @@ public class VM
 					}
 				case OP_GET_GLOBAL: GetGlobal(); break;
 				case OP_DEFINE_GLOBAL: DefineGlobal(); break;
-				case OP_SET_GLOBAL:	SetGlobal(); break;
+				case OP_SET_GLOBAL: SetGlobal(); break;
 				case OP_GET_UPVALUE: GetUpValue(); break;
 				case OP_SET_UPVALUE: SetUpValue(); break;
-				case OP_GET_PROPERTY:	GetProperty(); break;
+				case OP_GET_PROPERTY: GetProperty(); break;
 				case OP_SET_PROPERTY: SetProperty(); break;
 				case OP_GET_SUPER: GetSuper(); break;
 				case OP_EQUAL: Equal(); break;
 				case OP_GREATER: PopAndOp((a, b) => BoolVal(a > b)); break;
 				case OP_LESS: PopAndOp((a, b) => BoolVal(a < b)); break;
-				case OP_ADD:	Add(); break;
+				case OP_ADD: Add(); break;
 				case OP_SUBTRACT: PopAndOp((a, b) => CreateNumberVal(a - b)); break;
-				case OP_MULTIPLY:  PopAndOp((a, b) => CreateNumberVal(a * b)); break;
+				case OP_MULTIPLY: PopAndOp((a, b) => CreateNumberVal(a * b)); break;
 				case OP_DIVIDE: PopAndOp((a, b) => CreateNumberVal(a / b)); break;
 				case OP_CALL: Call(); break;
 				case OP_INVOKE: Invoke(); break;
@@ -227,7 +224,7 @@ public class VM
 		if (!IsNumber(Peek(0)))
 		{
 			RuntimeError("Operand must be a number.");
-			return ;
+			return;
 		}
 		Push(CreateNumberVal(-AsNumber(Pop())));
 	}
@@ -276,7 +273,7 @@ public class VM
 		if (!IsInstance(Peek(0)))
 		{
 			RuntimeError("Only instances have properties.");
-			return ;
+			return;
 		}
 		ObjInstance instance = AS_INSTANCE(Peek(0));
 		string name = ReadString();
@@ -294,7 +291,7 @@ public class VM
 		if (!IsInstance(Peek(1)))
 		{
 			RuntimeError("Only instances have fields.");
-			return ;
+			return;
 		}
 		ObjInstance instance = AS_INSTANCE(Peek(1));
 		tableSet(instance.fields, ReadString(), Peek(0));
@@ -582,7 +579,7 @@ public class VM
 			int line = chunkInfo.GetLine(instruction, false);
 			text = $"{chunkInfo.FileName}({line}): {text}";
 		}
-		tw.WriteLine(text);
+		options.Err.WriteLine(text);
 		Trace.WriteLine(text);
 		if (options.DumpStackOnError) DumpStack();
 		ResetStack();
@@ -601,7 +598,7 @@ public class VM
 			int? line = chDebugInfo?.GetLine(instruction, false);
 			if (line.HasValue)
 				txt += $" at line {line.Value}";
-			tw.WriteLine(txt);
+			options.Err.WriteLine(txt);
 		}
 	}
 
