@@ -55,8 +55,9 @@ public class VM
 		}
 
 		initString = string.Intern("init");
-		DefineNative("clock", clock);
-		DefineNative("invoke", invoke);
+		var natives = new NativeFunctions();
+		DefineNative("clock", natives.Clock);
+		DefineNative("invoke", natives.Invoke);
 		// to avoid warnings
 		frame = new CallFrame();
 		chunk = new Chunk();
