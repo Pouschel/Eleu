@@ -56,6 +56,7 @@ public class VM
 
 		initString = string.Intern("init");
 		DefineNative("clock", clock);
+		DefineNative("invoke", invoke);
 		// to avoid warnings
 		frame = new CallFrame();
 		chunk = new Chunk();
@@ -325,8 +326,7 @@ public class VM
 	{
 		string method = ReadString();
 		int argCount = ReadByte();
-		if (!Invoke(method, argCount))
-			hasRuntimeError = true;
+		Invoke(method, argCount);
 	}
 	void Equal()
 	{
@@ -358,8 +358,7 @@ public class VM
 	void Call()
 	{
 		int argCount = ReadByte();
-		if (!CallValue(Peek(argCount), argCount))
-			hasRuntimeError = true;
+		CallValue(Peek(argCount), argCount);
 	}
 	void Closure()
 	{
@@ -386,8 +385,7 @@ public class VM
 		string method = ReadString();
 		int argCount = ReadByte();
 		ObjClass superclass = AS_CLASS(Pop());
-		if (!InvokeFromClass(superclass, method, argCount))
-			hasRuntimeError = true;
+		InvokeFromClass(superclass, method, argCount);
 	}
 	bool Return()
 	{
@@ -458,7 +456,7 @@ public class VM
 		}
 		return createdUpvalue;
 	}
-	bool CallValue(Value callee, int argCount)
+	void CallValue(Value callee, int argCount)
 	{
 		if (IsObj(callee))
 		{
@@ -468,7 +466,8 @@ public class VM
 					{
 						ObjBoundMethod bound = AS_BOUND_METHOD(callee);
 						stack[stackTop - argCount - 1] = bound.receiver;
-						return Call(bound.method, argCount);
+						Call(bound.method, argCount);
+						return;
 					}
 				case OBJ_CLASS:
 					{
@@ -477,17 +476,16 @@ public class VM
 						Value initializer;
 						if (tableGet(klass.methods, initString, out initializer))
 						{
-							return Call(AS_CLOSURE(initializer), argCount);
+							Call(AS_CLOSURE(initializer), argCount);
 						}
 						else if (argCount != 0)
 						{
 							RuntimeError($"Expected 0 arguments but got {argCount}.");
-							return false;
 						}
-						return true;
+						return;
 					}
 				case OBJ_CLOSURE:
-					return Call(AS_CLOSURE(callee), argCount);
+					Call(AS_CLOSURE(callee), argCount); return;
 				case OBJ_NATIVE:
 					{
 						NativeFn native = AS_NATIVE(callee);
@@ -496,42 +494,44 @@ public class VM
 						{
 							args[i] = stack[stackTop - argCount + i];
 						}
-						Value result = native(args);
-						stackTop -= argCount + 1;
-						Push(result);
-						return true;
+						try
+						{
+							Value result = native(args);
+							stackTop -= argCount + 1;
+							Push(result);
+						}
+						catch (Exception ex)
+						{
+							RuntimeError("Native exception: " + ex);
+						}
+						return;
 					}
 				default:
 					break; // Non-callable object type.
 			}
 		}
 		RuntimeError("Can only call functions and classes.");
-		return false;
 	}
-	bool InvokeFromClass(ObjClass klass, string name, int argCount)
+	void InvokeFromClass(ObjClass klass, string name, int argCount)
 	{
 		if (!tableGet(klass.methods, name, out var method))
-		{
 			RuntimeError($"Undefined property '{name}'.");
-			return false;
-		}
-		return Call(AS_CLOSURE(method), argCount);
+		else Call(AS_CLOSURE(method), argCount);
 	}
-	bool Invoke(string name, int argCount)
+	void Invoke(string name, int argCount)
 	{
 		Value receiver = Peek(argCount);
 		if (!IsInstance(receiver))
 		{
-			RuntimeError("Only instances have methods.");
-			return false;
+			RuntimeError("Only instances have methods."); return;
 		}
 		ObjInstance instance = AS_INSTANCE(receiver);
 		if (tableGet(instance.fields, name, out var value))
 		{
 			stack[stackTop - argCount - 1] = value;
-			return CallValue(value, argCount);
+			CallValue(value, argCount); return;
 		}
-		return InvokeFromClass(instance.klass, name, argCount);
+		InvokeFromClass(instance.klass, name, argCount);
 	}
 	bool BindMethod(ObjClass klass, string name)
 	{
@@ -552,21 +552,18 @@ public class VM
 		var ofun = CreateObjVal(new ObjNative(function));
 		tableSet(globals, oname, ofun);
 	}
-	bool Call(ObjClosure closure, int argCount)
+	void Call(ObjClosure closure, int argCount)
 	{
 		var function = closure.function;
 		if (argCount != function.arity)
 		{
 			RuntimeError($"Expected {function.arity} arguments but got {argCount}.");
-			return false;
 		}
-		if (frameCount >= FRAMES_MAX)
+		else if (frameCount >= FRAMES_MAX)
 		{
-			RuntimeError("Stack overflow.");
-			return false;
+			RuntimeError("Stack overflow."); return;
 		}
-		PushFrame(closure, argCount + 1);
-		return true;
+		else PushFrame(closure, argCount + 1);
 	}
 
 	void PopAndOp(Func<double, double, Value> func)

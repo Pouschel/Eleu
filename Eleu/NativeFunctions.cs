@@ -7,4 +7,11 @@ static class NativeFunctions
 		return CreateNumberVal(DateTime.Now.Ticks / 10000000.0);
 	}
 
+	public static Value invoke(Value[] args)
+	{
+			
+		return Nil;
+
+	}
+
 }
