@@ -5,7 +5,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "csLox Debug",
+      "name": "Eleu Debug",
       "type": "coreclr",
       "request": "launch",
       "program": "${workspaceFolder}/../Eleu/bin/Debug/net6.0/Eleu.dll",
@@ -16,7 +16,7 @@
     }
 ,
     {
-      "name": "csLox Release",
+      "name": "Eleu Release",
       "type": "coreclr",
       "request": "launch",
       "program": "${workspaceFolder}/../Eleu/bin/Release/net6.0/Eleu.dll",

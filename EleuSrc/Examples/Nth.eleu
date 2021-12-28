@@ -1,0 +1,6 @@
+
+fun ordinal(n)
+{
+  var rem=n % 10;
+  
+}

@@ -1,5 +1,12 @@
 ﻿namespace Eleu.Debugger
 {
+	struct FileLineInfo
+	{
+		public string FileName;
+		public int LineNr;
+		public int FrameCount;
+		public bool HasBreakpoint;
+	}
 
 	class BreakpointInfo
 	{
@@ -16,19 +23,6 @@
 
 	public class EleuDebugger
 	{
-		VM vm;
-
-		State state;
-		RunMode runMode;
-		ManualResetEventSlim evContinue;
-		bool breakBeforeNextOp;
-		Dictionary<Chunk, BreakpointInfo> breakpoints;
-		Dictionary<string, Chunk[]> breakChunksForFile;
-
-		public event Action<EleuDebugger>? TargetStopped;
-		public event Action<EleuDebugger,string, int>? TargetHitBreakpoint;
-		public event Action<EleuDebugger>? TargetRuntimeError;
-
 		enum State
 		{
 			Running,
@@ -43,6 +37,23 @@
 			StepIn,
 		}
 
+		VM vm;
+
+		State state;
+		RunMode runMode;
+		ManualResetEventSlim evContinue;
+		bool breakBeforeNextOp;
+		Dictionary<Chunk, BreakpointInfo> breakpoints;
+		Dictionary<string, Chunk[]> breakChunksForFile;
+		ChunkDebugInfo? currentChunkDebug;
+
+		public event Action<EleuDebugger>? TargetStopped;
+		public event Action<EleuDebugger, string, int>? TargetHitBreakpoint;
+		public event Action<EleuDebugger>? TargetRuntimeError;
+		FileLineInfo currentPos = new ();
+		FileLineInfo skipPos = new ();
+
+
 		public EleuDebugger(VM vm)
 		{
 			this.evContinue = new ManualResetEventSlim();
@@ -54,23 +65,28 @@
 			Task.Run(Runner);
 		}
 
-		(string?, int) IsBreakpointHit()
+		void SetHasBreakpoint(ref FileLineInfo fli)
 		{
-			lock (this)
-			{
-				if (!this.breakpoints.TryGetValue(vm.chunk, out var bp))
-					return (null, -1);
-				int curLine = bp.CDInfo.GetLine(vm.Ip, false);
-				for (int i = 0; i < bp.Lines.Count; i++)
-				{
-					if (curLine == bp.Lines[i]) return (bp.CDInfo.FileName, curLine);
-				}
-				return (null, -1);
-			}
+			fli.HasBreakpoint = false;
+			if (!this.breakpoints.TryGetValue(vm.chunk, out var bp))
+				return;
+			if (bp.CDInfo.FileName != fli.FileName)
+				return;
+			if (bp.Lines.Contains(fli.LineNr))
+				fli.HasBreakpoint = true;
 		}
+
+		bool CheckMustBreak()
+		{
+			if (skipPos.Equals(currentPos)) 
+				return false;
+			return currentPos.HasBreakpoint || breakBeforeNextOp;
+		}
+
 		void Runner()
 		{
 			vm.Setup();
+
 			while (true)
 			{
 				if (state == State.Ended)
@@ -81,20 +97,29 @@
 					evContinue.Reset();
 					state = State.Running;
 				}
-				if (breakBeforeNextOp)
+
+				if (vm.chunk != currentChunkDebug?.Chunk)
+					currentChunkDebug = vm.result.DebugInfo?.GetChunkInfo(vm.chunk);
+				if (currentChunkDebug != null)
 				{
-					state = State.Stopped;
-					evContinue.Reset();
-					TargetStopped?.Invoke(this);
-					continue;
+					int line = currentChunkDebug.GetLine(vm.Ip, true);
+					if (line > 0)
+					{
+						currentPos.FileName = currentChunkDebug.FileName;
+						currentPos.LineNr = line;
+						currentPos.FrameCount = vm.frameCount;
+						SetHasBreakpoint(ref currentPos);
+					}
 				}
 				// Check for breakpoint 
-				var (file, line) = IsBreakpointHit();
-				if (file != null)
+				if (CheckMustBreak())
 				{
 					state = State.Stopped;
 					evContinue.Reset();
-					TargetHitBreakpoint?.Invoke(this,file, line);
+					if (currentPos.HasBreakpoint)
+					  TargetHitBreakpoint?.Invoke(this, currentPos.FileName, currentPos.LineNr);
+					else
+						TargetStopped?.Invoke(this);
 					continue;
 				}
 				var result = vm.NextStep();
@@ -110,6 +135,7 @@
 		public bool Continue()
 		{
 			if (state != State.Stopped) return false;
+			skipPos = currentPos;
 			runMode = RunMode.Normal;
 			evContinue.Set();
 			return true;

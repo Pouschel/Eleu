@@ -27,7 +27,7 @@ public class VM
 	Value[] stack;
 	int stackTop;
 	CallFrame[] frames;
-	int frameCount;
+	internal int frameCount;
 	Table globals;
 	string initString;
 	ObjUpvalue? openUpvalues;
@@ -40,7 +40,6 @@ public class VM
 	EleuOptions options;
 	internal EleuResult result;
 	internal int Ip => frame.ip;
-
 	internal VM(EleuOptions options, EleuResult result)
 	{
 		this.options = options;
