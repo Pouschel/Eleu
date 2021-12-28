@@ -1,6 +1,7 @@
 ﻿//#define DEBUG_TRACE_EXECUTION
 global using static Eleu.EEleuResult;
 using System.Diagnostics;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using static Eleu.NativeFunctions;
 namespace Eleu;
@@ -216,7 +217,7 @@ public class VM
 				DefineMethod(ReadString());
 				break;
 		}
-		return hasRuntimeError ? EEleuResult.RuntimeError: EEleuResult.NextStep;
+		return hasRuntimeError ? EEleuResult.RuntimeError : EEleuResult.NextStep;
 	}
 
 	public EEleuResult Run()
@@ -331,18 +332,23 @@ public class VM
 	}
 	void Add()
 	{
-		if (IsString(Peek(0)) && IsString(Peek(1)))
+		var a1 = Pop();
+		var a0 = Pop();
+		var a0Num = IsNumber(a0);
+		var a1Num = IsNumber(a1);
+		if (a0Num && a1Num)
 		{
-			Concatenate();
-		}
-		else if (IsNumber(Peek(0)) && IsNumber(Peek(1)))
-		{
-			double b = AsNumber(Pop());
-			double a = AsNumber(Pop());
+			double b = AsNumber(a0);
+			double a = AsNumber(a1);
 			Push(CreateNumberVal(a + b));
+			return;
 		}
-		else
+		var s0 = IsString(a0) ? AsString(a0) : (a0Num ? AsNumber(a0).ToString(CultureInfo.InvariantCulture) : null);
+		var s1 = IsString(a1) ? AsString(a1) : (a1Num ? AsNumber(a1).ToString(CultureInfo.InvariantCulture) : null);
+		if (s0 == null || s1 == null)
 			RuntimeError("Operands must be two numbers or two strings.");
+		else
+			Push(CreateStringVal(s0 + s1));
 	}
 
 	void Call()
@@ -557,14 +563,6 @@ public class VM
 		}
 		PushFrame(closure, argCount + 1);
 		return true;
-	}
-
-	void Concatenate()
-	{
-		string b = AsString(Pop());
-		string a = AsString(Pop());
-		var result = a + b;
-		Push(CreateStringVal(result));
 	}
 
 	void PopAndOp(Func<double, double, Value> func)

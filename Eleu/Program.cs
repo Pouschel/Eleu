@@ -17,7 +17,9 @@ class Program
 {
 	static void Main(string[] args)
 	{
-		TestDebugger();
+		double d = 10.3;
+		double r = d % 3;
+		//TestDebugger();
 		Console.WriteLine("Eleu v1");
 		if (args.Length==0)
 			Console.WriteLine(@"Usage:
