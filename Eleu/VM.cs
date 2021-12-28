@@ -196,6 +196,7 @@ public class VM
 			case OP_SUBTRACT: PopAndOp((a, b) => CreateNumberVal(a - b)); break;
 			case OP_MULTIPLY: PopAndOp((a, b) => CreateNumberVal(a * b)); break;
 			case OP_DIVIDE: PopAndOp((a, b) => CreateNumberVal(a / b)); break;
+			case OP_REMAINDER: PopAndOp((a, b) => CreateNumberVal(a % b)); break;
 			case OP_CALL: Call(); break;
 			case OP_INVOKE: Invoke(); break;
 			case OP_CLOSURE: Closure(); break;
@@ -215,6 +216,9 @@ public class VM
 				break;
 			case OP_METHOD:
 				DefineMethod(ReadString());
+				break;
+			default:
+				RuntimeError($"No such op code: {instruction} ({(int)instruction})");
 				break;
 		}
 		return hasRuntimeError ? EEleuResult.RuntimeError : EEleuResult.NextStep;

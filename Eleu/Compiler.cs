@@ -119,11 +119,12 @@ internal class Compiler
 		SetRule(TOKEN_RIGHT_BRACE, null, null, PREC_NONE);
 		SetRule(TOKEN_COMMA, null, null, PREC_NONE);
 		SetRule(TOKEN_DOT, null, dot, PREC_CALL);
-		SetRule(TOKEN_MINUS, unary, binary, PREC_TERM);
-		SetRule(TOKEN_PLUS, null, binary, PREC_TERM);
+		SetRule(TokenMinus, unary, binary, PREC_TERM);
+		SetRule(TokenPlus, null, binary, PREC_TERM);
 		SetRule(TOKEN_SEMICOLON, null, null, PREC_NONE);
 		SetRule(TOKEN_SLASH, null, binary, PREC_FACTOR);
-		SetRule(TOKEN_STAR, null, binary, PREC_FACTOR);
+		SetRule(TokenStar, null, binary, PREC_FACTOR);
+		SetRule(TokenPercent, null, binary, PREC_FACTOR);
 		SetRule(TOKEN_BANG, unary, null, PREC_NONE);
 		SetRule(TOKEN_BANG_EQUAL, null, binary, PREC_EQUALITY);
 		SetRule(TOKEN_EQUAL, null, null, PREC_NONE);
@@ -697,7 +698,7 @@ internal class Compiler
 		switch (operatorType)
 		{
 			case TOKEN_BANG: EmitByte(OP_NOT); break;
-			case TOKEN_MINUS: EmitByte(OP_NEGATE); break;
+			case TokenMinus: EmitByte(OP_NEGATE); break;
 			default: return; // Unreachable.
 		}
 	}
@@ -715,9 +716,10 @@ internal class Compiler
 			case TOKEN_GREATER_EQUAL: emitBytes(OP_LESS, (byte)OP_NOT); break;
 			case TOKEN_LESS: EmitByte(OP_LESS); break;
 			case TOKEN_LESS_EQUAL: emitBytes(OP_GREATER, (byte)OP_NOT); break;
-			case TOKEN_PLUS: EmitByte(OP_ADD); break;
-			case TOKEN_MINUS: EmitByte(OP_SUBTRACT); break;
-			case TOKEN_STAR: EmitByte(OP_MULTIPLY); break;
+			case TokenPlus: EmitByte(OP_ADD); break;
+			case TokenMinus: EmitByte(OP_SUBTRACT); break;
+			case TokenStar: EmitByte(OP_MULTIPLY); break;
+			case TokenPercent: EmitByte(OP_REMAINDER); break;
 			case TOKEN_SLASH: EmitByte(OP_DIVIDE); break;
 			default: return; // Unreachable.
 		}

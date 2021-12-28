@@ -7,8 +7,9 @@ enum TokenType
 	// Single-character tokens.
 	TOKEN_LEFT_PAREN, TOKEN_RIGHT_PAREN,
 	TOKEN_LEFT_BRACE, TOKEN_RIGHT_BRACE,
-	TOKEN_COMMA, TOKEN_DOT, TOKEN_MINUS, TOKEN_PLUS,
-	TOKEN_SEMICOLON, TOKEN_SLASH, TOKEN_STAR,
+	TOKEN_COMMA, TOKEN_DOT, TokenMinus, TokenPlus,
+	TOKEN_SEMICOLON, TOKEN_SLASH, TokenStar,
+	TokenPercent,
 	// One or two character tokens.
 	TOKEN_BANG, TOKEN_BANG_EQUAL,
 	TOKEN_EQUAL, TOKEN_EQUAL_EQUAL,
@@ -76,10 +77,11 @@ internal class Scanner
 			case ';': return makeToken(TOKEN_SEMICOLON);
 			case ',': return makeToken(TOKEN_COMMA);
 			case '.': return makeToken(TOKEN_DOT);
-			case '-': return makeToken(TOKEN_MINUS);
-			case '+': return makeToken(TOKEN_PLUS);
+			case '-': return makeToken(TokenMinus);
+			case '+': return makeToken(TokenPlus);
 			case '/': return makeToken(TOKEN_SLASH);
-			case '*': return makeToken(TOKEN_STAR);
+			case '*': return makeToken(TokenStar);
+			case '%': return makeToken(TokenPercent);
 			case '!':
 				return makeToken(
 						match('=') ? TOKEN_BANG_EQUAL : TOKEN_BANG);
