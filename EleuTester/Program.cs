@@ -8,12 +8,13 @@ class Program
 
 	Dictionary<string, TimeSpan> benchMarkResults = new();
 
+	int testDirLen;
+
 	void TestFile(string fileName)
 	{
 		string? msg = null;
 		try
 		{
-
 			Interlocked.Increment(ref nTests);
 			var source = File.ReadAllText(fileName);
 			var sw = new StringWriter();
@@ -108,7 +109,7 @@ class Program
 
 	bool IsIgnored(string file)
 	{
-		lock (this) Console.Write($"\r{file}           ");
+		lock (this) Console.Write($"\r{file[testDirLen..]}           ");
 		var baseName = Path.GetFileName(file);
 		if (baseName[0] == '-')
 		{
@@ -132,6 +133,7 @@ class Program
 
 	void RunTests(string dir)
 	{
+		testDirLen = dir.Length;
 		Console.WriteLine($"Start Testing dir: {dir}");
 		var watch = Stopwatch.StartNew();
 		RunActionInDir(dir, TestFile);
@@ -149,6 +151,7 @@ class Program
 
 	void RunBenchmarks(string dir)
 	{
+		testDirLen = dir.Length;
 		var watch = Stopwatch.StartNew();
 		RunActionInDir(dir, BenchmarkFile);
 		var total = watch.Elapsed.TotalSeconds;

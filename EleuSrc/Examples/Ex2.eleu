@@ -1,6 +1,20 @@
+var x=2;
+
+{  
   
-var a = 1;
-var b = 2;
-var c = 3;
-var d = 4; 
-print a + c + b + d;
+
+fun Catalan( n)
+{
+  if (n == 0)
+  {
+    return 1;
+  }
+  return ((2 * (2 * n - 1)) / (n + 1)) * Catalan(n - 1);
+}
+
+for (var n=1; n<20; n=n+1) print Catalan(n);
+
+  x=4;
+}
+
+print x;
