@@ -60,114 +60,113 @@ internal class Scanner
 		this.start = this.current = 0;
 	}
 
-	public Token scanToken()
+	public Token ScanToken()
 	{
-		skipWhitespace();
+		SkipWhitespace();
 		start = current;
-		if (isAtEnd()) return makeToken(TOKEN_EOF);
-		char c = advance();
-		if (isAlpha(c)) return identifier();
-		if (isDigit(c)) return number();
+		if (IsAtEnd()) return MakeToken(TOKEN_EOF);
+		char c = Advance();
+		if (IsAlpha(c)) return Identifier();
+		if (IsDigit(c)) return Number();
 		switch (c)
 		{
-			case '(': return makeToken(TOKEN_LEFT_PAREN);
-			case ')': return makeToken(TOKEN_RIGHT_PAREN);
-			case '{': return makeToken(TOKEN_LEFT_BRACE);
-			case '}': return makeToken(TOKEN_RIGHT_BRACE);
-			case ';': return makeToken(TOKEN_SEMICOLON);
-			case ',': return makeToken(TOKEN_COMMA);
-			case '.': return makeToken(TOKEN_DOT);
-			case '-': return makeToken(TokenMinus);
-			case '+': return makeToken(TokenPlus);
-			case '/': return makeToken(TOKEN_SLASH);
-			case '*': return makeToken(TokenStar);
-			case '%': return makeToken(TokenPercent);
+			case '(': return MakeToken(TOKEN_LEFT_PAREN);
+			case ')': return MakeToken(TOKEN_RIGHT_PAREN);
+			case '{': return MakeToken(TOKEN_LEFT_BRACE);
+			case '}': return MakeToken(TOKEN_RIGHT_BRACE);
+			case ';': return MakeToken(TOKEN_SEMICOLON);
+			case ',': return MakeToken(TOKEN_COMMA);
+			case '.': return MakeToken(TOKEN_DOT);
+			case '-': return MakeToken(TokenMinus);
+			case '+': return MakeToken(TokenPlus);
+			case '/': return MakeToken(TOKEN_SLASH);
+			case '*': return MakeToken(TokenStar);
+			case '%': return MakeToken(TokenPercent);
 			case '!':
-				return makeToken(
-						match('=') ? TOKEN_BANG_EQUAL : TOKEN_BANG);
+				return MakeToken(
+						Match('=') ? TOKEN_BANG_EQUAL : TOKEN_BANG);
 			case '=':
-				return makeToken(
-						match('=') ? TOKEN_EQUAL_EQUAL : TOKEN_EQUAL);
+				return MakeToken(
+						Match('=') ? TOKEN_EQUAL_EQUAL : TOKEN_EQUAL);
 			case '<':
-				return makeToken(
-						match('=') ? TOKEN_LESS_EQUAL : TOKEN_LESS);
+				return MakeToken(
+						Match('=') ? TOKEN_LESS_EQUAL : TOKEN_LESS);
 			case '>':
-				return makeToken(
-						match('=') ? TOKEN_GREATER_EQUAL : TOKEN_GREATER);
-			case '"': return scanString();
+				return MakeToken(
+						Match('=') ? TOKEN_GREATER_EQUAL : TOKEN_GREATER);
+			case '"': return ScanString();
 		}
-
-		return errorToken("Unexpected character.");
+		return ErrorToken($"Unexpected character: {c}");
 	}
 
-	static bool isDigit(char c) => c >= '0' && c <= '9';
-	static bool isAlpha(char c)
+	static bool IsDigit(char c) => c >= '0' && c <= '9';
+	static bool IsAlpha(char c)
 	{
 		return (c >= 'a' && c <= 'z') ||
 					 (c >= 'A' && c <= 'Z') ||
 						c == '_';
 	}
 
-	Token number()
+	Token Number()
 	{
-		while (isDigit(peek())) advance();
+		while (IsDigit(Peek())) Advance();
 		// Look for a fractional part.
-		if (peek() == '.' && isDigit(peekNext()))
+		if (Peek() == '.' && IsDigit(PeekNext()))
 		{
 			// Consume the ".".
-			advance();
-			while (isDigit(peek())) advance();
+			Advance();
+			while (IsDigit(Peek())) Advance();
 		}
-		return makeToken(TOKEN_NUMBER);
+		return MakeToken(TOKEN_NUMBER);
 	}
 
-	Token identifier()
+	Token Identifier()
 	{
-		while (isAlpha(peek()) || isDigit(peek())) advance();
-		return makeToken(identifierType());
+		while (IsAlpha(Peek()) || IsDigit(Peek())) Advance();
+		return MakeToken(IdentifierType());
 	}
 
-	TokenType identifierType()
+	TokenType IdentifierType()
 	{
 		switch (source[start])
 		{
-			case 'a': return checkKeyword(1, "nd", TOKEN_AND);
-			case 'c': return checkKeyword(1, "lass", TOKEN_CLASS);
-			case 'e': return checkKeyword(1, "lse", TOKEN_ELSE);
+			case 'a': return CheckKeyword(1, "nd", TOKEN_AND);
+			case 'c': return CheckKeyword(1, "lass", TOKEN_CLASS);
+			case 'e': return CheckKeyword(1, "lse", TOKEN_ELSE);
 			case 'f':
 				if (current - start > 1)
 				{
 					switch (source[start+1])
 					{
-						case 'a': return checkKeyword(2, "lse", TOKEN_FALSE);
-						case 'o': return checkKeyword(2, "r", TOKEN_FOR);
-						case 'u': return checkKeyword(2, "n", TOKEN_FUN);
+						case 'a': return CheckKeyword(2, "lse", TOKEN_FALSE);
+						case 'o': return CheckKeyword(2, "r", TOKEN_FOR);
+						case 'u': return CheckKeyword(2, "n", TOKEN_FUN);
 					}
 				}
 				break;
-			case 'i': return checkKeyword(1, "f", TOKEN_IF);
-			case 'n': return checkKeyword(1, "il", TOKEN_NIL);
-			case 'o': return checkKeyword(1, "r", TOKEN_OR);
-			case 'p': return checkKeyword(1, "rint", TOKEN_PRINT);
-			case 'r': return checkKeyword(1, "eturn", TOKEN_RETURN);
-			case 's': return checkKeyword(1, "uper", TOKEN_SUPER);
+			case 'i': return CheckKeyword(1, "f", TOKEN_IF);
+			case 'n': return CheckKeyword(1, "il", TOKEN_NIL);
+			case 'o': return CheckKeyword(1, "r", TOKEN_OR);
+			case 'p': return CheckKeyword(1, "rint", TOKEN_PRINT);
+			case 'r': return CheckKeyword(1, "eturn", TOKEN_RETURN);
+			case 's': return CheckKeyword(1, "uper", TOKEN_SUPER);
 			case 't':
 				if (current - start > 1)
 				{
 					switch (source[start + 1])
 					{
-						case 'h': return checkKeyword(2, "is", TOKEN_THIS);
-						case 'r': return checkKeyword(2, "ue", TOKEN_TRUE);
+						case 'h': return CheckKeyword(2, "is", TOKEN_THIS);
+						case 'r': return CheckKeyword(2, "ue", TOKEN_TRUE);
 					}
 				}
 				break;
-			case 'v': return checkKeyword(1, "ar", TOKEN_VAR);
-			case 'w': return checkKeyword(1, "hile", TOKEN_WHILE);
+			case 'v': return CheckKeyword(1, "ar", TOKEN_VAR);
+			case 'w': return CheckKeyword(1, "hile", TOKEN_WHILE);
 		}
 		return TOKEN_IDENTIFIER;
 	}
 
-	TokenType checkKeyword(int start, string rest, TokenType type)
+	TokenType CheckKeyword(int start, string rest, TokenType type)
 	{
 		if (this.current - this.start != start + rest.Length) return TOKEN_IDENTIFIER;
 		for (int i = 0; i < rest.Length; i++)
@@ -177,43 +176,41 @@ internal class Scanner
 		return type;
 	}
 
-	Token scanString()
+	Token ScanString()
 	{
-		while (peek() != '"' && !isAtEnd())
+		while (Peek() != '"' && !IsAtEnd())
 		{
-			if (peek() == '\n') line++;
-			advance();
+			if (Peek() == '\n') line++;
+			Advance();
 		}
 
-		if (isAtEnd()) return errorToken("Unterminated string.");
+		if (IsAtEnd()) return ErrorToken("Unterminated string.");
 
 		// The closing quote.
-		advance();
-		return makeToken(TOKEN_STRING);
+		Advance();
+		return MakeToken(TOKEN_STRING);
 	}
-
-
-	void skipWhitespace()
+	void SkipWhitespace()
 	{
 		while (true)
 		{
-			char c = peek();
+			char c = Peek();
 			switch (c)
 			{
 				case ' ':
 				case '\r':
 				case '\t':
-					advance();
+					Advance();
 					break;
 				case '\n':
 					line++;
-					advance();
+					Advance();
 					break;
 				case '/':
-					if (peekNext() == '/')
+					if (PeekNext() == '/')
 					{
 						// A comment goes until the end of the line.
-						while (peek() != '\n' && !isAtEnd()) advance();
+						while (Peek() != '\n' && !IsAtEnd()) Advance();
 					}
 					else
 					{
@@ -228,24 +225,24 @@ internal class Scanner
 		}
 	}
 
-	char advance() => source[current++];
-	char peek() => current >= source.Length ? '\0' : source[current];
-	char peekNext() => current >= source.Length - 1 ? '\0' : source[current + 1];
+	char Advance() => source[current++];
+	char Peek() => current >= source.Length ? '\0' : source[current];
+	char PeekNext() => current >= source.Length - 1 ? '\0' : source[current + 1];
 
-	bool isAtEnd()
+	bool IsAtEnd()
 	{
 		return current >= source.Length;
 	}
 
-	bool match(char expected)
+	bool Match(char expected)
 	{
-		if (isAtEnd()) return false;
+		if (IsAtEnd()) return false;
 		if (source[current] != expected) return false;
 		current++;
 		return true;
 	}
 
-	Token makeToken(TokenType type)
+	Token MakeToken(TokenType type)
 	{
 		Token token = new();
 		token.type = type;
@@ -256,7 +253,7 @@ internal class Scanner
 		return token;
 	}
 
-	Token errorToken(string message)
+	Token ErrorToken(string message)
 	{
 		Token token;
 		token.type = TOKEN_ERROR;

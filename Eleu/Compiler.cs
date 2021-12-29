@@ -655,7 +655,7 @@ internal class Compiler
 		parser.previous = parser.current;
 		for (; ; )
 		{
-			parser.current = scanner.scanToken();
+			parser.current = scanner.ScanToken();
 			if (parser.current.type != TOKEN_ERROR) break;
 
 			errorAtCurrent(parser.current.StringValue);
@@ -869,7 +869,7 @@ internal class Compiler
 		var tw = options.Err;
 		for (; ; )
 		{
-			var token = scanner.scanToken();
+			var token = scanner.ScanToken();
 			if (token.line != line)
 			{
 				tw.Write("{0,4} ", token.line);
