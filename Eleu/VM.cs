@@ -139,7 +139,7 @@ public class VM
 		switch (instruction)
 		{
 			case OP_NOT:
-				Push(BoolVal(IsFalsey(Pop())));
+				Push(CreateBoolVal(IsFalsey(Pop())));
 				break;
 			case OP_NEGATE: Negate(); break;
 			case OP_JUMP:
@@ -168,8 +168,8 @@ public class VM
 				Push(constant);
 				break;
 			case OP_NIL: Push(Nil); break;
-			case OP_TRUE: Push(BoolVal(true)); break;
-			case OP_FALSE: Push(BoolVal(false)); break;
+			case OP_TRUE: Push(BoolTrue); break;
+			case OP_FALSE: Push(BoolFalse); break;
 			case OP_POP: Pop(); break;
 			case OP_GET_LOCAL:
 				{
@@ -192,8 +192,8 @@ public class VM
 			case OP_SET_PROPERTY: SetProperty(); break;
 			case OP_GET_SUPER: GetSuper(); break;
 			case OP_EQUAL: Equal(); break;
-			case OP_GREATER: PopAndOp((a, b) => BoolVal(a > b)); break;
-			case OP_LESS: PopAndOp((a, b) => BoolVal(a < b)); break;
+			case OP_GREATER: PopAndOp((a, b) => CreateBoolVal(a > b)); break;
+			case OP_LESS: PopAndOp((a, b) => CreateBoolVal(a < b)); break;
 			case OP_ADD: Add(); break;
 			case OP_SUBTRACT: PopAndOp((a, b) => CreateNumberVal(a - b)); break;
 			case OP_MULTIPLY: PopAndOp((a, b) => CreateNumberVal(a * b)); break;
@@ -333,7 +333,7 @@ public class VM
 	{
 		Value b = Pop();
 		Value a = Pop();
-		Push(BoolVal(ValuesEqual(a, b)));
+		Push(CreateBoolVal(ValuesEqual(a, b)));
 	}
 	void Add()
 	{

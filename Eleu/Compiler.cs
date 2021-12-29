@@ -856,7 +856,7 @@ internal class Compiler
 		if (parser.panicMode) return;
 		parser.panicMode = true;
 		var msg = string.IsNullOrEmpty(fileName) ? message : $"{fileName}({token.line}): Cerr: {message}";
-		msg = $"File \"{fileName}\", line {token.line}: Compiler error: {message}";
+		//msg = $"File \"{fileName}\", line {token.line}: Compiler error: {message}";
 		options.Err.WriteLine(msg);
 		System.Diagnostics.Trace.WriteLine(msg);
 		parser.hadError = true;

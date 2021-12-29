@@ -60,8 +60,9 @@ struct Value
 static class ValueStatics
 {
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static Value BoolVal(bool value) => new(VAL_BOOL, value ? 1 : 0);
-	public static Value BoolTrue = BoolVal(true);
+	public static Value CreateBoolVal(bool value) => new(VAL_BOOL, value ? 1 : 0);
+	public static Value BoolTrue = CreateBoolVal(true);
+	public static Value BoolFalse = CreateBoolVal(false);
 	public static readonly Value Nil = new(VAL_NIL, 0);
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static Value CreateNumberVal(double value) => new(VAL_NUMBER, value);
