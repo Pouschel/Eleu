@@ -28,14 +28,6 @@ enum FunctionType
 	TYPE_SCRIPT
 }
 
-struct Parser
-{
-	public Token current;
-	public Token previous;
-	public bool hadError;
-	public bool panicMode;
-}
-
 delegate void PaserAction(bool canAssign);
 
 class ParseRule
@@ -98,8 +90,12 @@ class EleuResult
 
 internal class Compiler
 {
+	Token currentToken;
+	Token previousToken;
+	bool hadError;
+	bool panicMode;
+
 	Scanner scanner;
-	Parser parser;
 	CompilerState current;
 	ClassCompiler? currentClass;
 	string fileName;
@@ -176,7 +172,6 @@ internal class Compiler
 		this.fileName = fileName;
 		this.options = options;
 		scanner = new Scanner(source);
-		parser = new Parser();
 		if (options.CreateDebugInfo) debugInfo = new DebugInfo();
 		current = initCompiler(TYPE_SCRIPT);
 	}
@@ -192,8 +187,8 @@ internal class Compiler
 		var function = endCompiler();
 		return new EleuResult
 		{
-			Result = parser.hadError ? CompileError : Ok,
-			Function = parser.hadError ? null : function,
+			Result = hadError ? CompileError : Ok,
+			Function = hadError ? null : function,
 			DebugInfo = debugInfo
 		};
 	}
@@ -213,14 +208,14 @@ internal class Compiler
 		{
 			Statement();
 		}
-		if (parser.panicMode) Synchronize();
+		if (panicMode) Synchronize();
 	}
 
 	void classDeclaration()
 	{
 		Consume(TOKEN_IDENTIFIER, "Expect class name.");
-		var className = parser.previous;
-		byte nameConstant = IdentifierConstant(parser.previous);
+		var className = previousToken;
+		byte nameConstant = IdentifierConstant(previousToken);
 		DeclareVariable();
 		EmitBytes(OP_CLASS, nameConstant);
 		DefineVariable(nameConstant);
@@ -231,7 +226,7 @@ internal class Compiler
 		{
 			Consume(TOKEN_IDENTIFIER, "Expect superclass name.");
 			Variable(false);
-			if (identifiersEqual(className, parser.previous))
+			if (identifiersEqual(className, previousToken))
 				Error("A class can't inherit from itself.");
 			BeginScope();
 			AddLocal(SyntheticToken("super"));
@@ -255,12 +250,12 @@ internal class Compiler
 
 	void Synchronize()
 	{
-		parser.panicMode = false;
+		panicMode = false;
 
-		while (parser.current.type != TOKEN_EOF)
+		while (currentToken.type != TOKEN_EOF)
 		{
-			if (parser.previous.type == TOKEN_SEMICOLON) return;
-			switch (parser.current.type)
+			if (previousToken.type == TOKEN_SEMICOLON) return;
+			switch (currentToken.type)
 			{
 				case TOKEN_CLASS:
 				case TOKEN_FUN:
@@ -293,7 +288,7 @@ internal class Compiler
 			debugInfo.Add(chunkDebugInfo);
 		}
 		if (type != TYPE_SCRIPT)
-			compiler.function.name = parser.previous.StringValue;
+			compiler.function.name = previousToken.StringValue;
 		return compiler;
 	}
 	ObjFunction endCompiler()
@@ -302,7 +297,7 @@ internal class Compiler
 		var function = current.function;
 		if (DEBUG_PRINT_CODE)
 		{
-			if (!parser.hadError)
+			if (!hadError)
 				CurrentChunk.Disassemble(function.NameOrScript, debugInfo, options.Err);
 		}
 		current = current.enclosing!;
@@ -343,9 +338,9 @@ internal class Compiler
 	void Method()
 	{
 		Consume(TOKEN_IDENTIFIER, "Expect method name.");
-		byte constant = IdentifierConstant(parser.previous);
+		byte constant = IdentifierConstant(previousToken);
 		var type = TYPE_METHOD;
-		if (parser.previous.StringValue == "init")
+		if (previousToken.StringValue == "init")
 			type = TYPE_INITIALIZER;
 		Function(type);
 		EmitBytes(OP_METHOD, constant);
@@ -358,7 +353,7 @@ internal class Compiler
 	void Dot(bool canAssign)
 	{
 		Consume(TOKEN_IDENTIFIER, "Expect property name after '.'.");
-		byte name = IdentifierConstant(parser.previous);
+		byte name = IdentifierConstant(previousToken);
 
 		if (canAssign && Match(TOKEN_EQUAL))
 		{
@@ -411,7 +406,7 @@ internal class Compiler
 		Consume(TOKEN_IDENTIFIER, errorMessage);
 		DeclareVariable();
 		if (current.scopeDepth > 0) return 0;
-		return IdentifierConstant(parser.previous);
+		return IdentifierConstant(previousToken);
 	}
 
 	byte IdentifierConstant(Token name) => MakeConstant(new Value(name.StringValue));
@@ -610,7 +605,7 @@ internal class Compiler
 	}
 	bool Check(TokenType type)
 	{
-		return parser.current.type == type;
+		return currentToken.type == type;
 	}
 	void Expression() => ParsePrecedence(PREC_ASSIGNMENT);
 	void PrintStatement()
@@ -622,7 +617,7 @@ internal class Compiler
 	void ParsePrecedence(Precedence precedence)
 	{
 		Advance();
-		var prefixRule = GetRule(parser.previous.type).prefix;
+		var prefixRule = GetRule(previousToken.type).prefix;
 		if (prefixRule == null)
 		{
 			Error("Expect expression.");
@@ -630,10 +625,10 @@ internal class Compiler
 		}
 		bool canAssign = precedence <= PREC_ASSIGNMENT;
 		prefixRule(canAssign);
-		while (precedence <= GetRule(parser.current.type).precedence)
+		while (precedence <= GetRule(currentToken.type).precedence)
 		{
 			Advance();
-			var infixRule = GetRule(parser.previous.type).infix;
+			var infixRule = GetRule(previousToken.type).infix;
 			infixRule!(canAssign);
 		}
 		if (canAssign && Match(TOKEN_EQUAL))
@@ -644,23 +639,23 @@ internal class Compiler
 
 	void Advance()
 	{
-		parser.previous = parser.current;
+		previousToken = currentToken;
 		for (; ; )
 		{
-			parser.current = scanner.ScanToken();
-			if (parser.current.type != TOKEN_ERROR) break;
-			ErrorAtCurrent(parser.current.StringValue);
+			currentToken = scanner.ScanToken();
+			if (currentToken.type != TOKEN_ERROR) break;
+			ErrorAtCurrent(currentToken.StringValue);
 		}
 	}
 
 	void Number(bool canAssign)
 	{
-		double value = double.Parse(parser.previous.StringValue, CultureInfo.InvariantCulture);
+		double value = double.Parse(previousToken.StringValue, CultureInfo.InvariantCulture);
 		EmitConstant(CreateNumberVal(value));
 	}
 	void Literal(bool canAssign)
 	{
-		switch (parser.previous.type)
+		switch (previousToken.type)
 		{
 			case TOKEN_FALSE: EmitByte(OP_FALSE); break;
 			case TOKEN_NIL: EmitByte(OP_NIL); break;
@@ -670,7 +665,7 @@ internal class Compiler
 	}
 	void _string(bool canAssign)
 	{
-		EmitConstant(CreateStringVal(parser.previous.StringStringValue));
+		EmitConstant(CreateStringVal(previousToken.StringStringValue));
 	}
 	void Grouping(bool canAssign)
 	{
@@ -693,7 +688,7 @@ internal class Compiler
 
 	void Unary(bool canAssign)
 	{
-		var operatorType = parser.previous.type;
+		var operatorType = previousToken.type;
 
 		// Compile the operand.
 		ParsePrecedence(PREC_UNARY);
@@ -708,7 +703,7 @@ internal class Compiler
 	}
 	void binary(bool canAssign)
 	{
-		var operatorType = parser.previous.type;
+		var operatorType = previousToken.type;
 		var rule = GetRule(operatorType);
 		ParsePrecedence(rule.precedence + 1);
 
@@ -728,7 +723,7 @@ internal class Compiler
 			default: return; // Unreachable.
 		}
 	}
-	void Variable(bool canAssign) => NamedVariable(parser.previous, canAssign);
+	void Variable(bool canAssign) => NamedVariable(previousToken, canAssign);
 	void This_(bool canAssign)
 	{
 		if (currentClass == null)
@@ -748,7 +743,7 @@ internal class Compiler
 		}
 		Consume(TOKEN_DOT, "Expect '.' after 'super'.");
 		Consume(TOKEN_IDENTIFIER, "Expect superclass method name.");
-		byte name = IdentifierConstant(parser.previous);
+		byte name = IdentifierConstant(previousToken);
 		NamedVariable(SyntheticToken("this"), false);
 		if (Match(TOKEN_LEFT_PAREN))
 		{
@@ -841,7 +836,7 @@ internal class Compiler
 	}
 	void Consume(TokenType type, string message)
 	{
-		if (parser.current.type == type)
+		if (currentToken.type == type)
 		{
 			Advance();
 			return;
@@ -849,18 +844,18 @@ internal class Compiler
 		ErrorAtCurrent(message);
 	}
 
-	void Error(string message) => ErrorAt(parser.previous, message);
-	void ErrorAtCurrent(string message) => ErrorAt(parser.current, message);
+	void Error(string message) => ErrorAt(previousToken, message);
+	void ErrorAtCurrent(string message) => ErrorAt(currentToken, message);
 
 	void ErrorAt(in Token token, string message)
 	{
-		if (parser.panicMode) return;
-		parser.panicMode = true;
+		if (panicMode) return;
+		panicMode = true;
 		var msg = string.IsNullOrEmpty(fileName) ? message : $"{fileName}({token.line}): Cerr: {message}";
 		//msg = $"File \"{fileName}\", line {token.line}: Compiler error: {message}";
 		options.Err.WriteLine(msg);
 		System.Diagnostics.Trace.WriteLine(msg);
-		parser.hadError = true;
+		hadError = true;
 	}
 
 	public void DumpTokens()
@@ -901,13 +896,13 @@ internal class Compiler
 
 	void EmitByte(byte by)
 	{
-		chunkDebugInfo?.AddLine(parser.previous.line);
+		chunkDebugInfo?.AddLine(previousToken.line);
 		CurrentChunk.Write(by);
 	}
 
 	void EmitByte(OpCode op)
 	{
-		chunkDebugInfo?.AddLine(parser.previous.line);
+		chunkDebugInfo?.AddLine(previousToken.line);
 		CurrentChunk.Write(op);
 	}
 
@@ -955,7 +950,7 @@ internal class Compiler
 	void DeclareVariable()
 	{
 		if (current.scopeDepth == 0) return;
-		var name = parser.previous;
+		var name = previousToken;
 		for (int i = current.localCount - 1; i >= 0; i--)
 		{
 			ref Local local = ref current.locals[i];
