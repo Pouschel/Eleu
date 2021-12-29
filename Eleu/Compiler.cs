@@ -113,21 +113,21 @@ internal class Compiler
 
 	void InitTable()
 	{
-		SetRule(TOKEN_LEFT_PAREN, grouping, call, PREC_CALL);
+		SetRule(TOKEN_LEFT_PAREN, Grouping, call, PREC_CALL);
 		SetRule(TOKEN_RIGHT_PAREN, null, null, PREC_NONE);
 		SetRule(TokenLeftBracket, ListConst, null, PREC_NONE);
 		SetRule(TokenRightBracket, null, null, PREC_NONE);
 		SetRule(TOKEN_LEFT_BRACE, null, null, PREC_NONE);
 		SetRule(TOKEN_RIGHT_BRACE, null, null, PREC_NONE);
 		SetRule(TOKEN_COMMA, null, null, PREC_NONE);
-		SetRule(TOKEN_DOT, null, dot, PREC_CALL);
-		SetRule(TokenMinus, unary, binary, PREC_TERM);
+		SetRule(TOKEN_DOT, null, Dot, PREC_CALL);
+		SetRule(TokenMinus, Unary, binary, PREC_TERM);
 		SetRule(TokenPlus, null, binary, PREC_TERM);
 		SetRule(TOKEN_SEMICOLON, null, null, PREC_NONE);
 		SetRule(TOKEN_SLASH, null, binary, PREC_FACTOR);
 		SetRule(TokenStar, null, binary, PREC_FACTOR);
 		SetRule(TokenPercent, null, binary, PREC_FACTOR);
-		SetRule(TOKEN_BANG, unary, null, PREC_NONE);
+		SetRule(TOKEN_BANG, Unary, null, PREC_NONE);
 		SetRule(TOKEN_BANG_EQUAL, null, binary, PREC_EQUALITY);
 		SetRule(TOKEN_EQUAL, null, null, PREC_NONE);
 		SetRule(TOKEN_EQUAL_EQUAL, null, binary, PREC_EQUALITY);
@@ -135,23 +135,23 @@ internal class Compiler
 		SetRule(TOKEN_GREATER_EQUAL, null, binary, PREC_COMPARISON);
 		SetRule(TOKEN_LESS, null, binary, PREC_COMPARISON);
 		SetRule(TOKEN_LESS_EQUAL, null, binary, PREC_COMPARISON);
-		SetRule(TOKEN_IDENTIFIER, variable, null, PREC_NONE);
+		SetRule(TOKEN_IDENTIFIER, Variable, null, PREC_NONE);
 		SetRule(TOKEN_STRING, _string, null, PREC_NONE);
-		SetRule(TOKEN_NUMBER, number, null, PREC_NONE);
-		SetRule(TOKEN_AND, null, and_, PREC_AND);
+		SetRule(TOKEN_NUMBER, Number, null, PREC_NONE);
+		SetRule(TOKEN_AND, null, And_, PREC_AND);
 		SetRule(TOKEN_CLASS, null, null, PREC_NONE);
 		SetRule(TOKEN_ELSE, null, null, PREC_NONE);
-		SetRule(TOKEN_FALSE, literal, null, PREC_NONE);
+		SetRule(TOKEN_FALSE, Literal, null, PREC_NONE);
 		SetRule(TOKEN_FOR, null, null, PREC_NONE);
 		SetRule(TOKEN_FUN, null, null, PREC_NONE);
 		SetRule(TOKEN_IF, null, null, PREC_NONE);
-		SetRule(TOKEN_NIL, literal, null, PREC_NONE);
-		SetRule(TOKEN_OR, null, or_, PREC_OR);
+		SetRule(TOKEN_NIL, Literal, null, PREC_NONE);
+		SetRule(TOKEN_OR, null, Or_, PREC_OR);
 		SetRule(TOKEN_PRINT, null, null, PREC_NONE);
 		SetRule(TOKEN_RETURN, null, null, PREC_NONE);
-		SetRule(TOKEN_SUPER, super_, null, PREC_NONE);
-		SetRule(TOKEN_THIS, this_, null, PREC_NONE);
-		SetRule(TOKEN_TRUE, literal, null, PREC_NONE);
+		SetRule(TOKEN_SUPER, Super_, null, PREC_NONE);
+		SetRule(TOKEN_THIS, This_, null, PREC_NONE);
+		SetRule(TOKEN_TRUE, Literal, null, PREC_NONE);
 		SetRule(TOKEN_VAR, null, null, PREC_NONE);
 		SetRule(TOKEN_WHILE, null, null, PREC_NONE);
 		SetRule(TOKEN_ERROR, null, null, PREC_NONE);
@@ -184,10 +184,10 @@ internal class Compiler
 	public EleuResult compile()
 	{
 		scanner.Reset();
-		advance();
+		Advance();
 		while (!Match(TOKEN_EOF))
 		{
-			declaration();
+			Declaration();
 		}
 		var function = endCompiler();
 		return new EleuResult
@@ -197,63 +197,63 @@ internal class Compiler
 			DebugInfo = debugInfo
 		};
 	}
-	void declaration()
+	void Declaration()
 	{
 		if (Match(TOKEN_CLASS))
 			classDeclaration();
 		else if (Match(TOKEN_FUN))
 		{
-			funDeclaration();
+			FunDeclaration();
 		}
 		else if (Match(TOKEN_VAR))
 		{
-			varDeclaration();
+			VarDeclaration();
 		}
 		else
 		{
-			statement();
+			Statement();
 		}
-		if (parser.panicMode) synchronize();
+		if (parser.panicMode) Synchronize();
 	}
 
 	void classDeclaration()
 	{
-		consume(TOKEN_IDENTIFIER, "Expect class name.");
+		Consume(TOKEN_IDENTIFIER, "Expect class name.");
 		var className = parser.previous;
-		byte nameConstant = identifierConstant(parser.previous);
-		declareVariable();
+		byte nameConstant = IdentifierConstant(parser.previous);
+		DeclareVariable();
 		EmitBytes(OP_CLASS, nameConstant);
-		defineVariable(nameConstant);
+		DefineVariable(nameConstant);
 		var classCompiler = new ClassCompiler();
 		classCompiler.enclosing = this.currentClass;
 		this.currentClass = classCompiler;
 		if (Match(TOKEN_LESS))
 		{
-			consume(TOKEN_IDENTIFIER, "Expect superclass name.");
-			variable(false);
+			Consume(TOKEN_IDENTIFIER, "Expect superclass name.");
+			Variable(false);
 			if (identifiersEqual(className, parser.previous))
-				error("A class can't inherit from itself.");
-			beginScope();
-			addLocal(syntheticToken("super"));
-			defineVariable(0);
-			namedVariable(className, false);
+				Error("A class can't inherit from itself.");
+			BeginScope();
+			AddLocal(SyntheticToken("super"));
+			DefineVariable(0);
+			NamedVariable(className, false);
 			EmitByte(OP_INHERIT);
 			classCompiler.hasSuperclass = true;
 		}
-		namedVariable(className, false);
-		consume(TOKEN_LEFT_BRACE, "Expect '{' before class body.");
-		while (!check(TOKEN_RIGHT_BRACE) && !check(TOKEN_EOF))
+		NamedVariable(className, false);
+		Consume(TOKEN_LEFT_BRACE, "Expect '{' before class body.");
+		while (!Check(TOKEN_RIGHT_BRACE) && !Check(TOKEN_EOF))
 		{
-			method();
+			Method();
 		}
-		consume(TOKEN_RIGHT_BRACE, "Expect '}' after class body.");
+		Consume(TOKEN_RIGHT_BRACE, "Expect '}' after class body.");
 		EmitByte(OP_POP);
 		if (classCompiler.hasSuperclass)
-			endScope();
+			EndScope();
 		this.currentClass = this.currentClass.enclosing;
 	}
 
-	void synchronize()
+	void Synchronize()
 	{
 		parser.panicMode = false;
 
@@ -273,15 +273,15 @@ internal class Compiler
 					return;
 				default: break;
 			}
-			advance();
+			Advance();
 		}
 	}
-	void funDeclaration()
+	void FunDeclaration()
 	{
-		byte global = parseVariable("Expect function name.");
-		markInitialized();
-		function(TYPE_FUNCTION);
-		defineVariable(global);
+		byte global = ParseVariable("Expect function name.");
+		MarkInitialized();
+		Function(TYPE_FUNCTION);
+		DefineVariable(global);
 	}
 	CompilerState initCompiler(FunctionType type)
 	{
@@ -298,39 +298,39 @@ internal class Compiler
 	}
 	ObjFunction endCompiler()
 	{
-		emitReturn();
+		EmitReturn();
 		var function = current.function;
 		if (DEBUG_PRINT_CODE)
 		{
 			if (!parser.hadError)
-				currentChunk().Disassemble(function.NameOrScript, debugInfo, options.Err);
+				CurrentChunk.Disassemble(function.NameOrScript, debugInfo, options.Err);
 		}
 		current = current.enclosing!;
 		chunkDebugInfo = current== null ? null: debugInfo?.GetChunkInfo(current.function.chunk);
 		return function;
 	}
 
-	void function(FunctionType type)
+	void Function(FunctionType type)
 	{
 		var compiler = initCompiler(type);
 		current = compiler;
-		beginScope();
+		BeginScope();
 
-		consume(TOKEN_LEFT_PAREN, "Expect '(' after function name.");
-		if (!check(TOKEN_RIGHT_PAREN))
+		Consume(TOKEN_LEFT_PAREN, "Expect '(' after function name.");
+		if (!Check(TOKEN_RIGHT_PAREN))
 		{
 			do
 			{
 				compiler.function.arity++;
 				if (compiler.function.arity > 255)
-					errorAtCurrent("Can't have more than 255 parameters.");
-				byte constant = parseVariable("Expect parameter name.");
-				defineVariable(constant);
+					ErrorAtCurrent("Can't have more than 255 parameters.");
+				byte constant = ParseVariable("Expect parameter name.");
+				DefineVariable(constant);
 			} while (Match(TOKEN_COMMA));
 		}
-		consume(TOKEN_RIGHT_PAREN, "Expect ')' after parameters.");
-		consume(TOKEN_LEFT_BRACE, "Expect '{' before function body.");
-		block();
+		Consume(TOKEN_RIGHT_PAREN, "Expect ')' after parameters.");
+		Consume(TOKEN_LEFT_BRACE, "Expect '{' before function body.");
+		Block();
 
 		var function = endCompiler();
 		EmitBytes(OP_CLOSURE, MakeConstant(CreateObjVal(function)));
@@ -340,34 +340,34 @@ internal class Compiler
 			EmitByte(compiler.upvalues[i].index);
 		}
 	}
-	void method()
+	void Method()
 	{
-		consume(TOKEN_IDENTIFIER, "Expect method name.");
-		byte constant = identifierConstant(parser.previous);
+		Consume(TOKEN_IDENTIFIER, "Expect method name.");
+		byte constant = IdentifierConstant(parser.previous);
 		var type = TYPE_METHOD;
 		if (parser.previous.StringValue == "init")
 			type = TYPE_INITIALIZER;
-		function(type);
+		Function(type);
 		EmitBytes(OP_METHOD, constant);
 	}
 	void call(bool canAssign)
 	{
-		byte argCount = argumentList();
+		byte argCount = ArgumentList();
 		EmitBytes(OP_CALL, argCount);
 	}
-	void dot(bool canAssign)
+	void Dot(bool canAssign)
 	{
-		consume(TOKEN_IDENTIFIER, "Expect property name after '.'.");
-		byte name = identifierConstant(parser.previous);
+		Consume(TOKEN_IDENTIFIER, "Expect property name after '.'.");
+		byte name = IdentifierConstant(parser.previous);
 
 		if (canAssign && Match(TOKEN_EQUAL))
 		{
-			expression();
+			Expression();
 			EmitBytes(OP_SET_PROPERTY, name);
 		}
 		else if (Match(TOKEN_LEFT_PAREN))
 		{
-			byte argCount = argumentList();
+			byte argCount = ArgumentList();
 			EmitBytes(OP_INVOKE, name);
 			EmitByte(argCount);
 		}
@@ -376,217 +376,210 @@ internal class Compiler
 			EmitBytes(OP_GET_PROPERTY, name);
 		}
 	}
-	byte argumentList()
+	byte ArgumentList()
 	{
 		byte argCount = 0;
-		if (!check(TOKEN_RIGHT_PAREN))
+		if (!Check(TOKEN_RIGHT_PAREN))
 		{
 			do
 			{
-				expression();
+				Expression();
 				if (argCount == byte.MaxValue)
-					error("Can't have more than 255 arguments.");
+					Error("Can't have more than 255 arguments.");
 				argCount++;
 			} while (Match(TOKEN_COMMA));
 		}
-		consume(TOKEN_RIGHT_PAREN, "Expect ')' after arguments.");
+		Consume(TOKEN_RIGHT_PAREN, "Expect ')' after arguments.");
 		return argCount;
 	}
-	void varDeclaration()
+	void VarDeclaration()
 	{
-		byte global = parseVariable("Expect variable name.");
+		byte global = ParseVariable("Expect variable name.");
 
 		if (Match(TOKEN_EQUAL))
-			expression();
+			Expression();
 		else
 		{
 			EmitByte(OP_NIL);
 		}
-		consume(TOKEN_SEMICOLON, "Expect ';' after variable declaration.");
+		Consume(TOKEN_SEMICOLON, "Expect ';' after variable declaration.");
 
-		defineVariable(global);
+		DefineVariable(global);
 	}
-	byte parseVariable(string errorMessage)
+	byte ParseVariable(string errorMessage)
 	{
-		consume(TOKEN_IDENTIFIER, errorMessage);
-		declareVariable();
+		Consume(TOKEN_IDENTIFIER, errorMessage);
+		DeclareVariable();
 		if (current.scopeDepth > 0) return 0;
-		return identifierConstant(parser.previous);
+		return IdentifierConstant(parser.previous);
 	}
 
-	byte identifierConstant(Token name)
-	{
-		return MakeConstant(new Value(name.StringValue));
-	}
+	byte IdentifierConstant(Token name) => MakeConstant(new Value(name.StringValue));
 
-	void statement()
+	void Statement()
 	{
 		if (Match(TOKEN_PRINT))
-			printStatement();
+			PrintStatement();
 		else if (Match(TOKEN_FOR))
 		{
-			forStatement();
+			ForStatement();
 		}
 		else if (Match(TOKEN_IF))
 		{
-			ifStatement();
+			IfStatement();
 		}
 		else if (Match(TOKEN_RETURN))
 		{
-			returnStatement();
+			ReturnStatement();
 		}
 		else if (Match(TOKEN_WHILE))
 		{
-			whileStatement();
+			WhileStatement();
 		}
 		else if (Match(TOKEN_LEFT_BRACE))
 		{
-			beginScope();
-			block();
-			endScope();
+			BeginScope();
+			Block();
+			EndScope();
 		}
 		else
 		{
-			expressionStatement();
+			ExpressionStatement();
 		}
 	}
-	void returnStatement()
+	void ReturnStatement()
 	{
 		if (current.type == TYPE_SCRIPT)
-			error("Can't return from top-level code.");
+			Error("Can't return from top-level code.");
 		if (Match(TOKEN_SEMICOLON))
-			emitReturn();
+			EmitReturn();
 		else
 		{
 			if (current.type == TYPE_INITIALIZER)
-				error("Can't return a value from an initializer.");
-			expression();
-			consume(TOKEN_SEMICOLON, "Expect ';' after return value.");
+				Error("Can't return a value from an initializer.");
+			Expression();
+			Consume(TOKEN_SEMICOLON, "Expect ';' after return value.");
 			EmitByte(OP_RETURN);
 		}
 	}
-	void forStatement()
+	void ForStatement()
 	{
-		beginScope();
-		consume(TOKEN_LEFT_PAREN, "Expect '(' after 'for'.");
+		BeginScope();
+		Consume(TOKEN_LEFT_PAREN, "Expect '(' after 'for'.");
 		if (Match(TOKEN_SEMICOLON))
 		{
 			// No initializer.
 		}
-		else if (Match(TOKEN_VAR)) varDeclaration();
-		else expressionStatement();
+		else if (Match(TOKEN_VAR)) VarDeclaration();
+		else ExpressionStatement();
 
-		int loopStart = currentChunk().count;
+		int loopStart = CurrentChunk.count;
 		int exitJump = -1;
 		if (!Match(TOKEN_SEMICOLON))
 		{
-			expression();
-			consume(TOKEN_SEMICOLON, "Expect ';' after loop condition.");
+			Expression();
+			Consume(TOKEN_SEMICOLON, "Expect ';' after loop condition.");
 
 			// Jump out of the loop if the condition is false.
-			exitJump = emitJump(OP_JUMP_IF_FALSE);
+			exitJump = EmitJump(OP_JUMP_IF_FALSE);
 			EmitByte(OP_POP); // Condition.
 		}
 		if (!Match(TOKEN_RIGHT_PAREN))
 		{
-			int bodyJump = emitJump(OP_JUMP);
-			int incrementStart = currentChunk().count;
-			expression();
+			int bodyJump = EmitJump(OP_JUMP);
+			int incrementStart = CurrentChunk.count;
+			Expression();
 			EmitByte(OP_POP);
-			consume(TOKEN_RIGHT_PAREN, "Expect ')' after for clauses.");
+			Consume(TOKEN_RIGHT_PAREN, "Expect ')' after for clauses.");
 
-			emitLoop(loopStart);
+			EmitLoop(loopStart);
 			loopStart = incrementStart;
-			patchJump(bodyJump);
+			PatchJump(bodyJump);
 		}
 
-		statement();
-		emitLoop(loopStart);
+		Statement();
+		EmitLoop(loopStart);
 		if (exitJump != -1)
 		{
-			patchJump(exitJump);
+			PatchJump(exitJump);
 			EmitByte(OP_POP); // Condition.
 		}
-		endScope();
+		EndScope();
 	}
 
-	void whileStatement()
+	void WhileStatement()
 	{
-		int loopStart = currentChunk().count;
-		consume(TOKEN_LEFT_PAREN, "Expect '(' after 'while'.");
-		expression();
-		consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
+		int loopStart = CurrentChunk.count;
+		Consume(TOKEN_LEFT_PAREN, "Expect '(' after 'while'.");
+		Expression();
+		Consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
 
-		int exitJump = emitJump(OP_JUMP_IF_FALSE);
+		int exitJump = EmitJump(OP_JUMP_IF_FALSE);
 		EmitByte(OP_POP);
-		statement();
-		emitLoop(loopStart);
-		patchJump(exitJump);
+		Statement();
+		EmitLoop(loopStart);
+		PatchJump(exitJump);
 		EmitByte(OP_POP);
 	}
-	void ifStatement()
+	void IfStatement()
 	{
-		consume(TOKEN_LEFT_PAREN, "Expect '(' after 'if'.");
-		expression();
-		consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
-		int thenJump = emitJump(OP_JUMP_IF_FALSE);
+		Consume(TOKEN_LEFT_PAREN, "Expect '(' after 'if'.");
+		Expression();
+		Consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
+		int thenJump = EmitJump(OP_JUMP_IF_FALSE);
 		EmitByte(OP_POP);
-		statement();
-		int elseJump = emitJump(OP_JUMP);
-		patchJump(thenJump);
+		Statement();
+		int elseJump = EmitJump(OP_JUMP);
+		PatchJump(thenJump);
 		EmitByte(OP_POP);
-		if (Match(TOKEN_ELSE)) statement();
-		patchJump(elseJump);
+		if (Match(TOKEN_ELSE)) Statement();
+		PatchJump(elseJump);
 	}
-	void and_(bool canAssign)
+	void And_(bool canAssign)
 	{
-		int endJump = emitJump(OP_JUMP_IF_FALSE);
+		int endJump = EmitJump(OP_JUMP_IF_FALSE);
 		EmitByte(OP_POP);
-		parsePrecedence(PREC_AND);
-		patchJump(endJump);
+		ParsePrecedence(PREC_AND);
+		PatchJump(endJump);
 	}
-	void or_(bool canAssign)
+	void Or_(bool canAssign)
 	{
-		int elseJump = emitJump(OP_JUMP_IF_FALSE);
-		int endJump = emitJump(OP_JUMP);
+		int elseJump = EmitJump(OP_JUMP_IF_FALSE);
+		int endJump = EmitJump(OP_JUMP);
 
-		patchJump(elseJump);
+		PatchJump(elseJump);
 		EmitByte(OP_POP);
 
-		parsePrecedence(PREC_OR);
-		patchJump(endJump);
+		ParsePrecedence(PREC_OR);
+		PatchJump(endJump);
 	}
-	int emitJump(OpCode instruction)
+	int EmitJump(OpCode instruction)
 	{
 		EmitByte(instruction);
 		EmitByte(0xff);
 		EmitByte(0xff);
-		return currentChunk().count - 2;
+		return CurrentChunk.count - 2;
 	}
-	void patchJump(int offset)
+	void PatchJump(int offset)
 	{
 		// -2 to adjust for the bytecode for the jump offset itself.
-		int jump = currentChunk().count - offset - 2;
+		int jump = CurrentChunk.count - offset - 2;
 
 		if (jump > ushort.MaxValue)
-			error("Too much code to jump over.");
-		currentChunk().code[offset] = (byte)(jump >> 8 & 0xff);
-		currentChunk().code[offset + 1] = (byte)(jump & 0xff);
+			Error("Too much code to jump over.");
+		CurrentChunk.code[offset] = (byte)(jump >> 8 & 0xff);
+		CurrentChunk.code[offset + 1] = (byte)(jump & 0xff);
 	}
-	void block()
+	void Block()
 	{
-		while (!check(TOKEN_RIGHT_BRACE) && !check(TOKEN_EOF))
+		while (!Check(TOKEN_RIGHT_BRACE) && !Check(TOKEN_EOF))
 		{
-			declaration();
+			Declaration();
 		}
-
-		consume(TOKEN_RIGHT_BRACE, "Expect '}' after block.");
+		Consume(TOKEN_RIGHT_BRACE, "Expect '}' after block.");
 	}
-	void beginScope()
-	{
-		current.scopeDepth++;
-	}
-	void endScope()
+	void BeginScope() => current.scopeDepth++;
+	void EndScope()
 	{
 		current.scopeDepth--;
 		while (current.localCount > 0
@@ -602,73 +595,70 @@ internal class Compiler
 		}
 	}
 
-	void expressionStatement()
+	void ExpressionStatement()
 	{
-		expression();
-		consume(TOKEN_SEMICOLON, "Expect ';' after expression.");
+		Expression();
+		Consume(TOKEN_SEMICOLON, "Expect ';' after expression.");
 		EmitByte(OP_POP);
 	}
 
 	bool Match(TokenType type)
 	{
-		if (!check(type)) return false;
-		advance();
+		if (!Check(type)) return false;
+		Advance();
 		return true;
 	}
-	bool check(TokenType type)
+	bool Check(TokenType type)
 	{
 		return parser.current.type == type;
 	}
-	void expression()
+	void Expression() => ParsePrecedence(PREC_ASSIGNMENT);
+	void PrintStatement()
 	{
-		parsePrecedence(PREC_ASSIGNMENT);
-	}
-	void printStatement()
-	{
-		expression();
-		consume(TOKEN_SEMICOLON, "Expect ';' after value.");
+		Expression();
+		Consume(TOKEN_SEMICOLON, "Expect ';' after value.");
 		EmitByte(OP_PRINT);
 	}
-	void parsePrecedence(Precedence precedence)
+	void ParsePrecedence(Precedence precedence)
 	{
-		advance();
-		var prefixRule = getRule(parser.previous.type).prefix;
+		Advance();
+		var prefixRule = GetRule(parser.previous.type).prefix;
 		if (prefixRule == null)
 		{
-			error("Expect expression.");
+			Error("Expect expression.");
 			return;
 		}
 		bool canAssign = precedence <= PREC_ASSIGNMENT;
 		prefixRule(canAssign);
-		while (precedence <= getRule(parser.current.type).precedence)
+		while (precedence <= GetRule(parser.current.type).precedence)
 		{
-			advance();
-			var infixRule = getRule(parser.previous.type).infix;
+			Advance();
+			var infixRule = GetRule(parser.previous.type).infix;
 			infixRule!(canAssign);
 		}
 		if (canAssign && Match(TOKEN_EQUAL))
-			error("Invalid assignment target.");
+			Error("Invalid assignment target.");
 	}
 
-	ParseRule getRule(TokenType type) => rules[(int)type];
+	ParseRule GetRule(TokenType type) => rules[(int)type];
 
-	void advance()
+	void Advance()
 	{
 		parser.previous = parser.current;
 		for (; ; )
 		{
 			parser.current = scanner.ScanToken();
 			if (parser.current.type != TOKEN_ERROR) break;
-			errorAtCurrent(parser.current.StringValue);
+			ErrorAtCurrent(parser.current.StringValue);
 		}
 	}
 
-	void number(bool canAssign)
+	void Number(bool canAssign)
 	{
 		double value = double.Parse(parser.previous.StringValue, CultureInfo.InvariantCulture);
 		EmitConstant(CreateNumberVal(value));
 	}
-	void literal(bool canAssign)
+	void Literal(bool canAssign)
 	{
 		switch (parser.previous.type)
 		{
@@ -682,31 +672,31 @@ internal class Compiler
 	{
 		EmitConstant(CreateStringVal(parser.previous.StringStringValue));
 	}
-	void grouping(bool canAssign)
+	void Grouping(bool canAssign)
 	{
-		expression();
-		consume(TOKEN_RIGHT_PAREN, "Expect ')' after expression.");
+		Expression();
+		Consume(TOKEN_RIGHT_PAREN, "Expect ')' after expression.");
 	}
 
 	void ListConst(bool canAssign)
 	{
 		int count = 0;
-		if (!check(TokenRightBracket))
+		if (!Check(TokenRightBracket))
 			do
 			{
-				expression(); count++;
+				Expression(); count++;
 			} while (Match(TOKEN_COMMA));
-		consume(TokenRightBracket, "Expect ']' at list end");
+		Consume(TokenRightBracket, "Expect ']' at list end");
 		EmitConstant(CreateNumberVal(count));
 		EmitByte(OpNewList);
 	}
 
-	void unary(bool canAssign)
+	void Unary(bool canAssign)
 	{
 		var operatorType = parser.previous.type;
 
 		// Compile the operand.
-		parsePrecedence(PREC_UNARY);
+		ParsePrecedence(PREC_UNARY);
 
 		// Emit the operator instruction.
 		switch (operatorType)
@@ -719,8 +709,8 @@ internal class Compiler
 	void binary(bool canAssign)
 	{
 		var operatorType = parser.previous.type;
-		var rule = getRule(operatorType);
-		parsePrecedence(rule.precedence + 1);
+		var rule = GetRule(operatorType);
+		ParsePrecedence(rule.precedence + 1);
 
 		switch (operatorType)
 		{
@@ -738,67 +728,64 @@ internal class Compiler
 			default: return; // Unreachable.
 		}
 	}
-	void variable(bool canAssign)
-	{
-		namedVariable(parser.previous, canAssign);
-	}
-	void this_(bool canAssign)
+	void Variable(bool canAssign) => NamedVariable(parser.previous, canAssign);
+	void This_(bool canAssign)
 	{
 		if (currentClass == null)
 		{
-			error("Can't use 'this' outside of a class.");
+			Error("Can't use 'this' outside of a class.");
 			return;
 		}
-		variable(false);
+		Variable(false);
 	}
-	void super_(bool canAssign)
+	void Super_(bool canAssign)
 	{
 		if (currentClass == null)
-			error("Can't use 'super' outside of a class.");
+			Error("Can't use 'super' outside of a class.");
 		else if (!currentClass.hasSuperclass)
 		{
-			error("Can't use 'super' in a class with no superclass.");
+			Error("Can't use 'super' in a class with no superclass.");
 		}
-		consume(TOKEN_DOT, "Expect '.' after 'super'.");
-		consume(TOKEN_IDENTIFIER, "Expect superclass method name.");
-		byte name = identifierConstant(parser.previous);
-		namedVariable(syntheticToken("this"), false);
+		Consume(TOKEN_DOT, "Expect '.' after 'super'.");
+		Consume(TOKEN_IDENTIFIER, "Expect superclass method name.");
+		byte name = IdentifierConstant(parser.previous);
+		NamedVariable(SyntheticToken("this"), false);
 		if (Match(TOKEN_LEFT_PAREN))
 		{
-			byte argCount = argumentList();
-			namedVariable(syntheticToken("super"), false);
+			byte argCount = ArgumentList();
+			NamedVariable(SyntheticToken("super"), false);
 			EmitBytes(OP_SUPER_INVOKE, name);
 			EmitByte(argCount);
 		}
 		else
 		{
-			namedVariable(syntheticToken("super"), false);
+			NamedVariable(SyntheticToken("super"), false);
 			EmitBytes(OP_GET_SUPER, name);
 		}
 	}
-	void namedVariable(Token name, bool canAssign)
+	void NamedVariable(Token name, bool canAssign)
 	{
 		OpCode getOp, setOp;
-		int arg = resolveLocal(current, name);
+		int arg = ResolveLocal(current, name);
 		if (arg != -1)
 		{
 			getOp = OP_GET_LOCAL;
 			setOp = OP_SET_LOCAL;
 		}
-		else if ((arg = resolveUpvalue(current, name)) != -1)
+		else if ((arg = ResolveUpvalue(current, name)) != -1)
 		{
 			getOp = OP_GET_UPVALUE;
 			setOp = OP_SET_UPVALUE;
 		}
 		else
 		{
-			arg = identifierConstant(name);
+			arg = IdentifierConstant(name);
 			getOp = OP_GET_GLOBAL;
 			setOp = OP_SET_GLOBAL;
 		}
 		if (canAssign && Match(TOKEN_EQUAL))
 		{
-			expression();
+			Expression();
 			EmitBytes(setOp, (byte)arg);
 		}
 		else
@@ -806,21 +793,21 @@ internal class Compiler
 			EmitBytes(getOp, (byte)arg);
 		}
 	}
-	int resolveUpvalue(CompilerState compiler, Token name)
+	int ResolveUpvalue(CompilerState compiler, Token name)
 	{
 		if (compiler.enclosing == null) return -1;
-		int local = resolveLocal(compiler.enclosing, name);
+		int local = ResolveLocal(compiler.enclosing, name);
 		if (local != -1)
 		{
 			compiler.enclosing.locals[local].isCaptured = true;
-			return addUpvalue(compiler, (byte)local, true);
+			return AddUpvalue(compiler, (byte)local, true);
 		}
-		int upvalue = resolveUpvalue(compiler.enclosing, name);
+		int upvalue = ResolveUpvalue(compiler.enclosing, name);
 		if (upvalue != -1)
-			return addUpvalue(compiler, (byte)upvalue, false);
+			return AddUpvalue(compiler, (byte)upvalue, false);
 		return -1;
 	}
-	int addUpvalue(CompilerState compiler, byte index, bool isLocal)
+	int AddUpvalue(CompilerState compiler, byte index, bool isLocal)
 	{
 		int upvalueCount = compiler.function.upvalueCount;
 		for (int i = 0; i < upvalueCount; i++)
@@ -831,14 +818,14 @@ internal class Compiler
 		}
 		if (upvalueCount == UINT8_COUNT)
 		{
-			error("Too many closure variables in function.");
+			Error("Too many closure variables in function.");
 			return 0;
 		}
 		compiler.upvalues[upvalueCount].isLocal = isLocal;
 		compiler.upvalues[upvalueCount].index = index;
 		return compiler.function.upvalueCount++;
 	}
-	int resolveLocal(CompilerState compiler, Token name)
+	int ResolveLocal(CompilerState compiler, Token name)
 	{
 		for (int i = compiler.localCount - 1; i >= 0; i--)
 		{
@@ -846,26 +833,26 @@ internal class Compiler
 			if (identifiersEqual(name, local.name))
 			{
 				if (local.depth == -1)
-					error("Can't read local variable in its own initializer.");
+					Error("Can't read local variable in its own initializer.");
 				return i;
 			}
 		}
 		return -1;
 	}
-	void consume(TokenType type, string message)
+	void Consume(TokenType type, string message)
 	{
 		if (parser.current.type == type)
 		{
-			advance();
+			Advance();
 			return;
 		}
-		errorAtCurrent(message);
+		ErrorAtCurrent(message);
 	}
 
-	void error(string message) => errorAt(parser.previous, message);
-	void errorAtCurrent(string message) => errorAt(parser.current, message);
+	void Error(string message) => ErrorAt(parser.previous, message);
+	void ErrorAtCurrent(string message) => ErrorAt(parser.current, message);
 
-	void errorAt(in Token token, string message)
+	void ErrorAt(in Token token, string message)
 	{
 		if (parser.panicMode) return;
 		parser.panicMode = true;
@@ -899,10 +886,9 @@ internal class Compiler
 		}
 	}
 
-	Chunk currentChunk() => current.function.chunk;
+	Chunk CurrentChunk => current.function.chunk;
 
-
-	void emitReturn()
+	void EmitReturn()
 	{
 		if (current.type == TYPE_INITIALIZER)
 			EmitBytes(OP_GET_LOCAL, 0);
@@ -916,13 +902,13 @@ internal class Compiler
 	void EmitByte(byte by)
 	{
 		chunkDebugInfo?.AddLine(parser.previous.line);
-		currentChunk().Write(by);
+		CurrentChunk.Write(by);
 	}
 
 	void EmitByte(OpCode op)
 	{
 		chunkDebugInfo?.AddLine(parser.previous.line);
-		currentChunk().Write(op);
+		CurrentChunk.Write(op);
 	}
 
 	void EmitBytes(OpCode byte1, byte byte2)
@@ -933,40 +919,40 @@ internal class Compiler
 
 	void EmitConstant(Value value) => EmitBytes(OP_CONSTANT, MakeConstant(value));
 
-	void emitLoop(int loopStart)
+	void EmitLoop(int loopStart)
 	{
 		EmitByte(OP_LOOP);
-		int offset = currentChunk().count - loopStart + 2;
-		if (offset > ushort.MaxValue) error("Loop body too large.");
+		int offset = CurrentChunk.count - loopStart + 2;
+		if (offset > ushort.MaxValue) Error("Loop body too large.");
 		EmitByte((byte)(offset >> 8 & 0xff));
 		EmitByte((byte)(offset & 0xff));
 	}
 
 	byte MakeConstant(Value value)
 	{
-		int constant = currentChunk().AddConstant(value);
+		int constant = CurrentChunk.AddConstant(value);
 		if (constant > byte.MaxValue)
 		{
-			error("Too many constants in one chunk.");
+			Error("Too many constants in one chunk.");
 			return 0;
 		}
 		return (byte)constant;
 	}
-	void defineVariable(byte global)
+	void DefineVariable(byte global)
 	{
 		if (current.scopeDepth > 0)
 		{
-			markInitialized();
+			MarkInitialized();
 			return;
 		}
 		EmitBytes(OP_DEFINE_GLOBAL, global);
 	}
-	void markInitialized()
+	void MarkInitialized()
 	{
 		if (current.scopeDepth == 0) return;
 		current.locals[current.localCount - 1].depth = current.scopeDepth;
 	}
-	void declareVariable()
+	void DeclareVariable()
 	{
 		if (current.scopeDepth == 0) return;
 		var name = parser.previous;
@@ -976,15 +962,15 @@ internal class Compiler
 			if (local.depth != -1 && local.depth < current.scopeDepth)
 				break;
 			if (identifiersEqual(name, local.name))
-				error("Already a variable with this name in this scope.");
+				Error("Already a variable with this name in this scope.");
 		}
-		addLocal(name);
+		AddLocal(name);
 	}
-	void addLocal(Token name)
+	void AddLocal(Token name)
 	{
 		if (current.localCount >= current.locals.Length)
 		{
-			error("Too many local variables in function.");
+			Error("Too many local variables in function.");
 			return;
 		}
 		ref Local local = ref current.locals[current.localCount++];
@@ -992,7 +978,7 @@ internal class Compiler
 		local.depth = -1;
 		local.isCaptured = false;
 	}
-	static Token syntheticToken(string text)
+	static Token SyntheticToken(string text)
 	{
 		return new()
 		{
