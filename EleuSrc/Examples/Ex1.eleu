@@ -1,7 +1,16 @@
-fun f() 
+
+
+fun strlen(s)
 {
-  var x=8;
-  if (true) return "ok";
+  return invoke("System.String.Length",s);
 }
 
-print f(); // expect: ok
+fun substr(s, start, len)
+{
+  return invoke("System.String.Substring",s,start,len);
+}
+
+var s= "Hallo Puschel";
+
+print strlen(s);
+print substr(s, 6, strlen(s)-6);

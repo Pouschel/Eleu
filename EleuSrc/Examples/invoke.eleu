@@ -1,19 +1,6 @@
 
 var aa=true;
 
-fun sqrt(x)
-{
-  return invoke("System.Math.Sqrt",x);  
-}
 
-fun min(x,y)
-{
-  if (x<y) return x; 
-  else return y;
-}
 
-var a = 5;
-var b = sqrt(a);
-print b;
-print sqrt(-3);
 

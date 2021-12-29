@@ -503,7 +503,7 @@ public class VM
 						}
 						catch (Exception ex)
 						{
-							RuntimeError("Native exception: " + ex);
+							RuntimeError(ex.ToString());
 						}
 						return;
 					}

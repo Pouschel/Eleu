@@ -12,8 +12,8 @@ class NativeException : Exception
 
 class NativeFunctions
 {
-	Dictionary<string, Type> typeDict= new Dictionary<string, Type>();
-	
+	Dictionary<string, Type> typeDict = new Dictionary<string, Type>();
+
 	public Value Clock(Value[] _)
 	{
 		return CreateNumberVal(DateTime.Now.Ticks / 10000000.0);
@@ -36,7 +36,8 @@ class NativeFunctions
 	{
 		switch (tcode)
 		{
-			case TypeCode.Double: case TypeCode.Single:
+			case TypeCode.Double:
+			case TypeCode.Single:
 			case TypeCode.Byte:
 			case TypeCode.Int16:
 			case TypeCode.Int32:
@@ -49,14 +50,19 @@ class NativeFunctions
 		return false;
 	}
 
-	object? MatchParameter(Value value, Type paraType)
+	object? MatchParameter(Value value, Type? paraType)
 	{
+		if (paraType == null) return null;
 		if (IsNumber(value))
 		{
-			var num= AsNumber(value);
+			var num = AsNumber(value);
 			if (!IsNumberTypeCode(Type.GetTypeCode(paraType)))
 				return null;
 			return Convert.ChangeType(num, paraType);
+		}
+		if (IsString(value))
+		{
+			if (paraType == typeof(string)) return AsString(value);
 		}
 		return null;
 	}
@@ -67,18 +73,20 @@ class NativeFunctions
 		var type = result.GetType();
 		if (IsNumberTypeCode(Type.GetTypeCode(type)))
 		{
-			double d = (double) Convert.ChangeType(result, TypeCode.Double);
+			double d = (double)Convert.ChangeType(result, TypeCode.Double);
 			return CreateNumberVal(d);
 		}
+		if (result is string str) 
+			return CreateStringVal(str);
 		throw new NativeException($"Value conversion error for type {type.Name}");
 	}
 
-	object[]?  MatchParameter(ParameterInfo[] paras, Value[] args)
+	object[]? MatchParameter(Value[] args, int index, ParameterInfo[] paras)
 	{
 		object[] matchedParas = new object[paras.Length];
 		for (int i = 0; i < paras.Length; i++)
 		{
-			var mp = MatchParameter(args[i + 1], paras[i].ParameterType);
+			var mp = MatchParameter(args[i + index], paras[i].ParameterType);
 			if (mp == null) return null;
 			matchedParas[i] = mp;
 		}
@@ -87,17 +95,31 @@ class NativeFunctions
 
 	(bool, Value) MatchAndInvoke(Type type, string methodName, Value[] args)
 	{
-		
-		foreach (var mthm in type.GetMethods(BindingFlags.Static|BindingFlags.NonPublic| BindingFlags.Public))
+		foreach (var mthm in type.GetMethods(BindingFlags.Static| BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
 		{
 			if (mthm.Name != methodName) continue;
 			var paras = mthm.GetParameters();
-			if (paras.Length != args.Length - 1)
+			bool isInstance = !mthm.IsStatic;
+			int index = isInstance ? 2: 1;
+			if (paras.Length != args.Length - index)
 				continue;
-			var paraValues= MatchParameter(paras, args);
-			var result= mthm.Invoke(null, paraValues);
+			object? _this = null;
+			if (isInstance)
+				_this = MatchParameter(args[1], mthm.DeclaringType);
+			var paraValues = MatchParameter(args, index, paras);
+			var result = mthm.Invoke(_this, paraValues);
 			var value = ConvertResult(result);
 			return (true, value);
+		}
+		foreach (var prop in type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+		{
+			if (prop.Name != methodName) continue;
+			if (args.Length == 2) // getter with this
+			{
+				var _this = MatchParameter(args[1], prop.DeclaringType);
+				if (_this != null)
+					return (true, ConvertResult(prop.GetValue(_this)));
+			}
 		}
 		return (false, Nil);
 	}
@@ -107,7 +129,7 @@ class NativeFunctions
 		var funcName = AsString(args[0]);
 		int idx = funcName.LastIndexOf('.');
 		var clsName = funcName[..idx];
-		if (!typeDict.TryGetValue(clsName,out var type))
+		if (!typeDict.TryGetValue(clsName, out var type))
 		{
 			type = FindType(clsName);
 			typeDict.Add(clsName, type);

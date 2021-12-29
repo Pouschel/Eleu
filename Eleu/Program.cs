@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("EleuDebugger")]
 
 namespace Eleu;
@@ -18,8 +19,9 @@ class Program
 	static void Main(string[] args)
 	{
 		//TestDebugger();
-		Console.WriteLine("Eleu v1");
-		if (args.Length==0)
+		var ver = Assembly.GetExecutingAssembly().GetName().Version;
+		Console.WriteLine($"Eleu {ver}");
+		if (args.Length == 0)
 			Console.WriteLine(@"Usage:
 Eleu -dumpByteCode fileName
 -waitAfterRun      waits for an ENTER after running
@@ -29,9 +31,9 @@ fileName           file to compile and run
 ");
 
 		var options = new EleuOptions()
-		{ Out = Console.Out, Err=Console.Out };
+		{ Out = Console.Out, Err = Console.Error };
 		bool waitAfterRun = false;
-		string? fileName=null;
+		string? fileName = null;
 		for (int i = 0; i < args.Length; i++)
 		{
 			var arg = args[i];
@@ -43,13 +45,13 @@ fileName           file to compile and run
 				default: fileName = arg; break;
 			}
 		}
-		if (fileName==null)
+		if (fileName == null)
 		{
 			Console.WriteLine("No file to run");
 			return;
 		}
 		CompileAndRun(fileName, options);
-		if (waitAfterRun)	Console.ReadLine();
+		if (waitAfterRun) Console.ReadLine();
 	}
 
 	static void TestDebugger()
@@ -86,7 +88,7 @@ fileName           file to compile and run
 
 	private static void Debugger_TargetRuntimeError(EleuDebugger debugger)
 	{
-	
+
 	}
 
 	private static void Debugger_TargetStopped(EleuDebugger debugger)

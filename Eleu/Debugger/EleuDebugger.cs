@@ -40,7 +40,7 @@
 		VM vm;
 
 		State state;
-		RunMode runMode;
+		//RunMode runMode;
 		ManualResetEventSlim evContinue;
 		bool breakBeforeNextOp;
 		Dictionary<Chunk, BreakpointInfo> breakpoints;
@@ -136,7 +136,7 @@
 		{
 			if (state != State.Stopped) return false;
 			skipPos = currentPos;
-			runMode = RunMode.Normal;
+			//runMode = RunMode.Normal;
 			evContinue.Set();
 			return true;
 		}
