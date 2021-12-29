@@ -14,18 +14,18 @@ enum Precedence
 	PREC_EQUALITY,    // == !=
 	PREC_COMPARISON,  // < > <= >=
 	PREC_TERM,        // + -
-	PREC_FACTOR,      // * /
+	PREC_FACTOR,      // * / %
 	PREC_UNARY,       // ! -
-	PREC_CALL,        // . ()
+	PREC_CALL,        // . ()	[]
 	PREC_PRIMARY
 }
 
 enum FunctionType
 {
-	TYPE_FUNCTION,
-	TYPE_INITIALIZER,
-	TYPE_METHOD,
-	TYPE_SCRIPT
+	FunTypeFunction,
+	FunTypeInitializer,
+	FunTypeMethod,
+	FunTypeScript
 }
 
 delegate void PaserAction(bool canAssign);
@@ -67,7 +67,7 @@ class CompilerState
 		ref Local local = ref locals[localCount++];
 		local.depth = 0;
 		local.isCaptured = false;
-		if (type != TYPE_FUNCTION)
+		if (type != FunTypeFunction)
 			local.name = "this";
 		else local.name = "";
 	}
@@ -173,7 +173,7 @@ internal class Compiler
 		this.options = options;
 		scanner = new Scanner(source);
 		if (options.CreateDebugInfo) debugInfo = new DebugInfo();
-		current = initCompiler(TYPE_SCRIPT);
+		current = initCompiler(FunTypeScript);
 	}
 
 	public EleuResult compile()
@@ -275,7 +275,7 @@ internal class Compiler
 	{
 		byte global = ParseVariable("Expect function name.");
 		MarkInitialized();
-		Function(TYPE_FUNCTION);
+		Function(FunTypeFunction);
 		DefineVariable(global);
 	}
 	CompilerState initCompiler(FunctionType type)
@@ -287,7 +287,7 @@ internal class Compiler
 			chunkDebugInfo = new ChunkDebugInfo(fileName, compiler.function);
 			debugInfo.Add(chunkDebugInfo);
 		}
-		if (type != TYPE_SCRIPT)
+		if (type != FunTypeScript)
 			compiler.function.name = previousToken.StringValue;
 		return compiler;
 	}
@@ -339,9 +339,9 @@ internal class Compiler
 	{
 		Consume(TOKEN_IDENTIFIER, "Expect method name.");
 		byte constant = IdentifierConstant(previousToken);
-		var type = TYPE_METHOD;
+		var type = FunTypeMethod;
 		if (previousToken.StringValue == "init")
-			type = TYPE_INITIALIZER;
+			type = FunTypeInitializer;
 		Function(type);
 		EmitBytes(OP_METHOD, constant);
 	}
@@ -444,13 +444,13 @@ internal class Compiler
 	}
 	void ReturnStatement()
 	{
-		if (current.type == TYPE_SCRIPT)
+		if (current.type == FunTypeScript)
 			Error("Can't return from top-level code.");
 		if (Match(TOKEN_SEMICOLON))
 			EmitReturn();
 		else
 		{
-			if (current.type == TYPE_INITIALIZER)
+			if (current.type == FunTypeInitializer)
 				Error("Can't return a value from an initializer.");
 			Expression();
 			Consume(TOKEN_SEMICOLON, "Expect ';' after return value.");
@@ -885,7 +885,7 @@ internal class Compiler
 
 	void EmitReturn()
 	{
-		if (current.type == TYPE_INITIALIZER)
+		if (current.type == FunTypeInitializer)
 			EmitBytes(OP_GET_LOCAL, 0);
 		else
 		{
