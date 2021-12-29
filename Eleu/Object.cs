@@ -1,7 +1,7 @@
 ﻿global using static Eleu.ObjType;
 global using static Eleu.ObjStatics;
 using System.Runtime.CompilerServices;
-using Eleu;
+using System.Text;
 
 namespace Eleu;
 
@@ -143,20 +143,47 @@ class ObjBoundMethod : Obj
 	public override string ToString() => method.function.ToString();
 }
 
-class ValueList : List<Value>
+class ObjList: Obj
 {
+	List<Value> values;
+	
+	public ObjList(int initLen): base (OBJ_LIST)
+	{
+		values = new List<Value>(initLen);
+	}
+
+	public void Add(Value val) => values.Add(val);
+
+	public override string ToString()
+	{
+		var sb = new StringBuilder();
+		sb.Append('[');
+		for (int i = 0; i < values.Count; i++)
+		{
+			if (sb.Length>200)
+			{
+				sb.Append("..."); break;
+			}
+			if (i > 0) sb.Append(',');
+			sb.Append(values[i].ToString());
+		}
+		sb.Append(']');
+		return sb.ToString();
+	}
 }
 
 static class ObjStatics
 {
 	public static ObjType OBJ_TYPE(Value value) => AsObj(value).type;
 	public static bool IS_BOUND_METHOD(Value value) => IsObjType(value, OBJ_BOUND_METHOD);
-	public static bool IS_CLASS(Value value) => IsObjType(value, OBJ_CLASS);
+	public static bool IsClass(Value value) => IsObjType(value, OBJ_CLASS);
 	public static bool IS_CLOSURE(Value value) => IsObjType(value, OBJ_CLOSURE);
 	public static bool IS_FUNCTION(Value value) => IsObjType(value, OBJ_FUNCTION);
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static bool IsInstance(Value value) => value.oValue is ObjInstance;
 	public static bool IS_NATIVE(Value value) => value.oValue is ObjNative;
+	public static bool IsArray(Value value) => IsObjType(value, OBJ_LIST);
+
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static bool IsString(Value value) => value.type == VAL_STRING;
 
@@ -165,13 +192,14 @@ static class ObjStatics
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static string AsString(Value value) => ((string)value.oValue);
 
-	public static ValueList AsList(Value value) => ((ValueList)value.oValue);
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static ObjClosure AS_CLOSURE(Value value) => ((ObjClosure)AsObj(value));
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static ObjBoundMethod AS_BOUND_METHOD(Value value) => ((ObjBoundMethod)AsObj(value));
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static ObjClass AS_CLASS(Value value) => ((ObjClass)AsObj(value));
+	public static ObjClass AsClass(Value value) => (ObjClass)AsObj(value);
+	public static ObjList AsArray(Value value) => (ObjList)AsObj(value);
+
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static ObjFunction AS_FUNCTION(Value value) => ((ObjFunction)AsObj(value));
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]

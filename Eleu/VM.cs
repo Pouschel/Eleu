@@ -3,7 +3,6 @@ global using static Eleu.EEleuResult;
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.CompilerServices;
-using static Eleu.NativeFunctions;
 namespace Eleu;
 
 public enum EEleuResult
@@ -133,7 +132,7 @@ public class VM
 				Console.Write($"[{slot}]");
 			}
 			Console.WriteLine();
-			frame.closure!.function.chunk.disassembleInstruction(frame.ip, Console.Out);
+			frame.closure!.function.chunk.DisassembleInstruction(frame.ip, null, Console.Out);
 #endif
 		var instruction = (OpCode)ReadByte();
 		switch (instruction)
@@ -219,11 +218,25 @@ public class VM
 			case OP_METHOD:
 				DefineMethod(ReadString());
 				break;
+			case OpNewList:
+				NewList(); break;
 			default:
 				RuntimeError($"No such op code: {instruction} ({(int)instruction})");
 				break;
 		}
 		return hasRuntimeError ? EEleuResult.RuntimeError : EEleuResult.NextStep;
+	}
+
+	private void NewList()
+	{
+		var argCount = (int) AsNumber(Pop());
+		var list = new ObjList(argCount);
+		for (int i = 0; i < argCount; i++)
+		{
+			list.Add(stack[stackTop - argCount + i]);
+		}
+		stackTop -= argCount;
+		Push(CreateObjVal(list));
 	}
 
 	public EEleuResult Run()
@@ -319,7 +332,7 @@ public class VM
 	void GetSuper()
 	{
 		string name = ReadString();
-		ObjClass superclass = AS_CLASS(Pop());
+		ObjClass superclass = AsClass(Pop());
 		if (!BindMethod(superclass, name))
 			hasRuntimeError = true;
 	}
@@ -385,7 +398,7 @@ public class VM
 	{
 		string method = ReadString();
 		int argCount = ReadByte();
-		ObjClass superclass = AS_CLASS(Pop());
+		ObjClass superclass = AsClass(Pop());
 		InvokeFromClass(superclass, method, argCount);
 	}
 	bool Return()
@@ -406,13 +419,13 @@ public class VM
 	void Inherit()
 	{
 		Value superclass = Peek(1);
-		if (!IS_CLASS(superclass))
+		if (!IsClass(superclass))
 		{
 			RuntimeError("Superclass must be a class.");
 			return;
 		}
-		ObjClass subclass = AS_CLASS(Peek(0));
-		tableAddAll(AS_CLASS(superclass).methods, subclass.methods);
+		ObjClass subclass = AsClass(Peek(0));
+		tableAddAll(AsClass(superclass).methods, subclass.methods);
 		Pop(); // Subclass.
 	}
 	void CloseUpvalues(int last)
@@ -428,7 +441,7 @@ public class VM
 	void DefineMethod(string name)
 	{
 		Value method = Peek(0);
-		ObjClass klass = AS_CLASS(Peek(1));
+		ObjClass klass = AsClass(Peek(1));
 		tableSet(klass.methods, name, method);
 		Pop();
 	}
@@ -472,7 +485,7 @@ public class VM
 					}
 				case OBJ_CLASS:
 					{
-						ObjClass klass = AS_CLASS(callee);
+						ObjClass klass = AsClass(callee);
 						stack[stackTop - argCount - 1] = CreateObjVal(new ObjInstance(klass));
 						Value initializer;
 						if (tableGet(klass.methods, initString, out initializer))
@@ -595,7 +608,6 @@ public class VM
 		ResetStack();
 		hasRuntimeError = true;
 	}
-
 	void DumpStack()
 	{
 		for (int i = frameCount - 1; i >= 0; i--)

@@ -75,15 +75,23 @@ class Program
 			{
 				var resString = line[(idx + search.Length)..].TrimEnd();
 				sw.WriteLine(resString);
+				continue;
 			}
 			idx = line.IndexOf(searchRtErr);
 			if (idx >= 0)
 			{
 				var txt = "Rerr: " + line[(idx + searchRtErr.Length)..].TrimEnd();
 				sw.WriteLine(txt);
+				continue;
 			}
 			idx = line.IndexOf("//");
 			if (idx < 0) continue;
+			string afterComment = line[(idx + 2)..].Trim();
+			if (afterComment.StartsWith("Cerr: "))
+			{
+				sw.WriteLine(afterComment[5..].Trim());
+				continue;
+			}
 			idx = line.IndexOf("Error at", idx);
 			if (idx < 0) continue;
 			idx = line.IndexOf(": ", idx);

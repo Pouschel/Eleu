@@ -115,6 +115,8 @@ internal class Compiler
 	{
 		SetRule(TOKEN_LEFT_PAREN, grouping, call, PREC_CALL);
 		SetRule(TOKEN_RIGHT_PAREN, null, null, PREC_NONE);
+		SetRule(TokenLeftBracket, ListConst, null, PREC_NONE);
+		SetRule(TokenRightBracket, null, null, PREC_NONE);
 		SetRule(TOKEN_LEFT_BRACE, null, null, PREC_NONE);
 		SetRule(TOKEN_RIGHT_BRACE, null, null, PREC_NONE);
 		SetRule(TOKEN_COMMA, null, null, PREC_NONE);
@@ -183,7 +185,7 @@ internal class Compiler
 	{
 		scanner.Reset();
 		advance();
-		while (!match(TOKEN_EOF))
+		while (!Match(TOKEN_EOF))
 		{
 			declaration();
 		}
@@ -197,13 +199,13 @@ internal class Compiler
 	}
 	void declaration()
 	{
-		if (match(TOKEN_CLASS))
+		if (Match(TOKEN_CLASS))
 			classDeclaration();
-		else if (match(TOKEN_FUN))
+		else if (Match(TOKEN_FUN))
 		{
 			funDeclaration();
 		}
-		else if (match(TOKEN_VAR))
+		else if (Match(TOKEN_VAR))
 		{
 			varDeclaration();
 		}
@@ -220,12 +222,12 @@ internal class Compiler
 		var className = parser.previous;
 		byte nameConstant = identifierConstant(parser.previous);
 		declareVariable();
-		emitBytes(OP_CLASS, nameConstant);
+		EmitBytes(OP_CLASS, nameConstant);
 		defineVariable(nameConstant);
 		var classCompiler = new ClassCompiler();
 		classCompiler.enclosing = this.currentClass;
 		this.currentClass = classCompiler;
-		if (match(TOKEN_LESS))
+		if (Match(TOKEN_LESS))
 		{
 			consume(TOKEN_IDENTIFIER, "Expect superclass name.");
 			variable(false);
@@ -324,14 +326,14 @@ internal class Compiler
 					errorAtCurrent("Can't have more than 255 parameters.");
 				byte constant = parseVariable("Expect parameter name.");
 				defineVariable(constant);
-			} while (match(TOKEN_COMMA));
+			} while (Match(TOKEN_COMMA));
 		}
 		consume(TOKEN_RIGHT_PAREN, "Expect ')' after parameters.");
 		consume(TOKEN_LEFT_BRACE, "Expect '{' before function body.");
 		block();
 
 		var function = endCompiler();
-		emitBytes(OP_CLOSURE, makeConstant(CreateObjVal(function)));
+		EmitBytes(OP_CLOSURE, MakeConstant(CreateObjVal(function)));
 		for (int i = 0; i < function.upvalueCount; i++)
 		{
 			EmitByte((byte)(compiler.upvalues[i].isLocal ? 1 : 0));
@@ -346,32 +348,32 @@ internal class Compiler
 		if (parser.previous.StringValue == "init")
 			type = TYPE_INITIALIZER;
 		function(type);
-		emitBytes(OP_METHOD, constant);
+		EmitBytes(OP_METHOD, constant);
 	}
 	void call(bool canAssign)
 	{
 		byte argCount = argumentList();
-		emitBytes(OP_CALL, argCount);
+		EmitBytes(OP_CALL, argCount);
 	}
 	void dot(bool canAssign)
 	{
 		consume(TOKEN_IDENTIFIER, "Expect property name after '.'.");
 		byte name = identifierConstant(parser.previous);
 
-		if (canAssign && match(TOKEN_EQUAL))
+		if (canAssign && Match(TOKEN_EQUAL))
 		{
 			expression();
-			emitBytes(OP_SET_PROPERTY, name);
+			EmitBytes(OP_SET_PROPERTY, name);
 		}
-		else if (match(TOKEN_LEFT_PAREN))
+		else if (Match(TOKEN_LEFT_PAREN))
 		{
 			byte argCount = argumentList();
-			emitBytes(OP_INVOKE, name);
+			EmitBytes(OP_INVOKE, name);
 			EmitByte(argCount);
 		}
 		else
 		{
-			emitBytes(OP_GET_PROPERTY, name);
+			EmitBytes(OP_GET_PROPERTY, name);
 		}
 	}
 	byte argumentList()
@@ -385,7 +387,7 @@ internal class Compiler
 				if (argCount == byte.MaxValue)
 					error("Can't have more than 255 arguments.");
 				argCount++;
-			} while (match(TOKEN_COMMA));
+			} while (Match(TOKEN_COMMA));
 		}
 		consume(TOKEN_RIGHT_PAREN, "Expect ')' after arguments.");
 		return argCount;
@@ -394,7 +396,7 @@ internal class Compiler
 	{
 		byte global = parseVariable("Expect variable name.");
 
-		if (match(TOKEN_EQUAL))
+		if (Match(TOKEN_EQUAL))
 			expression();
 		else
 		{
@@ -414,30 +416,30 @@ internal class Compiler
 
 	byte identifierConstant(Token name)
 	{
-		return makeConstant(new Value(name.StringValue));
+		return MakeConstant(new Value(name.StringValue));
 	}
 
 	void statement()
 	{
-		if (match(TOKEN_PRINT))
+		if (Match(TOKEN_PRINT))
 			printStatement();
-		else if (match(TOKEN_FOR))
+		else if (Match(TOKEN_FOR))
 		{
 			forStatement();
 		}
-		else if (match(TOKEN_IF))
+		else if (Match(TOKEN_IF))
 		{
 			ifStatement();
 		}
-		else if (match(TOKEN_RETURN))
+		else if (Match(TOKEN_RETURN))
 		{
 			returnStatement();
 		}
-		else if (match(TOKEN_WHILE))
+		else if (Match(TOKEN_WHILE))
 		{
 			whileStatement();
 		}
-		else if (match(TOKEN_LEFT_BRACE))
+		else if (Match(TOKEN_LEFT_BRACE))
 		{
 			beginScope();
 			block();
@@ -452,7 +454,7 @@ internal class Compiler
 	{
 		if (current.type == TYPE_SCRIPT)
 			error("Can't return from top-level code.");
-		if (match(TOKEN_SEMICOLON))
+		if (Match(TOKEN_SEMICOLON))
 			emitReturn();
 		else
 		{
@@ -467,16 +469,16 @@ internal class Compiler
 	{
 		beginScope();
 		consume(TOKEN_LEFT_PAREN, "Expect '(' after 'for'.");
-		if (match(TOKEN_SEMICOLON))
+		if (Match(TOKEN_SEMICOLON))
 		{
 			// No initializer.
 		}
-		else if (match(TOKEN_VAR)) varDeclaration();
+		else if (Match(TOKEN_VAR)) varDeclaration();
 		else expressionStatement();
 
 		int loopStart = currentChunk().count;
 		int exitJump = -1;
-		if (!match(TOKEN_SEMICOLON))
+		if (!Match(TOKEN_SEMICOLON))
 		{
 			expression();
 			consume(TOKEN_SEMICOLON, "Expect ';' after loop condition.");
@@ -485,7 +487,7 @@ internal class Compiler
 			exitJump = emitJump(OP_JUMP_IF_FALSE);
 			EmitByte(OP_POP); // Condition.
 		}
-		if (!match(TOKEN_RIGHT_PAREN))
+		if (!Match(TOKEN_RIGHT_PAREN))
 		{
 			int bodyJump = emitJump(OP_JUMP);
 			int incrementStart = currentChunk().count;
@@ -533,7 +535,7 @@ internal class Compiler
 		int elseJump = emitJump(OP_JUMP);
 		patchJump(thenJump);
 		EmitByte(OP_POP);
-		if (match(TOKEN_ELSE)) statement();
+		if (Match(TOKEN_ELSE)) statement();
 		patchJump(elseJump);
 	}
 	void and_(bool canAssign)
@@ -607,7 +609,7 @@ internal class Compiler
 		EmitByte(OP_POP);
 	}
 
-	bool match(TokenType type)
+	bool Match(TokenType type)
 	{
 		if (!check(type)) return false;
 		advance();
@@ -644,7 +646,7 @@ internal class Compiler
 			var infixRule = getRule(parser.previous.type).infix;
 			infixRule!(canAssign);
 		}
-		if (canAssign && match(TOKEN_EQUAL))
+		if (canAssign && Match(TOKEN_EQUAL))
 			error("Invalid assignment target.");
 	}
 
@@ -657,7 +659,6 @@ internal class Compiler
 		{
 			parser.current = scanner.ScanToken();
 			if (parser.current.type != TOKEN_ERROR) break;
-
 			errorAtCurrent(parser.current.StringValue);
 		}
 	}
@@ -665,7 +666,7 @@ internal class Compiler
 	void number(bool canAssign)
 	{
 		double value = double.Parse(parser.previous.StringValue, CultureInfo.InvariantCulture);
-		emitConstant(CreateNumberVal(value));
+		EmitConstant(CreateNumberVal(value));
 	}
 	void literal(bool canAssign)
 	{
@@ -679,12 +680,25 @@ internal class Compiler
 	}
 	void _string(bool canAssign)
 	{
-		emitConstant(CreateStringVal(parser.previous.StringStringValue));
+		EmitConstant(CreateStringVal(parser.previous.StringStringValue));
 	}
 	void grouping(bool canAssign)
 	{
 		expression();
 		consume(TOKEN_RIGHT_PAREN, "Expect ')' after expression.");
+	}
+
+	void ListConst(bool canAssign)
+	{
+		int count = 0;
+		if (!check(TokenRightBracket))
+			do
+			{
+				expression(); count++;
+			} while (Match(TOKEN_COMMA));
+		consume(TokenRightBracket, "Expect ']' at list end");
+		EmitConstant(CreateNumberVal(count));
+		EmitByte(OpNewList);
 	}
 
 	void unary(bool canAssign)
@@ -710,12 +724,12 @@ internal class Compiler
 
 		switch (operatorType)
 		{
-			case TOKEN_BANG_EQUAL: emitBytes(OP_EQUAL, (byte)OP_NOT); break;
+			case TOKEN_BANG_EQUAL: EmitBytes(OP_EQUAL, (byte)OP_NOT); break;
 			case TOKEN_EQUAL_EQUAL: EmitByte(OP_EQUAL); break;
 			case TOKEN_GREATER: EmitByte(OP_GREATER); break;
-			case TOKEN_GREATER_EQUAL: emitBytes(OP_LESS, (byte)OP_NOT); break;
+			case TOKEN_GREATER_EQUAL: EmitBytes(OP_LESS, (byte)OP_NOT); break;
 			case TOKEN_LESS: EmitByte(OP_LESS); break;
-			case TOKEN_LESS_EQUAL: emitBytes(OP_GREATER, (byte)OP_NOT); break;
+			case TOKEN_LESS_EQUAL: EmitBytes(OP_GREATER, (byte)OP_NOT); break;
 			case TokenPlus: EmitByte(OP_ADD); break;
 			case TokenMinus: EmitByte(OP_SUBTRACT); break;
 			case TokenStar: EmitByte(OP_MULTIPLY); break;
@@ -749,17 +763,17 @@ internal class Compiler
 		consume(TOKEN_IDENTIFIER, "Expect superclass method name.");
 		byte name = identifierConstant(parser.previous);
 		namedVariable(syntheticToken("this"), false);
-		if (match(TOKEN_LEFT_PAREN))
+		if (Match(TOKEN_LEFT_PAREN))
 		{
 			byte argCount = argumentList();
 			namedVariable(syntheticToken("super"), false);
-			emitBytes(OP_SUPER_INVOKE, name);
+			EmitBytes(OP_SUPER_INVOKE, name);
 			EmitByte(argCount);
 		}
 		else
 		{
 			namedVariable(syntheticToken("super"), false);
-			emitBytes(OP_GET_SUPER, name);
+			EmitBytes(OP_GET_SUPER, name);
 		}
 	}
 	void namedVariable(Token name, bool canAssign)
@@ -782,14 +796,14 @@ internal class Compiler
 			getOp = OP_GET_GLOBAL;
 			setOp = OP_SET_GLOBAL;
 		}
-		if (canAssign && match(TOKEN_EQUAL))
+		if (canAssign && Match(TOKEN_EQUAL))
 		{
 			expression();
-			emitBytes(setOp, (byte)arg);
+			EmitBytes(setOp, (byte)arg);
 		}
 		else
 		{
-			emitBytes(getOp, (byte)arg);
+			EmitBytes(getOp, (byte)arg);
 		}
 	}
 	int resolveUpvalue(CompilerState compiler, Token name)
@@ -891,7 +905,7 @@ internal class Compiler
 	void emitReturn()
 	{
 		if (current.type == TYPE_INITIALIZER)
-			emitBytes(OP_GET_LOCAL, 0);
+			EmitBytes(OP_GET_LOCAL, 0);
 		else
 		{
 			EmitByte(OP_NIL);
@@ -911,16 +925,13 @@ internal class Compiler
 		currentChunk().Write(op);
 	}
 
-	void emitBytes(OpCode byte1, byte byte2)
+	void EmitBytes(OpCode byte1, byte byte2)
 	{
 		EmitByte(byte1);
 		EmitByte(byte2);
 	}
 
-	void emitConstant(Value value)
-	{
-		emitBytes(OP_CONSTANT, makeConstant(value));
-	}
+	void EmitConstant(Value value) => EmitBytes(OP_CONSTANT, MakeConstant(value));
 
 	void emitLoop(int loopStart)
 	{
@@ -931,7 +942,7 @@ internal class Compiler
 		EmitByte((byte)(offset & 0xff));
 	}
 
-	byte makeConstant(Value value)
+	byte MakeConstant(Value value)
 	{
 		int constant = currentChunk().AddConstant(value);
 		if (constant > byte.MaxValue)
@@ -948,7 +959,7 @@ internal class Compiler
 			markInitialized();
 			return;
 		}
-		emitBytes(OP_DEFINE_GLOBAL, global);
+		EmitBytes(OP_DEFINE_GLOBAL, global);
 	}
 	void markInitialized()
 	{

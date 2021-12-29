@@ -51,6 +51,7 @@ class Chunk
 
 	static string GetInstructionString(string s)
 	{
+		if (s.IndexOf('_') < 0) return s;
 		var sb = new StringBuilder();
 		bool nextUpper = false;
 		for (int i = 0; i < s.Length; i++)
@@ -102,6 +103,7 @@ class Chunk
 			case OP_CLOSE_UPVALUE:
 			case OP_INHERIT:
 			case OP_GET_SUPER:
+			case OpNewList:
 				tw.WriteLine(instructionString);
 				return offset + 1;
 			case OP_CONSTANT:
