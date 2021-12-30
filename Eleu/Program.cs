@@ -16,11 +16,12 @@ public class EleuOptions
 
 class Program
 {
+	public const int Revision = 3;
+
 	static void Main(string[] args)
 	{
 		//TestDebugger();
-		var ver = Assembly.GetExecutingAssembly().GetName().Version;
-		Console.WriteLine($"Eleu {ver}");
+		Console.WriteLine($"Eleu 1.1.{Revision}");
 		if (args.Length == 0)
 			Console.WriteLine(@"Usage:
 Eleu -dumpByteCode fileName

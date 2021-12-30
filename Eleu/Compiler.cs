@@ -109,7 +109,7 @@ internal class Compiler
 
 	void InitTable()
 	{
-		SetRule(TOKEN_LEFT_PAREN, Grouping, call, PREC_CALL);
+		SetRule(TOKEN_LEFT_PAREN, Grouping, Call, PREC_CALL);
 		SetRule(TOKEN_RIGHT_PAREN, null, null, PREC_NONE);
 		SetRule(TokenLeftBracket, ListConst, null, PREC_NONE);
 		SetRule(TokenRightBracket, null, null, PREC_NONE);
@@ -119,7 +119,7 @@ internal class Compiler
 		SetRule(TOKEN_DOT, null, Dot, PREC_CALL);
 		SetRule(TokenMinus, Unary, binary, PREC_TERM);
 		SetRule(TokenPlus, null, binary, PREC_TERM);
-		SetRule(TOKEN_SEMICOLON, null, null, PREC_NONE);
+		SetRule(TokenSemicolon, null, null, PREC_NONE);
 		SetRule(TOKEN_SLASH, null, binary, PREC_FACTOR);
 		SetRule(TokenStar, null, binary, PREC_FACTOR);
 		SetRule(TokenPercent, null, binary, PREC_FACTOR);
@@ -173,7 +173,7 @@ internal class Compiler
 		this.options = options;
 		scanner = new Scanner(source);
 		if (options.CreateDebugInfo) debugInfo = new DebugInfo();
-		current = initCompiler(FunTypeScript);
+		current = InitCompiler(FunTypeScript);
 	}
 
 	public EleuResult compile()
@@ -184,7 +184,7 @@ internal class Compiler
 		{
 			Declaration();
 		}
-		var function = endCompiler();
+		var function = EndCompiler();
 		return new EleuResult
 		{
 			Result = hadError ? CompileError : Ok,
@@ -195,7 +195,7 @@ internal class Compiler
 	void Declaration()
 	{
 		if (Match(TOKEN_CLASS))
-			classDeclaration();
+			ClassDeclaration();
 		else if (Match(TOKEN_FUN))
 		{
 			FunDeclaration();
@@ -211,7 +211,7 @@ internal class Compiler
 		if (panicMode) Synchronize();
 	}
 
-	void classDeclaration()
+	void ClassDeclaration()
 	{
 		Consume(TOKEN_IDENTIFIER, "Expect class name.");
 		var className = previousToken;
@@ -254,7 +254,7 @@ internal class Compiler
 
 		while (currentToken.type != TOKEN_EOF)
 		{
-			if (previousToken.type == TOKEN_SEMICOLON) return;
+			if (previousToken.type == TokenSemicolon) return;
 			switch (currentToken.type)
 			{
 				case TOKEN_CLASS:
@@ -278,7 +278,7 @@ internal class Compiler
 		Function(FunTypeFunction);
 		DefineVariable(global);
 	}
-	CompilerState initCompiler(FunctionType type)
+	CompilerState InitCompiler(FunctionType type)
 	{
 		var compiler = new CompilerState(type);
 		compiler.enclosing = current;
@@ -291,14 +291,13 @@ internal class Compiler
 			compiler.function.name = previousToken.StringValue;
 		return compiler;
 	}
-	ObjFunction endCompiler()
+	ObjFunction EndCompiler()
 	{
 		EmitReturn();
 		var function = current.function;
 		if (DEBUG_PRINT_CODE)
 		{
-			if (!hadError)
-				CurrentChunk.Disassemble(function.NameOrScript, debugInfo, options.Err);
+			CurrentChunk.Disassemble(function.NameOrScript, debugInfo, options.Err);
 		}
 		current = current.enclosing!;
 		chunkDebugInfo = current== null ? null: debugInfo?.GetChunkInfo(current.function.chunk);
@@ -307,7 +306,7 @@ internal class Compiler
 
 	void Function(FunctionType type)
 	{
-		var compiler = initCompiler(type);
+		var compiler = InitCompiler(type);
 		current = compiler;
 		BeginScope();
 
@@ -327,7 +326,7 @@ internal class Compiler
 		Consume(TOKEN_LEFT_BRACE, "Expect '{' before function body.");
 		Block();
 
-		var function = endCompiler();
+		var function = EndCompiler();
 		EmitBytes(OP_CLOSURE, MakeConstant(CreateObjVal(function)));
 		for (int i = 0; i < function.upvalueCount; i++)
 		{
@@ -345,7 +344,7 @@ internal class Compiler
 		Function(type);
 		EmitBytes(OP_METHOD, constant);
 	}
-	void call(bool canAssign)
+	void Call(bool canAssign)
 	{
 		byte argCount = ArgumentList();
 		EmitBytes(OP_CALL, argCount);
@@ -397,7 +396,7 @@ internal class Compiler
 		{
 			EmitByte(OP_NIL);
 		}
-		Consume(TOKEN_SEMICOLON, "Expect ';' after variable declaration.");
+		Consume(TokenSemicolon, "Expect ';' after variable declaration.");
 
 		DefineVariable(global);
 	}
@@ -446,14 +445,14 @@ internal class Compiler
 	{
 		if (current.type == FunTypeScript)
 			Error("Can't return from top-level code.");
-		if (Match(TOKEN_SEMICOLON))
+		if (Match(TokenSemicolon))
 			EmitReturn();
 		else
 		{
 			if (current.type == FunTypeInitializer)
 				Error("Can't return a value from an initializer.");
 			Expression();
-			Consume(TOKEN_SEMICOLON, "Expect ';' after return value.");
+			Consume(TokenSemicolon, "Expect ';' after return value.");
 			EmitByte(OP_RETURN);
 		}
 	}
@@ -461,7 +460,7 @@ internal class Compiler
 	{
 		BeginScope();
 		Consume(TOKEN_LEFT_PAREN, "Expect '(' after 'for'.");
-		if (Match(TOKEN_SEMICOLON))
+		if (Match(TokenSemicolon))
 		{
 			// No initializer.
 		}
@@ -470,10 +469,10 @@ internal class Compiler
 
 		int loopStart = CurrentChunk.count;
 		int exitJump = -1;
-		if (!Match(TOKEN_SEMICOLON))
+		if (!Match(TokenSemicolon))
 		{
 			Expression();
-			Consume(TOKEN_SEMICOLON, "Expect ';' after loop condition.");
+			Consume(TokenSemicolon, "Expect ';' after loop condition.");
 
 			// Jump out of the loop if the condition is false.
 			exitJump = EmitJump(OP_JUMP_IF_FALSE);
@@ -592,8 +591,11 @@ internal class Compiler
 
 	void ExpressionStatement()
 	{
+		// allow empty expressions
+		if (Match(TokenSemicolon))
+			return;
 		Expression();
-		Consume(TOKEN_SEMICOLON, "Expect ';' after expression.");
+		Consume(TokenSemicolon, "Expect ';' after expression.");
 		EmitByte(OP_POP);
 	}
 
@@ -611,7 +613,7 @@ internal class Compiler
 	void PrintStatement()
 	{
 		Expression();
-		Consume(TOKEN_SEMICOLON, "Expect ';' after value.");
+		Consume(TokenSemicolon, "Expect ';' after value.");
 		EmitByte(OP_PRINT);
 	}
 	void ParsePrecedence(Precedence precedence)
