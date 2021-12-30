@@ -18,8 +18,6 @@ enum OpCode : byte
 	OP_SET_PROPERTY, 
 	OP_GET_SUPER,
 	OpNewList,
-	OpGetList,
-	OpSetList,
 	OP_EQUAL,
 	OP_GREATER,
 	OP_LESS,

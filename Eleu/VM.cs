@@ -54,9 +54,7 @@ public class VM
 		}
 
 		initString = string.Intern("init");
-		var natives = new NativeFunctions();
-		DefineNative("clock", natives.Clock);
-		DefineNative("invoke", natives.Invoke);
+		var natives = new NativeFunctions(this);
 		// to avoid warnings
 		frame = new CallFrame();
 		chunk = new Chunk();
@@ -230,13 +228,13 @@ public class VM
 	private void NewList()
 	{
 		var argCount = (int) AsNumber(Pop());
-		var list = new ObjList(argCount);
+		var list = new ValList(argCount);
 		for (int i = 0; i < argCount; i++)
 		{
 			list.Add(stack[stackTop - argCount + i]);
 		}
 		stackTop -= argCount;
-		Push(CreateObjVal(list));
+		Push(new Value(list));
 	}
 
 	public EEleuResult Run()
@@ -560,7 +558,7 @@ public class VM
 		Push(CreateObjVal(bound));
 		return true;
 	}
-	void DefineNative(string name, NativeFn function)
+	internal void DefineNative(string name, NativeFn function)
 	{
 		var oname = name;
 		var ofun = CreateObjVal(new ObjNative(function));
@@ -591,8 +589,7 @@ public class VM
 		double a = AsNumber(Pop());
 		Push(func(a, b));
 	}
-
-	void RuntimeError(string msg)
+	internal void RuntimeError(string msg)
 	{
 		int instruction = frame.ip - 1;
 		string text = $"Rerr: {msg}";

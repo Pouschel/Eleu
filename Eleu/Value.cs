@@ -43,6 +43,14 @@ struct Value
 		this.dValue = double.NaN;
 	}
 
+	public Value(ValList list)
+	{
+		this.type = VAL_LIST;
+		this.oValue = list;
+		this.dValue = double.NaN;
+	}
+
+
 	public override string ToString()
 	{
 		switch (type)
@@ -50,7 +58,8 @@ struct Value
 			case VAL_NIL: return "nil";
 			case VAL_BOOL: return dValue != 0 ? "true" : "false";
 			case VAL_NUMBER: return dValue.ToString(CultureInfo.InvariantCulture);
-			case VAL_OBJ: 
+			case VAL_OBJ:
+			case VAL_LIST:
 			case VAL_STRING: return oValue.ToString()!;
 			default: return $"invalid value type {type}";
 		}

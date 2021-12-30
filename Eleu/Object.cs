@@ -14,7 +14,6 @@ enum ObjType
 	OBJ_INSTANCE,
 	OBJ_NATIVE,
 	OBJ_UPVALUE,
-	OBJ_LIST,
 }
 
 internal class Obj
@@ -143,29 +142,25 @@ class ObjBoundMethod : Obj
 	public override string ToString() => method.function.ToString();
 }
 
-class ObjList: Obj
+class ValList: List<Value>
 {
-	List<Value> values;
 	
-	public ObjList(int initLen): base (OBJ_LIST)
+	public ValList(int initLen): base(initLen)
 	{
-		values = new List<Value>(initLen);
 	}
-
-	public void Add(Value val) => values.Add(val);
 
 	public override string ToString()
 	{
 		var sb = new StringBuilder();
 		sb.Append('[');
-		for (int i = 0; i < values.Count; i++)
+		for (int i = 0; i < Count; i++)
 		{
 			if (sb.Length>200)
 			{
 				sb.Append("..."); break;
 			}
 			if (i > 0) sb.Append(',');
-			sb.Append(values[i].ToString());
+			sb.Append(this[i].ToString());
 		}
 		sb.Append(']');
 		return sb.ToString();
@@ -182,7 +177,6 @@ static class ObjStatics
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static bool IsInstance(Value value) => value.oValue is ObjInstance;
 	public static bool IS_NATIVE(Value value) => value.oValue is ObjNative;
-	public static bool IsArray(Value value) => IsObjType(value, OBJ_LIST);
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static bool IsString(Value value) => value.type == VAL_STRING;
@@ -198,7 +192,7 @@ static class ObjStatics
 	public static ObjBoundMethod AS_BOUND_METHOD(Value value) => ((ObjBoundMethod)AsObj(value));
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static ObjClass AsClass(Value value) => (ObjClass)AsObj(value);
-	public static ObjList AsArray(Value value) => (ObjList)AsObj(value);
+	public static ValList AsList(Value value) => (ValList)value.oValue;
 
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static ObjFunction AS_FUNCTION(Value value) => ((ObjFunction)AsObj(value));

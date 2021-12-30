@@ -13,10 +13,34 @@ class NativeException : Exception
 class NativeFunctions
 {
 	Dictionary<string, Type> typeDict = new Dictionary<string, Type>();
+	VM vm;
+
+	public NativeFunctions(VM vm)
+	{
+		this.vm = vm;
+		vm.DefineNative("clock", Clock);
+		vm.DefineNative("invoke", Invoke);
+		vm.DefineNative("len", Len);
+	}
+
+	Value RuntimeErrorWithNil(string msg)
+	{
+		vm.RuntimeError(msg);
+		return Nil;
+	}
 
 	public Value Clock(Value[] _)
 	{
 		return CreateNumberVal(DateTime.Now.Ticks / 10000000.0);
+	}
+
+	public Value Len(Value[] args)
+	{
+		if (args.Length != 1) return RuntimeErrorWithNil("len must have 1 argument");
+		var arg = args[0];
+		if (IsString(arg)) return CreateNumberVal(AsString(arg).Length);
+		if (IsList(arg)) return CreateNumberVal(AsList(arg).Count);
+		return RuntimeErrorWithNil($"{arg} has no length");
 	}
 
 	static Type FindType(string name)
