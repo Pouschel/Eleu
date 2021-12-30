@@ -25,7 +25,7 @@ public class Globals
 	internal static EleuResult CompileAndRun(string source, string fileName, EleuOptions options)
 	{
 		var compiler = new Compiler(source, fileName, options);
-		var cresult = compiler.compile();
+		var cresult = compiler.Compile();
 		if (cresult.Result != Ok)
 			return cresult;
 

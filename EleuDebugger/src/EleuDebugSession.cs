@@ -102,7 +102,7 @@ internal class EleuDebugSession : DebugSession
 			};
 			var source = File.ReadAllText(fileName);
 			var compiler = new Compiler(source, fileName, options);
-			var cresult = compiler.compile();
+			var cresult = compiler.Compile();
 			if (cresult.Result != EEleuResult.Ok)
 			{
 				SendEvent(new TerminatedEvent());

@@ -176,7 +176,7 @@ internal class Compiler
 		current = InitCompiler(FunTypeScript);
 	}
 
-	public EleuResult compile()
+	public EleuResult Compile()
 	{
 		scanner.Reset();
 		Advance();
