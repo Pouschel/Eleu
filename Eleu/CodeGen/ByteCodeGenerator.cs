@@ -281,8 +281,34 @@ namespace Eleu.CodeGen
 			}
 			return -1;
 		}
+		void BeginScope() => current.scopeDepth++;
+		void EndScope()
+		{
+			current.scopeDepth--;
+			while (current.localCount > 0
+				&& current.locals[current.localCount - 1].depth > current.scopeDepth)
+			{
+				if (current.locals[current.localCount - 1].isCaptured)
+					EmitByte(OP_CLOSE_UPVALUE);
+				else
+				{
+					EmitByte(OP_POP);
+				}
+				current.localCount--;
+			}
+		}
 		void Error(string message) => options.Err.WriteLine(message);
-		public bool VisitBlockStmt(Stmt.Block stmt) => throw new NotImplementedException();
+		public bool VisitBlockStmt(Stmt.Block stmt)
+		{
+			BeginScope();
+			foreach (var istmt in stmt.statements)
+			{
+				istmt.Accept(this);
+			}
+			EndScope();
+			return true;
+		}
+
 		public bool VisitClassStmt(Stmt.Class stmt) => throw new NotImplementedException();
 		public bool VisitExpressionStmt(Stmt.Expression stmt)
 		{
