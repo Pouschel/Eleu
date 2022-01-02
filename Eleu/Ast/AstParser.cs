@@ -17,11 +17,11 @@ namespace Eleu.Ast
 		}
 		internal List<Stmt> parse()
 		{
-			List<Stmt> statements = new ();
+			List<Stmt> statements = new();
 			while (!isAtEnd())
 			{
 				var decl = declaration();
-				if (decl!=null) statements.Add(decl);
+				if (decl != null) statements.Add(decl);
 			}
 			return statements;
 		}
@@ -29,9 +29,51 @@ namespace Eleu.Ast
 		{
 			if (match(TOKEN_PRINT)) return printStatement();
 			if (match(TOKEN_LEFT_BRACE)) return new Stmt.Block(block());
+			if (match(TOKEN_FOR)) return forStatement();
 			if (match(TOKEN_IF)) return ifStatement();
+			if (match(TOKEN_WHILE)) return whileStatement();
 			return expressionStatement();
 		}
+		private Stmt forStatement()
+		{
+			consume(TOKEN_LEFT_PAREN, "Expect '(' after 'for'.");
+			Stmt? initializer;
+			if (match(TokenSemicolon))
+				initializer = null;
+			else if (match(TOKEN_VAR))
+				initializer = varDeclaration();
+			else
+				initializer = expressionStatement();
+			Expr? condition = null;
+			if (!check(TokenSemicolon))
+			{
+				condition = expression();
+			}
+			consume(TokenSemicolon, "Expect ';' after loop condition.");
+			Expr? increment = null;
+			if (!check(TOKEN_RIGHT_PAREN))
+			{
+				increment = expression();
+			}
+			consume(TOKEN_RIGHT_PAREN, "Expect ')' after for clauses.");
+			Stmt body = statement();
+			if (increment != null)
+			{
+				body = new Stmt.Block(new()
+				{
+					body,
+					new Stmt.Expression(increment)
+				});
+			}
+			if (condition == null) condition = new Expr.Literal(true);
+			body = new Stmt.While(condition, body);
+			if (initializer != null)
+			{
+				body = new Stmt.Block(new() { initializer, body });
+			}
+			return body;
+		}
+
 		private Stmt ifStatement()
 		{
 			consume(TOKEN_LEFT_PAREN, "Expect '(' after 'if'.");
@@ -60,7 +102,7 @@ namespace Eleu.Ast
 		}
 		private List<Stmt> block()
 		{
-			List<Stmt> statements = new ();
+			List<Stmt> statements = new();
 			while (!check(TOKEN_RIGHT_BRACE) && !isAtEnd())
 			{
 				var decl = declaration();
@@ -76,7 +118,7 @@ namespace Eleu.Ast
 			{
 				Token equals = previous();
 				Expr value = assignment();
-				if (expr is Expr.Variable variable) 
+				if (expr is Expr.Variable variable)
 				{
 					Token name = variable.name;
 					return new Expr.Assign(name, value);
@@ -118,7 +160,7 @@ namespace Eleu.Ast
 				if (match(TOKEN_VAR)) return varDeclaration();
 				return statement();
 			}
-			catch (ParseError )
+			catch (ParseError)
 			{
 				synchronize();
 				return null;
@@ -135,7 +177,14 @@ namespace Eleu.Ast
 			consume(TokenSemicolon, "Expect ';' after variable declaration.");
 			return new Stmt.Var(name, initializer);
 		}
-
+		private Stmt whileStatement()
+		{
+			consume(TOKEN_LEFT_PAREN, "Expect '(' after 'while'.");
+			Expr condition = expression();
+			consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
+			Stmt body = statement();
+			return new Stmt.While(condition, body);
+		}
 		private Expr equality()
 		{
 			Expr expr = comparison();

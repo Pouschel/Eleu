@@ -389,6 +389,24 @@ namespace Eleu.CodeGen
 			return true;
 		}
 
-		public bool VisitWhileStmt(Stmt.While stmt) => throw new NotImplementedException();
+		public bool VisitWhileStmt(Stmt.While stmt)
+		{
+			int loopStart = CurrentChunk.count;
+			stmt.condition.Accept(this);
+			int exitJump = EmitJump(OP_JUMP_IF_FALSE);
+			EmitByte(OP_POP);
+			stmt.body.Accept(this);
+			EmitLoop(loopStart);
+			PatchJump(exitJump);
+			return EmitByte(OP_POP);
+		}
+		void EmitLoop(int loopStart)
+		{
+			EmitByte(OP_LOOP);
+			int offset = CurrentChunk.count - loopStart + 2;
+			if (offset > ushort.MaxValue) Error("Loop body too large.");
+			EmitByte((byte)(offset >> 8 & 0xff));
+			EmitByte((byte)(offset & 0xff));
+		}
 	}
 }
