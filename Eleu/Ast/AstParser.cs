@@ -16,19 +16,33 @@ namespace Eleu.Ast
 			this.fileName = fileName;
 			this.options = options;
 		}
-
-		internal Expr? parse()
+		internal List<Stmt> parse()
 		{
-			try
+			List<Stmt> statements = new ();
+			while (!isAtEnd())
 			{
-				return expression();
+				statements.Add(statement());
 			}
-			catch (ParseError )
-			{
-				return null;
-			}
+			return statements;
 		}
+		private Stmt statement()
+		{
+			if (match(TOKEN_PRINT)) return printStatement();
 
+			return expressionStatement();
+		}
+		private Stmt printStatement()
+		{
+			Expr value = expression();
+			consume(TokenSemicolon, "Expect ';' after value.");
+			return new Stmt.Print(value);
+		}
+		private Stmt expressionStatement()
+		{
+			Expr expr = expression();
+			consume(TokenSemicolon, "Expect ';' after expression.");
+			return new Stmt.Expression(expr);
+		}
 		private Expr expression()
 		{
 			return equality();

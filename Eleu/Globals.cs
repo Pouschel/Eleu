@@ -22,12 +22,12 @@ public class EleuEngine
 		var scanner = new Scanner(source);
 		var tokens = scanner.ScanAllTokens();
 		var parser = new AstParser(options,fileName,tokens);
-		var expr= parser.parse();
+		var parseResult= parser.parse();
 
 		var result= new EleuResult()
 		{
-			Result= expr==null ? EEleuResult.CompileError: EEleuResult.Ok,
-			Expr = expr,
+			Result= parseResult==null ? EEleuResult.CompileError: EEleuResult.Ok,
+			Expr = parseResult,
 		};
 		if (result.Result != EEleuResult.Ok) return result;
 		var codeGen = new ByteCodeGenerator(fileName, options, result);

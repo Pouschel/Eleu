@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Eleu.CodeGen
 {
-	internal class ByteCodeGenerator: Expr.Visitor<bool>
+	internal class ByteCodeGenerator: Expr.Visitor<bool>, Stmt.Visitor<bool>
 	{
 		string fileName;
 		EleuOptions options;
@@ -24,7 +24,10 @@ namespace Eleu.CodeGen
 
 		public EleuResult GenCode()
 		{
-			result.Expr!.Accept(this);
+			foreach (var stm in result.Expr!)
+			{
+				stm.Accept(this);
+			}
 			var funct = EndCompiler();
 			result.Function = funct;
 			return result;
@@ -124,9 +127,9 @@ namespace Eleu.CodeGen
 			CurrentChunk.Write(by);
 		}
 
-		void EmitByte(OpCode op)
+		bool EmitByte(OpCode op)
 		{
-			CurrentChunk.Write(op);
+			CurrentChunk.Write(op); return true;
 		}
 
 		void EmitBytes(OpCode byte1, byte byte2)
@@ -148,5 +151,24 @@ namespace Eleu.CodeGen
 		}
 
 		void Error(string message) => options.Err.WriteLine(message);
+		public bool VisitBlockStmt(Stmt.Block stmt) => throw new NotImplementedException();
+		public bool VisitClassStmt(Stmt.Class stmt) => throw new NotImplementedException();
+		public bool VisitExpressionStmt(Stmt.Expression stmt)
+		{
+			stmt.expression.Accept(this);
+			return EmitByte(OP_POP);
+		}
+
+		public bool VisitFunctionStmt(Stmt.Function stmt) => throw new NotImplementedException();
+		public bool VisitIfStmt(Stmt.If stmt) => throw new NotImplementedException();
+		public bool VisitPrintStmt(Stmt.Print stmt)
+		{
+			stmt.expression.Accept(this);
+			return EmitByte(OP_PRINT);
+		}
+
+		public bool VisitReturnStmt(Stmt.Return stmt) => throw new NotImplementedException();
+		public bool VisitVarStmt(Stmt.Var stmt) => throw new NotImplementedException();
+		public bool VisitWhileStmt(Stmt.While stmt) => throw new NotImplementedException();
 	}
 }

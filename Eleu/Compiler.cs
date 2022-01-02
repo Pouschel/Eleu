@@ -60,7 +60,7 @@ class EleuResult
 {
 	public EEleuResult Result;
 	public ObjFunction? Function;
-	public Expr? Expr;
+	public List<Stmt>? Expr;
 	public DebugInfo? DebugInfo;
 }
 
