@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "GenerateAst": {
+      "commandName": "Project",
+      "commandLineArgs": "C:\\Code\\Eleu\\Eleu\\Ast\""
+    }
+  }
+}
