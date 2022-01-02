@@ -21,7 +21,7 @@ public abstract class Stmt {
   public class Block : Stmt {
     public readonly List<Stmt> statements;
 
-    Block(List<Stmt> statements) {
+    internal Block(List<Stmt> statements) {
       this.statements = statements;
     }
 
@@ -36,7 +36,7 @@ public abstract class Stmt {
     public readonly Expr.Variable superclass;
     public readonly List<Stmt.Function> methods;
 
-    Class(Token name,
+    internal Class(Token name,
           Expr.Variable superclass,
           List<Stmt.Function> methods) {
       this.name = name;
@@ -53,7 +53,7 @@ public abstract class Stmt {
   public class Expression : Stmt {
     public readonly Expr expression;
 
-    Expression(Expr expression) {
+    internal Expression(Expr expression) {
       this.expression = expression;
     }
 
@@ -68,7 +68,7 @@ public abstract class Stmt {
     public readonly List<Token> paras;
     public readonly List<Stmt> body;
 
-    Function(Token name, List<Token> paras, List<Stmt> body) {
+    internal Function(Token name, List<Token> paras, List<Stmt> body) {
       this.name = name;
       this.paras = paras;
       this.body = body;
@@ -85,7 +85,7 @@ public abstract class Stmt {
     public readonly Stmt thenBranch;
     public readonly Stmt elseBranch;
 
-    If(Expr condition, Stmt thenBranch, Stmt elseBranch) {
+    internal If(Expr condition, Stmt thenBranch, Stmt elseBranch) {
       this.condition = condition;
       this.thenBranch = thenBranch;
       this.elseBranch = elseBranch;
@@ -100,7 +100,7 @@ public abstract class Stmt {
   public class Print : Stmt {
     public readonly Expr expression;
 
-    Print(Expr expression) {
+    internal Print(Expr expression) {
       this.expression = expression;
     }
 
@@ -114,7 +114,7 @@ public abstract class Stmt {
     public readonly Token keyword;
     public readonly Expr value;
 
-    Return(Token keyword, Expr value) {
+    internal Return(Token keyword, Expr value) {
       this.keyword = keyword;
       this.value = value;
     }
@@ -129,7 +129,7 @@ public abstract class Stmt {
     public readonly Token name;
     public readonly Expr initializer;
 
-    Var(Token name, Expr initializer) {
+    internal Var(Token name, Expr initializer) {
       this.name = name;
       this.initializer = initializer;
     }
@@ -144,7 +144,7 @@ public abstract class Stmt {
     public readonly Expr condition;
     public readonly Stmt body;
 
-    While(Expr condition, Stmt body) {
+    internal While(Expr condition, Stmt body) {
       this.condition = condition;
       this.body = body;
     }

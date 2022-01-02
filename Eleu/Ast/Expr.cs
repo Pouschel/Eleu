@@ -25,7 +25,7 @@ public abstract class Expr {
     public readonly Token name;
     public readonly Expr value;
 
-    Assign(Token name, Expr value) {
+    internal Assign(Token name, Expr value) {
       this.name = name;
       this.value = value;
     }
@@ -41,7 +41,7 @@ public abstract class Expr {
     public readonly Token op;
     public readonly Expr right;
 
-    Binary(Expr left, Token op, Expr right) {
+    internal Binary(Expr left, Token op, Expr right) {
       this.left = left;
       this.op = op;
       this.right = right;
@@ -58,7 +58,7 @@ public abstract class Expr {
     public readonly Token paren;
     public readonly List<Expr> arguments;
 
-    Call(Expr callee, Token paren, List<Expr> arguments) {
+    internal Call(Expr callee, Token paren, List<Expr> arguments) {
       this.callee = callee;
       this.paren = paren;
       this.arguments = arguments;
@@ -74,7 +74,7 @@ public abstract class Expr {
     public readonly Expr obj;
     public readonly Token name;
 
-    Get(Expr obj, Token name) {
+    internal Get(Expr obj, Token name) {
       this.obj = obj;
       this.name = name;
     }
@@ -88,7 +88,7 @@ public abstract class Expr {
   public class Grouping : Expr {
     public readonly Expr expression;
 
-    Grouping(Expr expression) {
+    internal Grouping(Expr expression) {
       this.expression = expression;
     }
 
@@ -99,9 +99,9 @@ public abstract class Expr {
 //< expr-grouping
 //> expr-literal
   public class Literal : Expr {
-    public readonly Object value;
+    public readonly object? value;
 
-    Literal(Object value) {
+    internal Literal(object? value) {
       this.value = value;
     }
 
@@ -116,7 +116,7 @@ public abstract class Expr {
     public readonly Token op;
     public readonly Expr right;
 
-    Logical(Expr left, Token op, Expr right) {
+    internal Logical(Expr left, Token op, Expr right) {
       this.left = left;
       this.op = op;
       this.right = right;
@@ -133,7 +133,7 @@ public abstract class Expr {
     public readonly Token name;
     public readonly Expr value;
 
-    Set(Expr obj, Token name, Expr value) {
+    internal Set(Expr obj, Token name, Expr value) {
       this.obj = obj;
       this.name = name;
       this.value = value;
@@ -149,7 +149,7 @@ public abstract class Expr {
     public readonly Token keyword;
     public readonly Token method;
 
-    Super(Token keyword, Token method) {
+    internal Super(Token keyword, Token method) {
       this.keyword = keyword;
       this.method = method;
     }
@@ -163,7 +163,7 @@ public abstract class Expr {
   public class This : Expr {
     public readonly Token keyword;
 
-    This(Token keyword) {
+    internal This(Token keyword) {
       this.keyword = keyword;
     }
 
@@ -177,7 +177,7 @@ public abstract class Expr {
     public readonly Token op;
     public readonly Expr right;
 
-    Unary(Token op, Expr right) {
+    internal Unary(Token op, Expr right) {
       this.op = op;
       this.right = right;
     }
@@ -191,7 +191,7 @@ public abstract class Expr {
   public class Variable : Expr {
     public readonly Token name;
 
-    Variable(Token name) {
+    internal Variable(Token name) {
       this.name = name;
     }
 

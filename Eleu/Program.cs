@@ -51,7 +51,8 @@ fileName           file to compile and run
 			Console.WriteLine("No file to run");
 			return;
 		}
-		CompileAndRun(fileName, options);
+		//CompileAndRun(fileName, options);
+		EleuEngine.CompileAndRun(fileName, options);
 		if (waitAfterRun) Console.ReadLine();
 	}
 

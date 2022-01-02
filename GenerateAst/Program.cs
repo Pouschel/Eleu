@@ -16,7 +16,7 @@ defineAst(outputDir, "Expr", new string[] {
 	"Get      : Expr obj, Token name",
 	//< Classes get-ast
 	"Grouping : Expr expression",
-	"Literal  : Object value",
+	"Literal  : object? value",
 	//> Control Flow logical-ast
 	"Logical  : Expr left, Token op, Expr right",
 	//< Control Flow logical-ast
@@ -168,7 +168,7 @@ static void defineType(TextWriter writer, String baseName, String className, Str
 
 	//< omit
 	// Constructor.
-	writer.println("    " + className + "(" + fieldList + ") {");
+	writer.println("    internal " + className + "(" + fieldList + ") {");
 
 	//> omit
 	foreach (String field in fields)

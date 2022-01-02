@@ -4,9 +4,44 @@ global using System;
 global using Eleu.Debugger;
 global using static Eleu.OpCode;
 global using static Eleu.Globals;
+using Eleu.Ast;
+
 namespace Eleu;
 
+public class EleuEngine
+{
 
+
+	internal static EleuResult CompileAndRun(string fileName, EleuOptions options)
+	{
+		var source = File.ReadAllText(fileName);
+		return CompileAndRun(source, fileName, options);
+	}
+	
+	internal static EleuResult CompileAndRun(string source, string fileName, EleuOptions options)
+	{
+		var scanner = new Scanner(source);
+		var tokens = scanner.ScanAllTokens();
+		var parser = new AstParser(options,fileName,tokens);
+		var expr= parser.parse();
+
+		var result= new EleuResult()
+		{
+			Result= expr==null ? EEleuResult.CompileError: EEleuResult.Ok,
+			Expr = expr,
+		};
+		return result;
+
+		//var compiler = new Compiler(source, fileName, options);
+		//var cresult = compiler.Compile();
+		//if (cresult.Result != Ok)
+		//	return cresult;
+
+		//VM vm = new VM(options, cresult);
+		//vm.Interpret();
+		//return cresult;
+	}
+}
 
 public class Globals
 {

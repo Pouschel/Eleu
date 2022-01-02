@@ -1,16 +1,2 @@
+3+7/2
 
-
-fun strlen(s)
-{
-  return invoke("System.String.Length",s);
-}
-
-fun substr(s, start, len)
-{
-  return invoke("System.String.Substring",s,start,len);
-}
-
-var s= "Hallo Puschel";
-
-print strlen(s);
-print substr(s, 6, strlen(s)-6);

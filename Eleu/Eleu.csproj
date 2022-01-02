@@ -14,9 +14,4 @@
     <Compile Remove="Table.cs" />
   </ItemGroup>
 
-
-  <ItemGroup>
-    <Folder Include="Ast\" />
-  </ItemGroup>
-
 </Project>

@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using static Eleu.Precedence;
 using static Eleu.FunctionType;
-
+using Eleu.Ast;
 
 namespace Eleu;
 
@@ -85,6 +85,7 @@ class EleuResult
 {
 	public EEleuResult Result;
 	public ObjFunction? Function;
+	public Expr? Expr;
 	public DebugInfo? DebugInfo;
 }
 

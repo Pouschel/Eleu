@@ -9,7 +9,7 @@ public enum TokenType
 	TOKEN_LEFT_BRACE, TOKEN_RIGHT_BRACE,
 	TOKEN_COMMA, TOKEN_DOT, TokenMinus, TokenPlus,
 	TokenSemicolon, TOKEN_SLASH, TokenStar,
-	TokenPercent,	TokenLeftBracket, TokenRightBracket,
+	TokenPercent, TokenLeftBracket, TokenRightBracket,
 	// One or two character tokens.
 	TOKEN_BANG, TOKEN_BANG_EQUAL,
 	TOKEN_EQUAL, TOKEN_EQUAL_EQUAL,
@@ -35,7 +35,7 @@ public struct Token
 
 	public string StringValue => string.Intern(source[start..end]);
 
-	public string StringStringValue =>source[(start + 1)..(end - 1)];
+	public string StringStringValue => source[(start + 1)..(end - 1)];
 
 	public override string ToString() => $"{type}: {StringValue}";
 
@@ -101,6 +101,18 @@ internal class Scanner
 		return ErrorToken($"Unexpected character: {c}");
 	}
 
+	public List<Token> ScanAllTokens()
+	{
+		var result = new List<Token>();
+		while (true)
+		{
+			var token = ScanToken();
+			result.Add(token);
+			if (token.type == TOKEN_EOF || token.type == TOKEN_ERROR) break;
+		}
+		return result;
+	}
+
 	static bool IsDigit(char c) => c >= '0' && c <= '9';
 	static bool IsAlpha(char c)
 	{
@@ -138,7 +150,7 @@ internal class Scanner
 			case 'f':
 				if (current - start > 1)
 				{
-					switch (source[start+1])
+					switch (source[start + 1])
 					{
 						case 'a': return CheckKeyword(2, "lse", TOKEN_FALSE);
 						case 'o': return CheckKeyword(2, "r", TOKEN_FOR);
