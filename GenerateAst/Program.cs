@@ -72,7 +72,7 @@ defineAst(outputDir, "Stmt", new string[] {
         "Var        : Token name, Expr initializer"
   */
   //> Control Flow while-ast
-  "Var        : Token name, Expr initializer",
+  "Var        : Token name, Expr? initializer",
 	"While      : Expr condition, Stmt body" }
 //< Control Flow while-ast
 );

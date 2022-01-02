@@ -9,7 +9,6 @@ namespace Eleu.Ast
 		private int current = 0;
 		private EleuOptions options;
 		private string fileName;
-		private bool panicMode;
 		public AstParser(EleuOptions options, string fileName, List<Token> tokens)
 		{
 			this.tokens = tokens;
@@ -21,14 +20,15 @@ namespace Eleu.Ast
 			List<Stmt> statements = new ();
 			while (!isAtEnd())
 			{
-				statements.Add(statement());
+				var decl = declaration();
+				if (decl!=null) statements.Add(decl);
 			}
 			return statements;
 		}
 		private Stmt statement()
 		{
 			if (match(TOKEN_PRINT)) return printStatement();
-
+			if (match(TOKEN_LEFT_BRACE)) return new Stmt.Block(block());
 			return expressionStatement();
 		}
 		private Stmt printStatement()
@@ -43,9 +43,60 @@ namespace Eleu.Ast
 			consume(TokenSemicolon, "Expect ';' after expression.");
 			return new Stmt.Expression(expr);
 		}
+		private List<Stmt> block()
+		{
+			List<Stmt> statements = new ();
+			while (!check(TOKEN_RIGHT_BRACE) && !isAtEnd())
+			{
+				var decl = declaration();
+				if (decl != null) statements.Add(decl);
+			}
+			consume(TOKEN_RIGHT_BRACE, "Expect '}' after block.");
+			return statements;
+		}
+		private Expr assignment()
+		{
+			Expr expr = equality();
+			if (match(TOKEN_EQUAL))
+			{
+				Token equals = previous();
+				Expr value = assignment();
+				if (expr is Expr.Variable variable) 
+				{
+					Token name = variable.name;
+					return new Expr.Assign(name, value);
+				}
+				error(equals, "Invalid assignment target.");
+			}
+			return expr;
+		}
 		private Expr expression()
 		{
-			return equality();
+			return assignment();
+		}
+		private Stmt? declaration()
+		{
+			try
+			{
+				if (match(TOKEN_VAR)) return varDeclaration();
+				return statement();
+			}
+			catch (ParseError )
+			{
+				synchronize();
+				return null;
+			}
+		}
+		private Stmt varDeclaration()
+		{
+			Token name = consume(TOKEN_IDENTIFIER, "Expect variable name.");
+			Expr? initializer = null;
+			if (match(TOKEN_EQUAL))
+			{
+				initializer = expression();
+			}
+			consume(TokenSemicolon, "Expect ';' after variable declaration.");
+			return new Stmt.Var(name, initializer);
 		}
 
 		private Expr equality()
@@ -115,7 +166,10 @@ namespace Eleu.Ast
 			{
 				return new Expr.Literal(previous().StringStringValue);
 			}
-
+			if (match(TOKEN_IDENTIFIER))
+			{
+				return new Expr.Variable(previous());
+			}
 			if (match(TOKEN_LEFT_PAREN))
 			{
 				Expr expr = expression();
@@ -150,8 +204,8 @@ namespace Eleu.Ast
 		}
 		void errorAt(in Token token, string message)
 		{
-			if (panicMode) return;
-			panicMode = true;
+			//if (panicMode) return;
+			//panicMode = true;
 			var msg = string.IsNullOrEmpty(fileName) ? message : $"{fileName}({token.line}): Cerr: {message}";
 			//msg = $"File \"{fileName}\", line {token.line}: Compiler error: {message}";
 			options.Err.WriteLine(msg);

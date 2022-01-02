@@ -127,9 +127,9 @@ public abstract class Stmt {
 //> stmt-var
   public class Var : Stmt {
     public readonly Token name;
-    public readonly Expr initializer;
+    public readonly Expr? initializer;
 
-    internal Var(Token name, Expr initializer) {
+    internal Var(Token name, Expr? initializer) {
       this.name = name;
       this.initializer = initializer;
     }

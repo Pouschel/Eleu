@@ -1,3 +1,4 @@
-print "one";
-print true;
-print 2 + 1;
+var x=77;
+x=88;
+print x;
+
