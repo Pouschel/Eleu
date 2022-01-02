@@ -1,10 +1,9 @@
-﻿
-
-global using System;
+﻿global using System;
 global using Eleu.Debugger;
 global using static Eleu.OpCode;
 global using static Eleu.Globals;
-using Eleu.Ast;
+global using Eleu.Ast;
+using Eleu.CodeGen;
 
 namespace Eleu;
 
@@ -30,16 +29,13 @@ public class EleuEngine
 			Result= expr==null ? EEleuResult.CompileError: EEleuResult.Ok,
 			Expr = expr,
 		};
+		if (result.Result != EEleuResult.Ok) return result;
+		var codeGen = new ByteCodeGenerator(fileName, options, result);
+		result= codeGen.GenCode();
+		if (result.Result != Ok) return result;
+		VM vm = new VM(options, result);
+		vm.Interpret();
 		return result;
-
-		//var compiler = new Compiler(source, fileName, options);
-		//var cresult = compiler.Compile();
-		//if (cresult.Result != Ok)
-		//	return cresult;
-
-		//VM vm = new VM(options, cresult);
-		//vm.Interpret();
-		//return cresult;
 	}
 }
 
