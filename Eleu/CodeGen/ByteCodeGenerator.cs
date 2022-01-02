@@ -105,7 +105,29 @@ namespace Eleu.CodeGen
 			return true;
 		}
 
-		public bool VisitLogicalExpr(Expr.Logical expr) => throw new NotImplementedException();
+		public bool VisitLogicalExpr(Expr.Logical expr)
+		{
+			expr.left.Accept(this);
+			var type = expr.op.type;
+			if (type == TOKEN_OR)
+			{
+				int elseJump = EmitJump(OP_JUMP_IF_FALSE);
+				int endJump = EmitJump(OP_JUMP);
+				PatchJump(elseJump);
+				EmitByte(OP_POP);
+				expr.right.Accept(this);
+				PatchJump(endJump);
+			}
+			else if (type==TOKEN_AND)
+			{
+				int endJump = EmitJump(OP_JUMP_IF_FALSE);
+				EmitByte(OP_POP);
+				expr.right.Accept(this);
+				PatchJump(endJump);
+			}
+			return true;
+		}
+
 		public bool VisitSetExpr(Expr.Set expr) => throw new NotImplementedException();
 		public bool VisitSuperExpr(Expr.Super expr) => throw new NotImplementedException();
 		public bool VisitThisExpr(Expr.This expr) => throw new NotImplementedException();

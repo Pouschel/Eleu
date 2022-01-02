@@ -71,7 +71,7 @@ namespace Eleu.Ast
 		}
 		private Expr assignment()
 		{
-			Expr expr = equality();
+			Expr expr = or();
 			if (match(TOKEN_EQUAL))
 			{
 				Token equals = previous();
@@ -82,6 +82,28 @@ namespace Eleu.Ast
 					return new Expr.Assign(name, value);
 				}
 				error(equals, "Invalid assignment target.");
+			}
+			return expr;
+		}
+		private Expr or()
+		{
+			Expr expr = and();
+			while (match(TOKEN_OR))
+			{
+				Token _operator = previous();
+				Expr right = and();
+				expr = new Expr.Logical(expr, _operator, right);
+			}
+			return expr;
+		}
+		private Expr and()
+		{
+			Expr expr = equality();
+			while (match(TOKEN_AND))
+			{
+				Token _operator = previous();
+				Expr right = equality();
+				expr = new Expr.Logical(expr, _operator, right);
 			}
 			return expr;
 		}
