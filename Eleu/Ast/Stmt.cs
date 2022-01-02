@@ -83,9 +83,9 @@ public abstract class Stmt {
   public class If : Stmt {
     public readonly Expr condition;
     public readonly Stmt thenBranch;
-    public readonly Stmt elseBranch;
+    public readonly Stmt? elseBranch;
 
-    internal If(Expr condition, Stmt thenBranch, Stmt elseBranch) {
+    internal If(Expr condition, Stmt thenBranch, Stmt? elseBranch) {
       this.condition = condition;
       this.thenBranch = thenBranch;
       this.elseBranch = elseBranch;

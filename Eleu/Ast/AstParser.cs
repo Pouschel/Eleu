@@ -29,7 +29,22 @@ namespace Eleu.Ast
 		{
 			if (match(TOKEN_PRINT)) return printStatement();
 			if (match(TOKEN_LEFT_BRACE)) return new Stmt.Block(block());
+			if (match(TOKEN_IF)) return ifStatement();
 			return expressionStatement();
+		}
+		private Stmt ifStatement()
+		{
+			consume(TOKEN_LEFT_PAREN, "Expect '(' after 'if'.");
+			Expr condition = expression();
+			consume(TOKEN_RIGHT_PAREN, "Expect ')' after if condition.");
+
+			Stmt thenBranch = statement();
+			Stmt? elseBranch = null;
+			if (match(TOKEN_ELSE))
+			{
+				elseBranch = statement();
+			}
+			return new Stmt.If(condition, thenBranch, elseBranch);
 		}
 		private Stmt printStatement()
 		{

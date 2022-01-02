@@ -317,7 +317,38 @@ namespace Eleu.CodeGen
 		}
 
 		public bool VisitFunctionStmt(Stmt.Function stmt) => throw new NotImplementedException();
-		public bool VisitIfStmt(Stmt.If stmt) => throw new NotImplementedException();
+		public bool VisitIfStmt(Stmt.If stmt)
+		{
+			stmt.condition.Accept(this);
+			int thenJump = EmitJump(OP_JUMP_IF_FALSE);
+			EmitByte(OP_POP);
+			stmt.thenBranch.Accept(this);
+			int elseJump = EmitJump(OP_JUMP);
+			PatchJump(thenJump);
+			EmitByte(OP_POP);
+			if (stmt.elseBranch != null) stmt.elseBranch.Accept(this);
+			PatchJump(elseJump);
+			return true;
+		}
+
+		int EmitJump(OpCode instruction)
+		{
+			EmitByte(instruction);
+			EmitByte(0xff);
+			EmitByte(0xff);
+			return CurrentChunk.count - 2;
+		}
+		void PatchJump(int offset)
+		{
+			// -2 to adjust for the bytecode for the jump offset itself.
+			int jump = CurrentChunk.count - offset - 2;
+
+			if (jump > ushort.MaxValue)
+				Error("Too much code to jump over.");
+			CurrentChunk.code[offset] = (byte)(jump >> 8 & 0xff);
+			CurrentChunk.code[offset + 1] = (byte)(jump & 0xff);
+		}
+
 		public bool VisitPrintStmt(Stmt.Print stmt)
 		{
 			stmt.expression.Accept(this);
