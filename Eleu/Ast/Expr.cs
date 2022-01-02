@@ -3,201 +3,201 @@ namespace Eleu.Ast;
 
 public abstract class Expr {
   public interface Visitor<R> {
-    R visitAssignExpr(Assign expr);
-    R visitBinaryExpr(Binary expr);
-    R visitCallExpr(Call expr);
-    R visitGetExpr(Get expr);
-    R visitGroupingExpr(Grouping expr);
-    R visitLiteralExpr(Literal expr);
-    R visitLogicalExpr(Logical expr);
-    R visitSetExpr(Set expr);
-    R visitSuperExpr(Super expr);
-    R visitThisExpr(This expr);
-    R visitUnaryExpr(Unary expr);
-    R visitVariableExpr(Variable expr);
+    R VisitAssignExpr(Assign expr);
+    R VisitBinaryExpr(Binary expr);
+    R VisitCallExpr(Call expr);
+    R VisitGetExpr(Get expr);
+    R VisitGroupingExpr(Grouping expr);
+    R VisitLiteralExpr(Literal expr);
+    R VisitLogicalExpr(Logical expr);
+    R VisitSetExpr(Set expr);
+    R VisitSuperExpr(Super expr);
+    R VisitThisExpr(This expr);
+    R VisitUnaryExpr(Unary expr);
+    R VisitVariableExpr(Variable expr);
   }
 
-  public abstract R accept<R>(Visitor<R> visitor);
+  public abstract R Accept<R>(Visitor<R> visitor);
 
   // Nested Expr classes here...
 //> expr-assign
   public class Assign : Expr {
+    public readonly Token name;
+    public readonly Expr value;
+
     Assign(Token name, Expr value) {
       this.name = name;
       this.value = value;
     }
 
-    public override R accept<R>(Visitor<R> visitor) {
-      return visitor.visitAssignExpr(this);
+    public override R Accept<R>(Visitor<R> visitor) {
+      return visitor.VisitAssignExpr(this);
     }
-
-    readonly Token name;
-    readonly Expr value;
   }
 //< expr-assign
 //> expr-binary
   public class Binary : Expr {
+    public readonly Expr left;
+    public readonly Token op;
+    public readonly Expr right;
+
     Binary(Expr left, Token op, Expr right) {
       this.left = left;
       this.op = op;
       this.right = right;
     }
 
-    public override R accept<R>(Visitor<R> visitor) {
-      return visitor.visitBinaryExpr(this);
+    public override R Accept<R>(Visitor<R> visitor) {
+      return visitor.VisitBinaryExpr(this);
     }
-
-    readonly Expr left;
-    readonly Token op;
-    readonly Expr right;
   }
 //< expr-binary
 //> expr-call
   public class Call : Expr {
+    public readonly Expr callee;
+    public readonly Token paren;
+    public readonly List<Expr> arguments;
+
     Call(Expr callee, Token paren, List<Expr> arguments) {
       this.callee = callee;
       this.paren = paren;
       this.arguments = arguments;
     }
 
-    public override R accept<R>(Visitor<R> visitor) {
-      return visitor.visitCallExpr(this);
+    public override R Accept<R>(Visitor<R> visitor) {
+      return visitor.VisitCallExpr(this);
     }
-
-    readonly Expr callee;
-    readonly Token paren;
-    readonly List<Expr> arguments;
   }
 //< expr-call
 //> expr-get
   public class Get : Expr {
+    public readonly Expr obj;
+    public readonly Token name;
+
     Get(Expr obj, Token name) {
       this.obj = obj;
       this.name = name;
     }
 
-    public override R accept<R>(Visitor<R> visitor) {
-      return visitor.visitGetExpr(this);
+    public override R Accept<R>(Visitor<R> visitor) {
+      return visitor.VisitGetExpr(this);
     }
-
-    readonly Expr obj;
-    readonly Token name;
   }
 //< expr-get
 //> expr-grouping
   public class Grouping : Expr {
+    public readonly Expr expression;
+
     Grouping(Expr expression) {
       this.expression = expression;
     }
 
-    public override R accept<R>(Visitor<R> visitor) {
-      return visitor.visitGroupingExpr(this);
+    public override R Accept<R>(Visitor<R> visitor) {
+      return visitor.VisitGroupingExpr(this);
     }
-
-    readonly Expr expression;
   }
 //< expr-grouping
 //> expr-literal
   public class Literal : Expr {
+    public readonly Object value;
+
     Literal(Object value) {
       this.value = value;
     }
 
-    public override R accept<R>(Visitor<R> visitor) {
-      return visitor.visitLiteralExpr(this);
+    public override R Accept<R>(Visitor<R> visitor) {
+      return visitor.VisitLiteralExpr(this);
     }
-
-    readonly Object value;
   }
 //< expr-literal
 //> expr-logical
   public class Logical : Expr {
+    public readonly Expr left;
+    public readonly Token op;
+    public readonly Expr right;
+
     Logical(Expr left, Token op, Expr right) {
       this.left = left;
       this.op = op;
       this.right = right;
     }
 
-    public override R accept<R>(Visitor<R> visitor) {
-      return visitor.visitLogicalExpr(this);
+    public override R Accept<R>(Visitor<R> visitor) {
+      return visitor.VisitLogicalExpr(this);
     }
-
-    readonly Expr left;
-    readonly Token op;
-    readonly Expr right;
   }
 //< expr-logical
 //> expr-set
   public class Set : Expr {
+    public readonly Expr obj;
+    public readonly Token name;
+    public readonly Expr value;
+
     Set(Expr obj, Token name, Expr value) {
       this.obj = obj;
       this.name = name;
       this.value = value;
     }
 
-    public override R accept<R>(Visitor<R> visitor) {
-      return visitor.visitSetExpr(this);
+    public override R Accept<R>(Visitor<R> visitor) {
+      return visitor.VisitSetExpr(this);
     }
-
-    readonly Expr obj;
-    readonly Token name;
-    readonly Expr value;
   }
 //< expr-set
 //> expr-super
   public class Super : Expr {
+    public readonly Token keyword;
+    public readonly Token method;
+
     Super(Token keyword, Token method) {
       this.keyword = keyword;
       this.method = method;
     }
 
-    public override R accept<R>(Visitor<R> visitor) {
-      return visitor.visitSuperExpr(this);
+    public override R Accept<R>(Visitor<R> visitor) {
+      return visitor.VisitSuperExpr(this);
     }
-
-    readonly Token keyword;
-    readonly Token method;
   }
 //< expr-super
 //> expr-this
   public class This : Expr {
+    public readonly Token keyword;
+
     This(Token keyword) {
       this.keyword = keyword;
     }
 
-    public override R accept<R>(Visitor<R> visitor) {
-      return visitor.visitThisExpr(this);
+    public override R Accept<R>(Visitor<R> visitor) {
+      return visitor.VisitThisExpr(this);
     }
-
-    readonly Token keyword;
   }
 //< expr-this
 //> expr-unary
   public class Unary : Expr {
+    public readonly Token op;
+    public readonly Expr right;
+
     Unary(Token op, Expr right) {
       this.op = op;
       this.right = right;
     }
 
-    public override R accept<R>(Visitor<R> visitor) {
-      return visitor.visitUnaryExpr(this);
+    public override R Accept<R>(Visitor<R> visitor) {
+      return visitor.VisitUnaryExpr(this);
     }
-
-    readonly Token op;
-    readonly Expr right;
   }
 //< expr-unary
 //> expr-variable
   public class Variable : Expr {
+    public readonly Token name;
+
     Variable(Token name) {
       this.name = name;
     }
 
-    public override R accept<R>(Visitor<R> visitor) {
-      return visitor.visitVariableExpr(this);
+    public override R Accept<R>(Visitor<R> visitor) {
+      return visitor.VisitVariableExpr(this);
     }
-
-    readonly Token name;
   }
 //< expr-variable
 }

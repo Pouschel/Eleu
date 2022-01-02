@@ -3,35 +3,39 @@ namespace Eleu.Ast;
 
 public abstract class Stmt {
   public interface Visitor<R> {
-    R visitBlockStmt(Block stmt);
-    R visitClassStmt(Class stmt);
-    R visitExpressionStmt(Expression stmt);
-    R visitFunctionStmt(Function stmt);
-    R visitIfStmt(If stmt);
-    R visitPrintStmt(Print stmt);
-    R visitReturnStmt(Return stmt);
-    R visitVarStmt(Var stmt);
-    R visitWhileStmt(While stmt);
+    R VisitBlockStmt(Block stmt);
+    R VisitClassStmt(Class stmt);
+    R VisitExpressionStmt(Expression stmt);
+    R VisitFunctionStmt(Function stmt);
+    R VisitIfStmt(If stmt);
+    R VisitPrintStmt(Print stmt);
+    R VisitReturnStmt(Return stmt);
+    R VisitVarStmt(Var stmt);
+    R VisitWhileStmt(While stmt);
   }
 
-  public abstract R accept<R>(Visitor<R> visitor);
+  public abstract R Accept<R>(Visitor<R> visitor);
 
   // Nested Stmt classes here...
 //> stmt-block
   public class Block : Stmt {
+    public readonly List<Stmt> statements;
+
     Block(List<Stmt> statements) {
       this.statements = statements;
     }
 
-    public override R accept<R>(Visitor<R> visitor) {
-      return visitor.visitBlockStmt(this);
+    public override R Accept<R>(Visitor<R> visitor) {
+      return visitor.VisitBlockStmt(this);
     }
-
-    readonly List<Stmt> statements;
   }
 //< stmt-block
 //> stmt-class
   public class Class : Stmt {
+    public readonly Token name;
+    public readonly Expr.Variable superclass;
+    public readonly List<Stmt.Function> methods;
+
     Class(Token name,
           Expr.Variable superclass,
           List<Stmt.Function> methods) {
@@ -40,118 +44,114 @@ public abstract class Stmt {
       this.methods = methods;
     }
 
-    public override R accept<R>(Visitor<R> visitor) {
-      return visitor.visitClassStmt(this);
+    public override R Accept<R>(Visitor<R> visitor) {
+      return visitor.VisitClassStmt(this);
     }
-
-    readonly Token name;
-    readonly Expr.Variable superclass;
-    readonly List<Stmt.Function> methods;
   }
 //< stmt-class
 //> stmt-expression
   public class Expression : Stmt {
+    public readonly Expr expression;
+
     Expression(Expr expression) {
       this.expression = expression;
     }
 
-    public override R accept<R>(Visitor<R> visitor) {
-      return visitor.visitExpressionStmt(this);
+    public override R Accept<R>(Visitor<R> visitor) {
+      return visitor.VisitExpressionStmt(this);
     }
-
-    readonly Expr expression;
   }
 //< stmt-expression
 //> stmt-function
   public class Function : Stmt {
+    public readonly Token name;
+    public readonly List<Token> paras;
+    public readonly List<Stmt> body;
+
     Function(Token name, List<Token> paras, List<Stmt> body) {
       this.name = name;
       this.paras = paras;
       this.body = body;
     }
 
-    public override R accept<R>(Visitor<R> visitor) {
-      return visitor.visitFunctionStmt(this);
+    public override R Accept<R>(Visitor<R> visitor) {
+      return visitor.VisitFunctionStmt(this);
     }
-
-    readonly Token name;
-    readonly List<Token> paras;
-    readonly List<Stmt> body;
   }
 //< stmt-function
 //> stmt-if
   public class If : Stmt {
+    public readonly Expr condition;
+    public readonly Stmt thenBranch;
+    public readonly Stmt elseBranch;
+
     If(Expr condition, Stmt thenBranch, Stmt elseBranch) {
       this.condition = condition;
       this.thenBranch = thenBranch;
       this.elseBranch = elseBranch;
     }
 
-    public override R accept<R>(Visitor<R> visitor) {
-      return visitor.visitIfStmt(this);
+    public override R Accept<R>(Visitor<R> visitor) {
+      return visitor.VisitIfStmt(this);
     }
-
-    readonly Expr condition;
-    readonly Stmt thenBranch;
-    readonly Stmt elseBranch;
   }
 //< stmt-if
 //> stmt-print
   public class Print : Stmt {
+    public readonly Expr expression;
+
     Print(Expr expression) {
       this.expression = expression;
     }
 
-    public override R accept<R>(Visitor<R> visitor) {
-      return visitor.visitPrintStmt(this);
+    public override R Accept<R>(Visitor<R> visitor) {
+      return visitor.VisitPrintStmt(this);
     }
-
-    readonly Expr expression;
   }
 //< stmt-print
 //> stmt-return
   public class Return : Stmt {
+    public readonly Token keyword;
+    public readonly Expr value;
+
     Return(Token keyword, Expr value) {
       this.keyword = keyword;
       this.value = value;
     }
 
-    public override R accept<R>(Visitor<R> visitor) {
-      return visitor.visitReturnStmt(this);
+    public override R Accept<R>(Visitor<R> visitor) {
+      return visitor.VisitReturnStmt(this);
     }
-
-    readonly Token keyword;
-    readonly Expr value;
   }
 //< stmt-return
 //> stmt-var
   public class Var : Stmt {
+    public readonly Token name;
+    public readonly Expr initializer;
+
     Var(Token name, Expr initializer) {
       this.name = name;
       this.initializer = initializer;
     }
 
-    public override R accept<R>(Visitor<R> visitor) {
-      return visitor.visitVarStmt(this);
+    public override R Accept<R>(Visitor<R> visitor) {
+      return visitor.VisitVarStmt(this);
     }
-
-    readonly Token name;
-    readonly Expr initializer;
   }
 //< stmt-var
 //> stmt-while
   public class While : Stmt {
+    public readonly Expr condition;
+    public readonly Stmt body;
+
     While(Expr condition, Stmt body) {
       this.condition = condition;
       this.body = body;
     }
 
-    public override R accept<R>(Visitor<R> visitor) {
-      return visitor.visitWhileStmt(this);
+    public override R Accept<R>(Visitor<R> visitor) {
+      return visitor.VisitWhileStmt(this);
     }
-
-    readonly Expr condition;
-    readonly Stmt body;
   }
 //< stmt-while
 }

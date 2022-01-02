@@ -100,11 +100,7 @@ static void defineAst(String outputDir, String baseName, String[] types)
 
 	// The base accept() method.
 	writer.println();
-	writer.println("  public abstract R accept<R>(Visitor<R> visitor);");
-
-	//< base-accept-method
-
-	//> omit
+	writer.println("  public abstract R Accept<R>(Visitor<R> visitor);");
 
 
 	writer.println();
@@ -134,7 +130,7 @@ static void defineVisitor(TextWriter writer, String baseName, String[] types)
 	foreach (String type in types)
 	{
 		String typeName = type.Split(":")[0].Trim();
-		writer.println("    R visit" + typeName + baseName + "(" +
+		writer.println("    R Visit" + typeName + baseName + "(" +
 				typeName + " " + baseName.ToLower() + ");");
 	}
 
@@ -158,16 +154,23 @@ static void defineType(TextWriter writer, String baseName, String className, Str
 	{
 		fieldList = fieldList.Replace(", ", ",\n          ");
 	}
+	var fieldList1 = fieldList.Replace(",\n          ", ", ");
+	//< omit
+
+	// Store parameters in fields.
+	String[] fields = fieldList1.Split(", ");
+	foreach (String field in fields)
+	{
+		writer.println("    public readonly " + field + ";");
+	}
+	writer.println();
+
 
 	//< omit
 	// Constructor.
 	writer.println("    " + className + "(" + fieldList + ") {");
 
 	//> omit
-	fieldList = fieldList.Replace(",\n          ", ", ");
-	//< omit
-	// Store parameters in fields.
-	String[] fields = fieldList.Split(", ");
 	foreach (String field in fields)
 	{
 		String name = field.Split(" ")[1];
@@ -179,18 +182,14 @@ static void defineType(TextWriter writer, String baseName, String className, Str
 
 	// Visitor pattern.
 	writer.println();
-	writer.println("    public override R accept<R>(Visitor<R> visitor) {");
-	writer.println("      return visitor.visit" +
+	writer.println("    public override R Accept<R>(Visitor<R> visitor) {");
+	writer.println("      return visitor.Visit" +
 			className + baseName + "(this);");
 	writer.println("    }");
 	//< accept-method
 
-	// Fields.
-	writer.println();
-	foreach (String field in fields)
-	{
-		writer.println("    readonly " + field + ";");
-	}
+
+
 
 	writer.println("  }");
 	//> omit

@@ -2,7 +2,7 @@
 
 namespace Eleu;
 
-enum TokenType
+public enum TokenType
 {
 	// Single-character tokens.
 	TOKEN_LEFT_PAREN, TOKEN_RIGHT_PAREN,
@@ -25,7 +25,7 @@ enum TokenType
 	TOKEN_ERROR, TOKEN_EOF
 }
 
-internal struct Token
+public struct Token
 {
 	public TokenType type;
 	public int start;
