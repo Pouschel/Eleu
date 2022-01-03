@@ -165,12 +165,12 @@ namespace Eleu.Ast
 				Expr value = assignment();
 				if (expr is Expr.Variable variable)
 				{
-					var name = variable.name;
+					var name = variable.Name;
 					return new Expr.Assign(name, value);
 				}
 				else if (expr is Expr.Get get)
 				{
-					return new Expr.Set(get.obj, get.name, value);
+					return new Expr.Set(get.Obj, get.Name, value);
 				}
 				error(equals, "Invalid assignment target.");
 			}

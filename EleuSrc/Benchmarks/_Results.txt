@@ -60,3 +60,16 @@ string_equality   :  1,409 ms
 trees             :  1,309 ms
 zoo               :    233 ms
             Total :    8.2 s
+--- 01/03/2022 20:58:45 ---
+// AST Parser
+binary_trees      :    695 ms
+equality          :  1,104 ms
+fib               :    594 ms
+instantiation     :    436 ms
+invocation        :    409 ms
+method_call       :  1,325 ms
+properties        :    674 ms
+string_equality   :  1,322 ms
+trees             :  1,306 ms
+zoo               :    231 ms
+            Total :   8.14 s

@@ -63,8 +63,8 @@ namespace Eleu.CodeGen
 
 		public bool VisitAssignExpr(Expr.Assign expr)
 		{
-			expr.value.Accept(this);
-			var name = expr.name;
+			expr.Value.Accept(this);
+			var name = expr.Name;
 			OpCode setOp;
 			int arg = ResolveLocal(current, name);
 			if (arg != -1)
@@ -85,9 +85,9 @@ namespace Eleu.CodeGen
 
 		public bool VisitBinaryExpr(Expr.Binary expr)
 		{
-			expr.left.Accept(this);
-			expr.right.Accept(this);
-			switch (expr.op.type)
+			expr.Left.Accept(this);
+			expr.Right.Accept(this);
+			switch (expr.Op.type)
 			{
 				case TOKEN_BANG_EQUAL: EmitBytes(OP_EQUAL, (byte)OP_NOT); break;
 				case TOKEN_EQUAL_EQUAL: EmitByte(OP_EQUAL); break;
@@ -107,80 +107,80 @@ namespace Eleu.CodeGen
 
 		public bool VisitCallExpr(Expr.Call expr)
 		{
-			if (expr.method == null)
+			if (expr.Method == null)
 			{
-				expr.callee.Accept(this);
+				expr.Callee.Accept(this);
 				AcceptArguments();
-				return EmitBytes(OP_CALL, (byte)expr.arguments.Count);
+				return EmitBytes(OP_CALL, (byte)expr.Arguments.Count);
 			}
 			// method
 			if (!expr.CallSuper)
 			{
-				expr.callee.Accept(this);
-				var name = MakeConstant(new Value(expr.method));
+				expr.Callee.Accept(this);
+				var name = MakeConstant(new Value(expr.Method));
 				AcceptArguments();
 				EmitBytes(OP_INVOKE, name);
-				return EmitByte((byte)expr.arguments.Count);
+				return EmitByte((byte)expr.Arguments.Count);
 			}
 			// super call
 			{
 				new Expr.Variable("this").Accept(this);
-				var name = MakeConstant(new Value(expr.method));
+				var name = MakeConstant(new Value(expr.Method));
 				AcceptArguments();
-				expr.callee.Accept(this);
+				expr.Callee.Accept(this);
 				EmitBytes(OP_SUPER_INVOKE, name);
-				return EmitByte((byte)expr.arguments.Count);
+				return EmitByte((byte)expr.Arguments.Count);
 			}
 			void AcceptArguments()
 			{
-				for (int i = 0; i < expr.arguments.Count; i++)
+				for (int i = 0; i < expr.Arguments.Count; i++)
 				{
-					expr.arguments[i].Accept(this);
+					expr.Arguments[i].Accept(this);
 				}
 			}
 		}
 
 		public bool VisitGetExpr(Expr.Get expr)
 		{
-			expr.obj.Accept(this);
-			byte name = IdentifierConstant(expr.name);
-			bool isSuper = expr.obj is Expr.Super;
+			expr.Obj.Accept(this);
+			byte name = IdentifierConstant(expr.Name);
+			bool isSuper = expr.Obj is Expr.Super;
 			return EmitBytes(isSuper ? OP_GET_SUPER : OP_GET_PROPERTY, name);
 		}
 
-		public bool VisitGroupingExpr(Expr.Grouping expr) => expr.expression.Accept(this);
+		public bool VisitGroupingExpr(Expr.Grouping expr) => expr.Expression.Accept(this);
 
 		public bool VisitLiteralExpr(Expr.Literal expr)
 		{
-			switch (expr.value)
+			switch (expr.Value)
 			{
 				case bool b: EmitByte(b ? OP_TRUE : OP_FALSE); break;
 				case null: EmitByte(OP_NIL); break;
 				case double d: EmitConstant(CreateNumberVal(d)); break;
 				case string s: EmitConstant(CreateStringVal(s)); break;
-				default: Error($"Unsupported constant of type: {expr.value}"); return false;
+				default: Error($"Unsupported constant of type: {expr.Value}"); return false;
 			}
 			return true;
 		}
 
 		public bool VisitLogicalExpr(Expr.Logical expr)
 		{
-			expr.left.Accept(this);
-			var type = expr.op.type;
+			expr.Left.Accept(this);
+			var type = expr.Op.type;
 			if (type == TOKEN_OR)
 			{
 				int elseJump = EmitJump(OP_JUMP_IF_FALSE);
 				int endJump = EmitJump(OP_JUMP);
 				PatchJump(elseJump);
 				EmitByte(OP_POP);
-				expr.right.Accept(this);
+				expr.Right.Accept(this);
 				PatchJump(endJump);
 			}
 			else if (type == TOKEN_AND)
 			{
 				int endJump = EmitJump(OP_JUMP_IF_FALSE);
 				EmitByte(OP_POP);
-				expr.right.Accept(this);
+				expr.Right.Accept(this);
 				PatchJump(endJump);
 			}
 			return true;
@@ -188,9 +188,9 @@ namespace Eleu.CodeGen
 
 		public bool VisitSetExpr(Expr.Set expr)
 		{
-			expr.obj.Accept(this);
-			byte name = IdentifierConstant(expr.name);
-			expr.value.Accept(this);
+			expr.Obj.Accept(this);
+			byte name = IdentifierConstant(expr.Name);
+			expr.Value.Accept(this);
 			return EmitBytes(OP_SET_PROPERTY, name);
 		}
 
@@ -202,7 +202,7 @@ namespace Eleu.CodeGen
 			{
 				Error("Can't use 'super' in a class with no superclass.");
 			}
-			new Expr.Variable(expr.keyword).Accept(this);
+			new Expr.Variable(expr.Keyword).Accept(this);
 			return true;
 
 			//byte name = IdentifierConstant(expr.keyword);
@@ -230,13 +230,13 @@ namespace Eleu.CodeGen
 				Error("Can't use 'this' outside of a class.");
 				return false;
 			}
-			return new Expr.Variable(expr.keyword).Accept(this);
+			return new Expr.Variable(expr.Keyword).Accept(this);
 		}
 
 		public bool VisitUnaryExpr(Expr.Unary expr)
 		{
-			expr.right.Accept(this);
-			switch (expr.op.type)
+			expr.Right.Accept(this);
+			switch (expr.Op.type)
 			{
 				case TOKEN_BANG: EmitByte(OP_NOT); break;
 				case TokenMinus: EmitByte(OP_NEGATE); break;
@@ -247,7 +247,7 @@ namespace Eleu.CodeGen
 
 		public bool VisitVariableExpr(Expr.Variable expr)
 		{
-			var name = expr.name;
+			var name = expr.Name;
 			OpCode getOp;
 			int arg = ResolveLocal(current, name);
 			if (arg != -1)
@@ -431,7 +431,7 @@ namespace Eleu.CodeGen
 		public bool VisitBlockStmt(Stmt.Block stmt)
 		{
 			BeginScope();
-			VisitStmtList(stmt.statements);
+			VisitStmtList(stmt.Statements);
 			EndScope();
 			return true;
 		}
@@ -445,7 +445,7 @@ namespace Eleu.CodeGen
 		}
 		public bool VisitClassStmt(Stmt.Class stmt)
 		{
-			var className = stmt.name;
+			var className = stmt.Name;
 			byte nameConstant = IdentifierConstant(className);
 			DeclareVariable(className);
 			EmitBytes(OP_CLASS, nameConstant);
@@ -454,20 +454,20 @@ namespace Eleu.CodeGen
 			classCompiler.enclosing = this.currentClass;
 			this.currentClass = classCompiler;
 			var clsVar = new Expr.Variable(className);
-			if (stmt.superclass != null)
+			if (stmt.Superclass != null)
 			{
-				if (className == stmt.superclass.name)
+				if (className == stmt.Superclass.Name)
 					Error("A class can't inherit from itself.");
 				BeginScope();
 				AddLocal("super");
 				DefineVariable(0);
-				stmt.superclass.Accept(this);
+				stmt.Superclass.Accept(this);
 				clsVar.Accept(this);
 				EmitByte(OP_INHERIT);
 				classCompiler.hasSuperclass = true;
 			}
 			clsVar.Accept(this);
-			foreach (var mth in stmt.methods)
+			foreach (var mth in stmt.Methods)
 			{
 				mth.Accept(this);
 			}
@@ -485,18 +485,18 @@ namespace Eleu.CodeGen
 		}
 		public bool VisitFunctionStmt(Stmt.Function stmt)
 		{
-			if (stmt.type == FunctionType.FunTypeFunction)
+			if (stmt.Type == FunctionType.FunTypeFunction)
 			{
-				byte global = ParseVariable(stmt.name);
+				byte global = ParseVariable(stmt.Name);
 				MarkInitialized();
-				Function(stmt.type, stmt);
+				Function(stmt.Type, stmt);
 				DefineVariable(global);
 			}
-			else if (stmt.type == FunTypeMethod)
+			else if (stmt.Type == FunTypeMethod)
 			{
-				byte constant = IdentifierConstant(stmt.name);
-				var type = stmt.type;
-				if (stmt.name == "init")
+				byte constant = IdentifierConstant(stmt.Name);
+				var type = stmt.Type;
+				if (stmt.Name == "init")
 					type = FunTypeInitializer;
 				Function(type, stmt);
 				EmitBytes(OP_METHOD, constant);
@@ -505,16 +505,16 @@ namespace Eleu.CodeGen
 		}
 		void Function(FunctionType type, Stmt.Function stmt)
 		{
-			var compiler = InitCompiler(type, stmt.name);
+			var compiler = InitCompiler(type, stmt.Name);
 			current = compiler;
 			BeginScope();
-			foreach (var para in stmt.paras)
+			foreach (var para in stmt.Paras)
 			{
 				byte constant = ParseVariable(para.StringValue);
 				DefineVariable(constant);
 			}
-			compiler.function.arity = stmt.paras.Count;
-			VisitStmtList(stmt.body);
+			compiler.function.arity = stmt.Paras.Count;
+			VisitStmtList(stmt.Body);
 			var function = EndCompiler();
 			EmitBytes(OP_CLOSURE, MakeConstant(CreateObjVal(function)));
 			for (int i = 0; i < function.upvalueCount; i++)
@@ -525,14 +525,14 @@ namespace Eleu.CodeGen
 		}
 		public bool VisitIfStmt(Stmt.If stmt)
 		{
-			stmt.condition.Accept(this);
+			stmt.Condition.Accept(this);
 			int thenJump = EmitJump(OP_JUMP_IF_FALSE);
 			EmitByte(OP_POP);
-			stmt.thenBranch.Accept(this);
+			stmt.ThenBranch.Accept(this);
 			int elseJump = EmitJump(OP_JUMP);
 			PatchJump(thenJump);
 			EmitByte(OP_POP);
-			if (stmt.elseBranch != null) stmt.elseBranch.Accept(this);
+			if (stmt.ElseBranch != null) stmt.ElseBranch.Accept(this);
 			PatchJump(elseJump);
 			return true;
 		}
@@ -564,13 +564,13 @@ namespace Eleu.CodeGen
 		{
 			if (current.type == FunTypeScript)
 				Error("Can't return from top-level code.");
-			if (stmt.value == null)
+			if (stmt.Value == null)
 				EmitReturn();
 			else
 			{
 				if (current.type == FunTypeInitializer)
 					Error("Can't return a value from an initializer.");
-				stmt.value.Accept(this);
+				stmt.Value.Accept(this);
 				EmitByte(OP_RETURN);
 			}
 			return true;
@@ -578,9 +578,9 @@ namespace Eleu.CodeGen
 
 		public bool VisitVarStmt(Stmt.Var stmt)
 		{
-			byte global = ParseVariable(stmt.name);
-			if (stmt.initializer != null)
-				stmt.initializer.Accept(this);
+			byte global = ParseVariable(stmt.Name);
+			if (stmt.Initializer != null)
+				stmt.Initializer.Accept(this);
 			else
 				EmitByte(OP_NIL);
 			DefineVariable(global);
@@ -589,10 +589,10 @@ namespace Eleu.CodeGen
 		public bool VisitWhileStmt(Stmt.While stmt)
 		{
 			int loopStart = CurrentChunk.count;
-			stmt.condition.Accept(this);
+			stmt.Condition.Accept(this);
 			int exitJump = EmitJump(OP_JUMP_IF_FALSE);
 			EmitByte(OP_POP);
-			stmt.body.Accept(this);
+			stmt.Body.Accept(this);
 			EmitLoop(loopStart);
 			PatchJump(exitJump);
 			return EmitByte(OP_POP);
