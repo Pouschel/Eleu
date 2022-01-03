@@ -93,11 +93,21 @@ namespace Eleu.CodeGen
 		public bool VisitCallExpr(Expr.Call expr)
 		{
 			expr.callee.Accept(this);
+			byte name = 0;
+			if (expr.method != null)
+				name = MakeConstant(new Value(expr.method));
 			for (int i = 0; i < expr.arguments.Count; i++)
 			{
 				expr.arguments[i].Accept(this);
 			}
-			return EmitBytes(OP_CALL, (byte) expr.arguments.Count);
+			if (expr.method==null)
+			  return EmitBytes(OP_CALL, (byte) expr.arguments.Count);
+			else
+			{
+				EmitBytes(OP_INVOKE, name);
+				EmitByte((byte)expr.arguments.Count);
+			}
+			return true;
 		}
 
 		public bool VisitGetExpr(Expr.Get expr)
@@ -400,10 +410,21 @@ namespace Eleu.CodeGen
 		}
 		public bool VisitFunctionStmt(Stmt.Function stmt)
 		{
-			byte global = ParseVariable(stmt.name.StringValue);
-			MarkInitialized();
-			Function(stmt.type, stmt);
-			DefineVariable(global);
+			if (stmt.type == FunctionType.FunTypeFunction)
+			{
+				byte global = ParseVariable(stmt.name.StringValue);
+				MarkInitialized();
+				Function(stmt.type, stmt);
+				DefineVariable(global);
+			} else if (stmt.type==FunTypeMethod)
+			{
+				byte constant = IdentifierConstant(stmt.name);
+				var type = stmt.type;
+				if (stmt.name.StringValue == "init")
+					 type = FunTypeInitializer;
+				Function(type, stmt);
+				EmitBytes(OP_METHOD, constant);
+			}
 			return true;
 		}
 		void Function(FunctionType type, Stmt.Function stmt)

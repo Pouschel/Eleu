@@ -10,7 +10,7 @@ defineAst(outputDir, "Expr", new string[] {
 	//< Statements and State assign-expr
 	"Binary   : Expr left, Token op, Expr right",
 	//> Functions call-expr
-	"Call     : Expr callee, Token paren, List<Expr> arguments",
+	"Call     : Expr callee, string? method, Token paren, List<Expr> arguments",
 	//< Functions call-expr
 	//> Classes get-ast
 	"Get      : Expr obj, Token name",

@@ -1,13 +1,8 @@
-class C
-{
-  serveOn() 
-  {
-    return "Scones";
+class Bacon {
+  eat() {
+    print "Crunch crunch crunch!";
   }
 }
 
-var x= C();
-print x;
-x.a="A";
-print x.a;
+Bacon().eat();
 

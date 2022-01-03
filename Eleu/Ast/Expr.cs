@@ -55,11 +55,13 @@ public abstract class Expr {
 //> expr-call
   public class Call : Expr {
     public readonly Expr callee;
+    public readonly string? method;
     public readonly Token paren;
     public readonly List<Expr> arguments;
 
-    internal Call(Expr callee, Token paren, List<Expr> arguments) {
+    internal Call(Expr callee, string? method, Token paren, List<Expr> arguments) {
       this.callee = callee;
+      this.method = method;
       this.paren = paren;
       this.arguments = arguments;
     }

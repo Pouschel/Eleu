@@ -300,12 +300,15 @@ namespace Eleu.Ast
 			{
 				if (match(TOKEN_LEFT_PAREN))
 				{
-					expr = finishCall(expr);
+					expr = finishCall(expr, null);
 				}
 				else if (match(TOKEN_DOT))
 				{
 					Token name = consume(TOKEN_IDENTIFIER, "Expect property name after '.'.");
-					expr = new Expr.Get(expr, name);
+					if (match(TOKEN_LEFT_PAREN))
+						expr = finishCall(expr, name.StringValue);
+					else
+					  expr = new Expr.Get(expr, name);
 				}
 				else
 				{
@@ -314,7 +317,7 @@ namespace Eleu.Ast
 			}
 			return expr;
 		}
-		private Expr finishCall(Expr callee)
+		private Expr finishCall(Expr callee, string? mthName)
 		{
 			List<Expr> arguments = new();
 			if (!check(TOKEN_RIGHT_PAREN))
@@ -329,7 +332,7 @@ namespace Eleu.Ast
 				} while (match(TOKEN_COMMA));
 			}
 			Token paren = consume(TOKEN_RIGHT_PAREN, "Expect ')' after arguments.");
-			return new Expr.Call(callee, paren, arguments);
+			return new Expr.Call(callee, mthName, paren, arguments);
 		}
 		private Expr primary()
 		{
