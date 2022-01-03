@@ -52,7 +52,7 @@ defineAst(outputDir, "Stmt", new string[] {
   //< Inheritance superclass-ast
   "Expression : Expr expression",
   //> Functions function-ast
-  "Function   : Token name, List<Token> paras," +
+  "Function   : FunctionType type, Token name, List<Token> paras," +
 							" List<Stmt> body",
   //< Functions function-ast
   //> Control Flow if-ast
@@ -66,7 +66,7 @@ defineAst(outputDir, "Stmt", new string[] {
   "Print      : Expr expression",
   //< var-stmt-ast
   //> Functions return-ast
-  "Return     : Token keyword, Expr value",
+  "Return     : Token keyword, Expr? value",
   //< Functions return-ast
   /* Statements and State var-stmt-ast < Control Flow while-ast
         "Var        : Token name, Expr initializer"

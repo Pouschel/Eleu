@@ -64,11 +64,16 @@ public abstract class Stmt {
 //< stmt-expression
 //> stmt-function
   public class Function : Stmt {
+    public readonly FunctionType type;
     public readonly Token name;
     public readonly List<Token> paras;
     public readonly List<Stmt> body;
 
-    internal Function(Token name, List<Token> paras, List<Stmt> body) {
+    internal Function(FunctionType type,
+          Token name,
+          List<Token> paras,
+          List<Stmt> body) {
+      this.type = type;
       this.name = name;
       this.paras = paras;
       this.body = body;
@@ -112,9 +117,9 @@ public abstract class Stmt {
 //> stmt-return
   public class Return : Stmt {
     public readonly Token keyword;
-    public readonly Expr value;
+    public readonly Expr? value;
 
-    internal Return(Token keyword, Expr value) {
+    internal Return(Token keyword, Expr? value) {
       this.keyword = keyword;
       this.value = value;
     }

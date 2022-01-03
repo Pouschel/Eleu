@@ -1,7 +1,13 @@
-
-fun count(n) {
-  if (n > 1) count(n - 1);
-  print n;
+class C
+{
+  serveOn() 
+  {
+    return "Scones";
+  }
 }
 
-count(3);
+var x= C();
+print x;
+x.a="A";
+print x.a;
+

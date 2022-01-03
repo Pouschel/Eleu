@@ -13,6 +13,7 @@ namespace Eleu.CodeGen
 		EleuOptions options;
 		CompilerState current;
 		EleuResult result;
+		ClassCompiler? currentClass;
 		Chunk CurrentChunk => current.function.chunk;
 		public ByteCodeGenerator(string fileName, EleuOptions options, EleuResult result)
 		{
@@ -20,6 +21,7 @@ namespace Eleu.CodeGen
 			this.fileName = fileName;
 			this.result = result;
 			current = new CompilerState(FunTypeScript);
+			currentClass = null;
 		}
 
 		public EleuResult GenCode()
@@ -98,7 +100,14 @@ namespace Eleu.CodeGen
 			return EmitBytes(OP_CALL, (byte) expr.arguments.Count);
 		}
 
-		public bool VisitGetExpr(Expr.Get expr) => throw new NotImplementedException();
+		public bool VisitGetExpr(Expr.Get expr)
+		{
+			expr.obj.Accept(this);
+			byte name = IdentifierConstant(expr.name);
+			EmitBytes(OP_GET_PROPERTY, name);
+			return true;
+		}
+
 		public bool VisitGroupingExpr(Expr.Grouping expr) => expr.expression.Accept(this);
 
 		public bool VisitLiteralExpr(Expr.Literal expr)
@@ -137,7 +146,14 @@ namespace Eleu.CodeGen
 			return true;
 		}
 
-		public bool VisitSetExpr(Expr.Set expr) => throw new NotImplementedException();
+		public bool VisitSetExpr(Expr.Set expr)
+		{
+			expr.obj.Accept(this);
+			byte name = IdentifierConstant(expr.name);
+			expr.value.Accept(this);
+			return EmitBytes(OP_SET_PROPERTY, name);
+		}
+
 		public bool VisitSuperExpr(Expr.Super expr) => throw new NotImplementedException();
 		public bool VisitThisExpr(Expr.This expr) => throw new NotImplementedException();
 		public bool VisitUnaryExpr(Expr.Unary expr)
@@ -344,23 +360,52 @@ namespace Eleu.CodeGen
 				istmt.Accept(this);
 			}
 		}
+		public bool VisitClassStmt(Stmt.Class stmt)
+		{
+			var className = stmt.name;
+			byte nameConstant = IdentifierConstant(className);
+			DeclareVariable(className.StringValue);
+			EmitBytes(OP_CLASS, nameConstant);
+			DefineVariable(nameConstant);
+			var classCompiler = new ClassCompiler();
+			classCompiler.enclosing = this.currentClass;
+			this.currentClass = classCompiler;
+			if (stmt.superclass!=null)
+			{
+				if (className.StringValue == stmt.superclass.name.StringValue)
+					Error("A class can't inherit from itself.");
+				BeginScope();
+				AddLocal("super");
+				DefineVariable(0);
+				stmt.superclass.Accept(this);
+				EmitByte(OP_INHERIT);
+				classCompiler.hasSuperclass = true;
+			}
+			new Expr.Variable(className).Accept(this);
+			foreach (var mth in stmt.methods)
+			{
+				mth.Accept(this);
+			}
+			EmitByte(OP_POP);
+			if (classCompiler.hasSuperclass)
+				EndScope();
+			this.currentClass = this.currentClass.enclosing;
+			return true;
+		}
 
-		public bool VisitClassStmt(Stmt.Class stmt) => throw new NotImplementedException();
 		public bool VisitExpressionStmt(Stmt.Expression stmt)
 		{
 			stmt.expression.Accept(this);
 			return EmitByte(OP_POP);
 		}
-
 		public bool VisitFunctionStmt(Stmt.Function stmt)
 		{
 			byte global = ParseVariable(stmt.name.StringValue);
 			MarkInitialized();
-			Function(FunTypeFunction, stmt);
+			Function(stmt.type, stmt);
 			DefineVariable(global);
 			return true;
 		}
-
 		void Function(FunctionType type, Stmt.Function stmt)
 		{
 			var compiler = InitCompiler(type, stmt.name.StringValue);
@@ -381,7 +426,6 @@ namespace Eleu.CodeGen
 				EmitByte(compiler.upvalues[i].index);
 			}
 		}
-
 		public bool VisitIfStmt(Stmt.If stmt)
 		{
 			stmt.condition.Accept(this);
@@ -395,8 +439,7 @@ namespace Eleu.CodeGen
 			PatchJump(elseJump);
 			return true;
 		}
-
-		int EmitJump(OpCode instruction)
+ 		int EmitJump(OpCode instruction)
 		{
 			EmitByte(instruction);
 			EmitByte(0xff);
@@ -420,7 +463,22 @@ namespace Eleu.CodeGen
 			return EmitByte(OP_PRINT);
 		}
 
-		public bool VisitReturnStmt(Stmt.Return stmt) => throw new NotImplementedException();
+		public bool VisitReturnStmt(Stmt.Return stmt)
+		{
+			if (current.type == FunTypeScript)
+				Error("Can't return from top-level code.");
+			if (stmt.value==null)
+				EmitReturn();
+			else
+			{
+				if (current.type == FunTypeInitializer)
+					Error("Can't return a value from an initializer.");
+				stmt.value.Accept(this);
+				EmitByte(OP_RETURN);
+			}
+			return true;
+		}
+
 		public bool VisitVarStmt(Stmt.Var stmt)
 		{
 			byte global = ParseVariable(stmt.name.StringValue);

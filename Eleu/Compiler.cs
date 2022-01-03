@@ -20,7 +20,7 @@ enum Precedence
 	PREC_PRIMARY
 }
 
-enum FunctionType
+public enum FunctionType
 {
 	FunTypeFunction,
 	FunTypeInitializer,

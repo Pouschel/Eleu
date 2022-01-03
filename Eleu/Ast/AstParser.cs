@@ -31,6 +31,7 @@ namespace Eleu.Ast
 			if (match(TOKEN_LEFT_BRACE)) return new Stmt.Block(block());
 			if (match(TOKEN_FOR)) return forStatement();
 			if (match(TOKEN_IF)) return ifStatement();
+			if (match(TOKEN_RETURN)) return returnStatement();
 			if (match(TOKEN_WHILE)) return whileStatement();
 			return expressionStatement();
 		}
@@ -94,17 +95,28 @@ namespace Eleu.Ast
 			consume(TokenSemicolon, "Expect ';' after value.");
 			return new Stmt.Print(value);
 		}
+		private Stmt returnStatement()
+		{
+			Token keyword = previous();
+			Expr? value = null;
+			if (!check(TokenSemicolon))
+			{
+				value = expression();
+			}
+			consume(TokenSemicolon, "Expect ';' after return value.");
+			return new Stmt.Return(keyword, value);
+		}
 		private Stmt expressionStatement()
 		{
 			Expr expr = expression();
 			consume(TokenSemicolon, "Expect ';' after expression.");
 			return new Stmt.Expression(expr);
 		}
-		private Stmt.Function function(String kind)
+		private Stmt.Function function(FunctionType kind)
 		{
 			Token name = consume(TOKEN_IDENTIFIER, "Expect " + kind + " name.");
 			consume(TOKEN_LEFT_PAREN, "Expect '(' after " + kind + " name.");
-			List<Token> parameters = new ();
+			List<Token> parameters = new();
 			if (!check(TOKEN_RIGHT_PAREN))
 			{
 				do
@@ -114,13 +126,13 @@ namespace Eleu.Ast
 						error(peek(), "Can't have more than 255 parameters.");
 					}
 
-					parameters.Add(	consume(TOKEN_IDENTIFIER, "Expect parameter name."));
+					parameters.Add(consume(TOKEN_IDENTIFIER, "Expect parameter name."));
 				} while (match(TOKEN_COMMA));
 			}
 			consume(TOKEN_RIGHT_PAREN, "Expect ')' after parameters.");
 			consume(TOKEN_LEFT_BRACE, "Expect '{' before " + kind + " body.");
 			List<Stmt> body = block();
-			return new Stmt.Function(name, parameters, body);
+			return new Stmt.Function(kind, name, parameters, body);
 		}
 		private List<Stmt> block()
 		{
@@ -144,6 +156,10 @@ namespace Eleu.Ast
 				{
 					Token name = variable.name;
 					return new Expr.Assign(name, value);
+				}
+				else if (expr is Expr.Get get) 
+				{
+					return new Expr.Set(get.obj, get.name, value);
 				}
 				error(equals, "Invalid assignment target.");
 			}
@@ -179,7 +195,8 @@ namespace Eleu.Ast
 		{
 			try
 			{
-				if (match(TOKEN_FUN)) return function("function");
+				if (match(TOKEN_FUN)) return function(FunTypeFunction);
+				if (match(TOKEN_CLASS)) return classDeclaration();
 				if (match(TOKEN_VAR)) return varDeclaration();
 				return statement();
 			}
@@ -188,6 +205,18 @@ namespace Eleu.Ast
 				synchronize();
 				return null;
 			}
+		}
+		private Stmt classDeclaration()
+		{
+			Token name = consume(TOKEN_IDENTIFIER, "Expect class name.");
+			consume(TOKEN_LEFT_BRACE, "Expect '{' before class body.");
+			List<Stmt.Function> methods = new();
+			while (!check(TOKEN_RIGHT_BRACE) && !isAtEnd())
+			{
+				methods.Add(function(FunTypeMethod));
+			}
+			consume(TOKEN_RIGHT_BRACE, "Expect '}' after class body.");
+			return new Stmt.Class(name, null, methods);
 		}
 		private Stmt varDeclaration()
 		{
@@ -272,6 +301,11 @@ namespace Eleu.Ast
 				if (match(TOKEN_LEFT_PAREN))
 				{
 					expr = finishCall(expr);
+				}
+				else if (match(TOKEN_DOT))
+				{
+					Token name = consume(TOKEN_IDENTIFIER, "Expect property name after '.'.");
+					expr = new Expr.Get(expr, name);
 				}
 				else
 				{
