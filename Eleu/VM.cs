@@ -9,6 +9,7 @@ public enum EEleuResult
 {
 	Ok,
 	CompileError,
+	CodeGenError,
 	RuntimeError,
 	NextStep
 }

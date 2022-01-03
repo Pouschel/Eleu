@@ -7,6 +7,11 @@ using System.Threading.Tasks;
 
 namespace Eleu.CodeGen
 {
+	class CodeGenError: Exception
+	{
+
+	}
+
 	internal class ByteCodeGenerator : Expr.Visitor<bool>, Stmt.Visitor<bool>
 	{
 		string fileName;
@@ -26,12 +31,19 @@ namespace Eleu.CodeGen
 
 		public EleuResult GenCode()
 		{
-			foreach (var stm in result.Expr!)
+			try
 			{
-				stm.Accept(this);
+				foreach (var stm in result.Expr!)
+				{
+					stm.Accept(this);
+				}
+				var funct = EndCompiler();
+				result.Function = funct;
 			}
-			var funct = EndCompiler();
-			result.Function = funct;
+			catch (CodeGenError)
+			{
+				result.Result = EEleuResult.CodeGenError;
+			}
 			return result;
 		}
 		ObjFunction EndCompiler()
@@ -206,6 +218,7 @@ namespace Eleu.CodeGen
 
 		public bool VisitUnaryExpr(Expr.Unary expr)
 		{
+			expr.right.Accept(this);
 			switch (expr.op.type)
 			{
 				case TOKEN_BANG: EmitByte(OP_NOT); break;
@@ -392,7 +405,12 @@ namespace Eleu.CodeGen
 				current.localCount--;
 			}
 		}
-		void Error(string message) => options.Err.WriteLine(message);
+		void Error(string message)
+		{
+			options.Err.WriteLine(message);
+			throw new CodeGenError();
+		}
+
 		public bool VisitBlockStmt(Stmt.Block stmt)
 		{
 			BeginScope();

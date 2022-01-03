@@ -52,7 +52,7 @@ fileName           file to compile and run
 			return;
 		}
 		CompileAndRun(fileName, options);
-		EleuEngine.CompileAndRun(fileName, options);
+		CompileAndRunAst(fileName, options);
 		if (waitAfterRun) Console.ReadLine();
 	}
 

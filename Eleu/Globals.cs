@@ -7,37 +7,6 @@ using Eleu.CodeGen;
 
 namespace Eleu;
 
-public class EleuEngine
-{
-
-
-	internal static EleuResult CompileAndRun(string fileName, EleuOptions options)
-	{
-		var source = File.ReadAllText(fileName);
-		return CompileAndRun(source, fileName, options);
-	}
-	
-	internal static EleuResult CompileAndRun(string source, string fileName, EleuOptions options)
-	{
-		var scanner = new Scanner(source);
-		var tokens = scanner.ScanAllTokens();
-		var parser = new AstParser(options,fileName,tokens);
-		var parseResult= parser.parse();
-
-		var result= new EleuResult()
-		{
-			Result= parseResult==null ? EEleuResult.CompileError: EEleuResult.Ok,
-			Expr = parseResult,
-		};
-		if (result.Result != EEleuResult.Ok) return result;
-		var codeGen = new ByteCodeGenerator(fileName, options, result);
-		result= codeGen.GenCode();
-		if (result.Result != Ok) return result;
-		VM vm = new VM(options, result);
-		vm.Interpret();
-		return result;
-	}
-}
 
 public class Globals
 {
@@ -46,6 +15,34 @@ public class Globals
 		=> a.StringValue == b.StringValue;
 	internal static bool identifiersEqual(in Token a, string b)
 	=> a.StringValue == b;
+
+	internal static EleuResult CompileAndRunAst(string fileName, EleuOptions options)
+	{
+		var source = File.ReadAllText(fileName);
+		return CompileAndRunAst(source, fileName, options);
+	}
+
+	internal static EleuResult CompileAndRunAst(string source, string fileName, EleuOptions options)
+	{
+		var scanner = new Scanner(source);
+		var tokens = scanner.ScanAllTokens();
+		var parser = new AstParser(options, fileName, tokens);
+		var parseResult = parser.parse();
+
+		var result = new EleuResult()
+		{
+			Result = parser.ErrorCount > 0 ? CompileError : Ok,
+			Expr = parseResult,
+		};
+		if (result.Result != EEleuResult.Ok) return result;
+		var codeGen = new ByteCodeGenerator(fileName, options, result);
+		result = codeGen.GenCode();
+		if (result.Result != Ok)
+			return result;
+		VM vm = new VM(options, result);
+		vm.Interpret();
+		return result;
+	}
 
 	internal static EleuResult CompileAndRun(string fileName, EleuOptions options)
 	{
@@ -85,7 +82,7 @@ public class Globals
 			PrintByteCode = false,
 			DumpStackOnError = false,
 		};
-		var cres = CompileAndRun(source, "", opt);
+		var cres = CompileAndRunAst(source, "", opt);
 		return cres.Result == Ok;
 	}
 

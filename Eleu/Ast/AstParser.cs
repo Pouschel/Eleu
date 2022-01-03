@@ -1,14 +1,16 @@
 ﻿
 namespace Eleu.Ast
 {
+	public class ParseError : Exception { }
+
 	internal class AstParser
 	{
-		class ParseError : Exception { }
 
 		private List<Token> tokens;
 		private int current = 0;
 		private EleuOptions options;
 		private string fileName;
+		public int ErrorCount { get; private set; }
 		public AstParser(EleuOptions options, string fileName, List<Token> tokens)
 		{
 			this.tokens = tokens;
@@ -23,10 +25,18 @@ namespace Eleu.Ast
 				var decl = declaration();
 				if (decl != null) statements.Add(decl);
 			}
+			if (statements.Count == 0 && peek().type == TOKEN_ERROR)
+			{
+				errorAt(peek(), peek().StringValue);
+			}
+
 			return statements;
 		}
 		private Stmt statement()
 		{
+			// eat up empty statements
+			while (match(TokenSemicolon))
+				; 
 			if (match(TOKEN_PRINT)) return printStatement();
 			if (match(TOKEN_LEFT_BRACE)) return new Stmt.Block(block());
 			if (match(TOKEN_FOR)) return forStatement();
@@ -130,7 +140,8 @@ namespace Eleu.Ast
 				} while (match(TOKEN_COMMA));
 			}
 			consume(TOKEN_RIGHT_PAREN, "Expect ')' after parameters.");
-			consume(TOKEN_LEFT_BRACE, "Expect '{' before " + kind + " body.");
+			string tmsg = kind == FunctionType.FunTypeFunction ? "function" : "method";
+			consume(TOKEN_LEFT_BRACE, "Expect '{' before " + tmsg + " body.");
 			List<Stmt> body = block();
 			return new Stmt.Function(kind, name.StringValue, parameters, body);
 		}
@@ -281,7 +292,7 @@ namespace Eleu.Ast
 		{
 			Expr expr = unary();
 
-			while (match(TOKEN_SLASH, TokenStar))
+			while (match(TOKEN_SLASH, TokenStar, TokenPercent))
 			{
 				Token _operator = previous();
 				Expr right = unary();
@@ -397,8 +408,7 @@ namespace Eleu.Ast
 		}
 		void errorAt(in Token token, string message)
 		{
-			//if (panicMode) return;
-			//panicMode = true;
+			ErrorCount++;
 			var msg = string.IsNullOrEmpty(fileName) ? message : $"{fileName}({token.line}): Cerr: {message}";
 			//msg = $"File \"{fileName}\", line {token.line}: Compiler error: {message}";
 			options.Err.WriteLine(msg);
@@ -422,6 +432,7 @@ namespace Eleu.Ast
 					case TOKEN_WHILE:
 					case TOKEN_PRINT:
 					case TOKEN_RETURN:
+					case TOKEN_ERROR:
 						return;
 				}
 
@@ -435,12 +446,19 @@ namespace Eleu.Ast
 		}
 		private Token advance()
 		{
-			if (!isAtEnd()) current++;
+			if (!isAtEnd())
+			{
+				current++;
+				var tok = peek();
+				if (tok.type == TOKEN_ERROR)
+					throw error(tok, tok.StringValue);
+			}
 			return previous();
 		}
 		private bool isAtEnd()
 		{
-			return peek().type == TOKEN_EOF;
+			var t = peek().type;
+			return t == TOKEN_EOF || t == TOKEN_ERROR;
 		}
 		private Token peek()
 		{
