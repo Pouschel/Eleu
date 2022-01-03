@@ -54,6 +54,7 @@ class ClassCompiler
 {
 	public ClassCompiler? enclosing;
 	public bool hasSuperclass;
+	public bool inSuper;
 }
 
 class EleuResult

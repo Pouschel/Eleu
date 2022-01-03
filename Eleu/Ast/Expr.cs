@@ -22,10 +22,10 @@ public abstract class Expr {
   // Nested Expr classes here...
 //> expr-assign
   public class Assign : Expr {
-    public readonly Token name;
+    public readonly string name;
     public readonly Expr value;
 
-    internal Assign(Token name, Expr value) {
+    internal Assign(string name, Expr value) {
       this.name = name;
       this.value = value;
     }
@@ -56,13 +56,16 @@ public abstract class Expr {
   public class Call : Expr {
     public readonly Expr callee;
     public readonly string? method;
-    public readonly Token paren;
+    public readonly bool CallSuper;
     public readonly List<Expr> arguments;
 
-    internal Call(Expr callee, string? method, Token paren, List<Expr> arguments) {
+    internal Call(Expr callee,
+          string? method,
+          bool CallSuper,
+          List<Expr> arguments) {
       this.callee = callee;
       this.method = method;
-      this.paren = paren;
+      this.CallSuper = CallSuper;
       this.arguments = arguments;
     }
 
@@ -74,9 +77,9 @@ public abstract class Expr {
 //> expr-get
   public class Get : Expr {
     public readonly Expr obj;
-    public readonly Token name;
+    public readonly string name;
 
-    internal Get(Expr obj, Token name) {
+    internal Get(Expr obj, string name) {
       this.obj = obj;
       this.name = name;
     }
@@ -132,10 +135,10 @@ public abstract class Expr {
 //> expr-set
   public class Set : Expr {
     public readonly Expr obj;
-    public readonly Token name;
+    public readonly string name;
     public readonly Expr value;
 
-    internal Set(Expr obj, Token name, Expr value) {
+    internal Set(Expr obj, string name, Expr value) {
       this.obj = obj;
       this.name = name;
       this.value = value;
@@ -148,12 +151,10 @@ public abstract class Expr {
 //< expr-set
 //> expr-super
   public class Super : Expr {
-    public readonly Token keyword;
-    public readonly Token method;
+    public readonly string keyword;
 
-    internal Super(Token keyword, Token method) {
+    internal Super(string keyword) {
       this.keyword = keyword;
-      this.method = method;
     }
 
     public override R Accept<R>(Visitor<R> visitor) {
@@ -163,9 +164,9 @@ public abstract class Expr {
 //< expr-super
 //> expr-this
   public class This : Expr {
-    public readonly Token keyword;
+    public readonly string keyword;
 
-    internal This(Token keyword) {
+    internal This(string keyword) {
       this.keyword = keyword;
     }
 
@@ -191,9 +192,9 @@ public abstract class Expr {
 //< expr-unary
 //> expr-variable
   public class Variable : Expr {
-    public readonly Token name;
+    public readonly string name;
 
-    internal Variable(Token name) {
+    internal Variable(string name) {
       this.name = name;
     }
 

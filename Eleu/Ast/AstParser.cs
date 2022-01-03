@@ -132,7 +132,7 @@ namespace Eleu.Ast
 			consume(TOKEN_RIGHT_PAREN, "Expect ')' after parameters.");
 			consume(TOKEN_LEFT_BRACE, "Expect '{' before " + kind + " body.");
 			List<Stmt> body = block();
-			return new Stmt.Function(kind, name, parameters, body);
+			return new Stmt.Function(kind, name.StringValue, parameters, body);
 		}
 		private List<Stmt> block()
 		{
@@ -154,10 +154,10 @@ namespace Eleu.Ast
 				Expr value = assignment();
 				if (expr is Expr.Variable variable)
 				{
-					Token name = variable.name;
+					var name = variable.name;
 					return new Expr.Assign(name, value);
 				}
-				else if (expr is Expr.Get get) 
+				else if (expr is Expr.Get get)
 				{
 					return new Expr.Set(get.obj, get.name, value);
 				}
@@ -209,6 +209,12 @@ namespace Eleu.Ast
 		private Stmt classDeclaration()
 		{
 			Token name = consume(TOKEN_IDENTIFIER, "Expect class name.");
+			Expr.Variable? superclass = null;
+			if (match(TOKEN_LESS))
+			{
+				consume(TOKEN_IDENTIFIER, "Expect superclass name.");
+				superclass = new Expr.Variable(previous().StringValue);
+			}
 			consume(TOKEN_LEFT_BRACE, "Expect '{' before class body.");
 			List<Stmt.Function> methods = new();
 			while (!check(TOKEN_RIGHT_BRACE) && !isAtEnd())
@@ -216,7 +222,7 @@ namespace Eleu.Ast
 				methods.Add(function(FunTypeMethod));
 			}
 			consume(TOKEN_RIGHT_BRACE, "Expect '}' after class body.");
-			return new Stmt.Class(name, null, methods);
+			return new Stmt.Class(name.StringValue, superclass, methods);
 		}
 		private Stmt varDeclaration()
 		{
@@ -227,7 +233,7 @@ namespace Eleu.Ast
 				initializer = expression();
 			}
 			consume(TokenSemicolon, "Expect ';' after variable declaration.");
-			return new Stmt.Var(name, initializer);
+			return new Stmt.Var(name.StringValue, initializer);
 		}
 		private Stmt whileStatement()
 		{
@@ -308,7 +314,7 @@ namespace Eleu.Ast
 					if (match(TOKEN_LEFT_PAREN))
 						expr = finishCall(expr, name.StringValue);
 					else
-					  expr = new Expr.Get(expr, name);
+						expr = new Expr.Get(expr, name.StringValue);
 				}
 				else
 				{
@@ -332,7 +338,7 @@ namespace Eleu.Ast
 				} while (match(TOKEN_COMMA));
 			}
 			Token paren = consume(TOKEN_RIGHT_PAREN, "Expect ')' after arguments.");
-			return new Expr.Call(callee, mthName, paren, arguments);
+			return new Expr.Call(callee, mthName, callee is Expr.Super, arguments);
 		}
 		private Expr primary()
 		{
@@ -344,9 +350,18 @@ namespace Eleu.Ast
 			{
 				return new Expr.Literal(previous().StringStringValue);
 			}
+			if (match(TOKEN_SUPER))
+			{
+				if (!check(TOKEN_DOT)) error(peek(), "Expect '.' after 'super'.");
+				//Token keyword = previous();
+				//consume(TOKEN_DOT, "Expect '.' after 'super'.");
+				//Token method = consume(TOKEN_IDENTIFIER, "Expect superclass method name.");
+				return new Expr.Super(previous().StringValue);
+			}
+			if (match(TOKEN_THIS)) return new Expr.This(previous().StringValue);
 			if (match(TOKEN_IDENTIFIER))
 			{
-				return new Expr.Variable(previous());
+				return new Expr.Variable(previous().StringValue);
 			}
 			if (match(TOKEN_LEFT_PAREN))
 			{

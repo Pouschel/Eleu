@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Eleu.CodeGen
 {
-	internal class ByteCodeGenerator: Expr.Visitor<bool>, Stmt.Visitor<bool>
+	internal class ByteCodeGenerator : Expr.Visitor<bool>, Stmt.Visitor<bool>
 	{
 		string fileName;
 		EleuOptions options;
@@ -100,11 +100,12 @@ namespace Eleu.CodeGen
 			{
 				expr.arguments[i].Accept(this);
 			}
-			if (expr.method==null)
-			  return EmitBytes(OP_CALL, (byte) expr.arguments.Count);
+			if (expr.method == null)
+				return EmitBytes(OP_CALL, (byte)expr.arguments.Count);
 			else
 			{
-				EmitBytes(OP_INVOKE, name);
+				var opCode = expr.CallSuper ? OP_SUPER_INVOKE : OP_INVOKE;
+				EmitBytes(opCode, name);
 				EmitByte((byte)expr.arguments.Count);
 			}
 			return true;
@@ -146,7 +147,7 @@ namespace Eleu.CodeGen
 				expr.right.Accept(this);
 				PatchJump(endJump);
 			}
-			else if (type==TOKEN_AND)
+			else if (type == TOKEN_AND)
 			{
 				int endJump = EmitJump(OP_JUMP_IF_FALSE);
 				EmitByte(OP_POP);
@@ -164,8 +165,45 @@ namespace Eleu.CodeGen
 			return EmitBytes(OP_SET_PROPERTY, name);
 		}
 
-		public bool VisitSuperExpr(Expr.Super expr) => throw new NotImplementedException();
-		public bool VisitThisExpr(Expr.This expr) => throw new NotImplementedException();
+		public bool VisitSuperExpr(Expr.Super expr)
+		{
+			if (currentClass == null)
+				Error("Can't use 'super' outside of a class.");
+			else if (!currentClass.hasSuperclass)
+			{
+				Error("Can't use 'super' in a class with no superclass.");
+			}
+			new Expr.Variable(expr.keyword).Accept(this);
+			return true;
+
+			//byte name = IdentifierConstant(expr.keyword);
+			//var exThis = new Expr.Variable("this");
+			//exThis.Accept(this);
+			//return false;
+			//if (Match(TOKEN_LEFT_PAREN))
+			//{
+			//	byte argCount = ArgumentList();
+			//	NamedVariable(SyntheticToken("super"), false);
+			//	EmitBytes(OP_SUPER_INVOKE, name);
+			//	EmitByte(argCount);
+			//}
+			//else
+			//{
+			//	NamedVariable(SyntheticToken("super"), false);
+			//	EmitBytes(OP_GET_SUPER, name);
+			//}
+		}
+
+		public bool VisitThisExpr(Expr.This expr)
+		{
+			if (currentClass == null)
+			{
+				Error("Can't use 'this' outside of a class.");
+				return false;
+			}
+			return new Expr.Variable(expr.keyword).Accept(this);
+		}
+
 		public bool VisitUnaryExpr(Expr.Unary expr)
 		{
 			switch (expr.op.type)
@@ -251,7 +289,7 @@ namespace Eleu.CodeGen
 			if (current.scopeDepth > 0) return 0;
 			return MakeConstant(new Value(name));
 		}
-		byte IdentifierConstant(Token name) => MakeConstant(new Value(name.StringValue));
+		byte IdentifierConstant(string name) => MakeConstant(new Value(name));
 
 		void DefineVariable(byte global)
 		{
@@ -292,7 +330,7 @@ namespace Eleu.CodeGen
 			local.depth = -1;
 			local.isCaptured = false;
 		}
-		int ResolveUpvalue(CompilerState compiler, Token name)
+		int ResolveUpvalue(CompilerState compiler, string name)
 		{
 			if (compiler.enclosing == null) return -1;
 			int local = ResolveLocal(compiler.enclosing, name);
@@ -324,12 +362,12 @@ namespace Eleu.CodeGen
 			compiler.upvalues[upvalueCount].index = index;
 			return compiler.function.upvalueCount++;
 		}
-		int ResolveLocal(CompilerState compiler, Token name)
+		int ResolveLocal(CompilerState compiler, string name)
 		{
 			for (int i = compiler.localCount - 1; i >= 0; i--)
 			{
 				ref Local local = ref compiler.locals[i];
-				if (identifiersEqual(name, local.name))
+				if (name == local.name)
 				{
 					if (local.depth == -1)
 						Error("Can't read local variable in its own initializer.");
@@ -374,24 +412,26 @@ namespace Eleu.CodeGen
 		{
 			var className = stmt.name;
 			byte nameConstant = IdentifierConstant(className);
-			DeclareVariable(className.StringValue);
+			DeclareVariable(className);
 			EmitBytes(OP_CLASS, nameConstant);
 			DefineVariable(nameConstant);
 			var classCompiler = new ClassCompiler();
 			classCompiler.enclosing = this.currentClass;
 			this.currentClass = classCompiler;
-			if (stmt.superclass!=null)
+			var clsVar = new Expr.Variable(className);
+			if (stmt.superclass != null)
 			{
-				if (className.StringValue == stmt.superclass.name.StringValue)
+				if (className == stmt.superclass.name)
 					Error("A class can't inherit from itself.");
 				BeginScope();
 				AddLocal("super");
 				DefineVariable(0);
 				stmt.superclass.Accept(this);
+				clsVar.Accept(this);
 				EmitByte(OP_INHERIT);
 				classCompiler.hasSuperclass = true;
 			}
-			new Expr.Variable(className).Accept(this);
+			clsVar.Accept(this);
 			foreach (var mth in stmt.methods)
 			{
 				mth.Accept(this);
@@ -412,16 +452,17 @@ namespace Eleu.CodeGen
 		{
 			if (stmt.type == FunctionType.FunTypeFunction)
 			{
-				byte global = ParseVariable(stmt.name.StringValue);
+				byte global = ParseVariable(stmt.name);
 				MarkInitialized();
 				Function(stmt.type, stmt);
 				DefineVariable(global);
-			} else if (stmt.type==FunTypeMethod)
+			}
+			else if (stmt.type == FunTypeMethod)
 			{
 				byte constant = IdentifierConstant(stmt.name);
 				var type = stmt.type;
-				if (stmt.name.StringValue == "init")
-					 type = FunTypeInitializer;
+				if (stmt.name == "init")
+					type = FunTypeInitializer;
 				Function(type, stmt);
 				EmitBytes(OP_METHOD, constant);
 			}
@@ -429,7 +470,7 @@ namespace Eleu.CodeGen
 		}
 		void Function(FunctionType type, Stmt.Function stmt)
 		{
-			var compiler = InitCompiler(type, stmt.name.StringValue);
+			var compiler = InitCompiler(type, stmt.name);
 			current = compiler;
 			BeginScope();
 			foreach (var para in stmt.paras)
@@ -460,7 +501,7 @@ namespace Eleu.CodeGen
 			PatchJump(elseJump);
 			return true;
 		}
- 		int EmitJump(OpCode instruction)
+		int EmitJump(OpCode instruction)
 		{
 			EmitByte(instruction);
 			EmitByte(0xff);
@@ -488,7 +529,7 @@ namespace Eleu.CodeGen
 		{
 			if (current.type == FunTypeScript)
 				Error("Can't return from top-level code.");
-			if (stmt.value==null)
+			if (stmt.value == null)
 				EmitReturn();
 			else
 			{
@@ -502,7 +543,7 @@ namespace Eleu.CodeGen
 
 		public bool VisitVarStmt(Stmt.Var stmt)
 		{
-			byte global = ParseVariable(stmt.name.StringValue);
+			byte global = ParseVariable(stmt.name);
 			if (stmt.initializer != null)
 				stmt.initializer.Accept(this);
 			else
@@ -510,7 +551,6 @@ namespace Eleu.CodeGen
 			DefineVariable(global);
 			return true;
 		}
-
 		public bool VisitWhileStmt(Stmt.While stmt)
 		{
 			int loopStart = CurrentChunk.count;

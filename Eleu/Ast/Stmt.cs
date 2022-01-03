@@ -32,12 +32,12 @@ public abstract class Stmt {
 //< stmt-block
 //> stmt-class
   public class Class : Stmt {
-    public readonly Token name;
-    public readonly Expr.Variable superclass;
+    public readonly string name;
+    public readonly Expr.Variable? superclass;
     public readonly List<Stmt.Function> methods;
 
-    internal Class(Token name,
-          Expr.Variable superclass,
+    internal Class(string name,
+          Expr.Variable? superclass,
           List<Stmt.Function> methods) {
       this.name = name;
       this.superclass = superclass;
@@ -65,12 +65,12 @@ public abstract class Stmt {
 //> stmt-function
   public class Function : Stmt {
     public readonly FunctionType type;
-    public readonly Token name;
+    public readonly string name;
     public readonly List<Token> paras;
     public readonly List<Stmt> body;
 
     internal Function(FunctionType type,
-          Token name,
+          string name,
           List<Token> paras,
           List<Stmt> body) {
       this.type = type;
@@ -131,10 +131,10 @@ public abstract class Stmt {
 //< stmt-return
 //> stmt-var
   public class Var : Stmt {
-    public readonly Token name;
+    public readonly string name;
     public readonly Expr? initializer;
 
-    internal Var(Token name, Expr? initializer) {
+    internal Var(string name, Expr? initializer) {
       this.name = name;
       this.initializer = initializer;
     }

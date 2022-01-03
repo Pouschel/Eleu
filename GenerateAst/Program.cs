@@ -6,14 +6,14 @@ String outputDir = args[0];
 //> call-define-ast
 defineAst(outputDir, "Expr", new string[] {
 	//> Statements and State assign-expr
-	"Assign   : Token name, Expr value",
+	"Assign   : string name, Expr value",
 	//< Statements and State assign-expr
 	"Binary   : Expr left, Token op, Expr right",
 	//> Functions call-expr
-	"Call     : Expr callee, string? method, Token paren, List<Expr> arguments",
+	"Call     : Expr callee, string? method, bool CallSuper, List<Expr> arguments",
 	//< Functions call-expr
 	//> Classes get-ast
-	"Get      : Expr obj, Token name",
+	"Get      : Expr obj, string name",
 	//< Classes get-ast
 	"Grouping : Expr expression",
 	"Literal  : object? value",
@@ -21,20 +21,20 @@ defineAst(outputDir, "Expr", new string[] {
 	"Logical  : Expr left, Token op, Expr right",
 	//< Control Flow logical-ast
 	//> Classes set-ast
-	"Set      : Expr obj, Token name, Expr value",
+	"Set      : Expr obj, string name, Expr value",
 	//< Classes set-ast
 	//> Inheritance super-expr
-	"Super    : Token keyword, Token method",
+	"Super    : string keyword",
 	//< Inheritance super-expr
 	//> Classes this-ast
-	"This     : Token keyword",
+	"This     : string keyword",
 	//< Classes this-ast
 	/* Representing Code call-define-ast < Statements and State var-expr
         "Unary    : Token operator, Expr right"
   */
 	//> Statements and State var-expr
 	"Unary    : Token op, Expr right",
-	"Variable : Token name" }
+	"Variable : string name" }
 //< Statements and State var-expr
 );
 //> Statements and State stmt-ast
@@ -47,12 +47,12 @@ defineAst(outputDir, "Stmt", new string[] {
         "Class      : Token name, List<Stmt.Function> methods",
   */
   //> Inheritance superclass-ast
-  "Class      : Token name, Expr.Variable superclass," +
+  "Class      : string name, Expr.Variable? superclass," +
 							" List<Stmt.Function> methods",
   //< Inheritance superclass-ast
   "Expression : Expr expression",
   //> Functions function-ast
-  "Function   : FunctionType type, Token name, List<Token> paras," +
+  "Function   : FunctionType type, string name, List<Token> paras," +
 							" List<Stmt> body",
   //< Functions function-ast
   //> Control Flow if-ast
@@ -72,7 +72,7 @@ defineAst(outputDir, "Stmt", new string[] {
         "Var        : Token name, Expr initializer"
   */
   //> Control Flow while-ast
-  "Var        : Token name, Expr? initializer",
+  "Var        : string name, Expr? initializer",
 	"While      : Expr condition, Stmt body" }
 //< Control Flow while-ast
 );
