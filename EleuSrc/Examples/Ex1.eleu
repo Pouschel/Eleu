@@ -1,16 +1,19 @@
-class Base {
-  init(a) {
-    this.a = a;
+class A {
+  method(arg) {
+    print "A.method(" + arg + ")";
   }
 }
 
-class Derived < Base {
-  init(a, b) {
-    super.init(a);
-    this.b = b;
+class B < A {
+  getClosure() {
+    return super.method;
+  }
+
+  method(arg) {
+    print "B.method(" + arg + ")";
   }
 }
 
-var derived = Derived("a", "b");
-print derived.a; // expect: a
-print derived.b; // expect: b
+
+var closure = B().getClosure();
+closure("arg"); // expect: A.method(arg)

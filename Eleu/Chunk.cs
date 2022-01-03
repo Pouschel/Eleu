@@ -40,13 +40,18 @@ class Chunk
 
 	public void Disassemble(string name, DebugInfo? dinfo, TextWriter? tw = null)
 	{
-		tw ??= Console.Out;
-		tw.WriteLine($"== {name} ==");
-		var cinfo = dinfo?.GetChunkInfo(this);
-		for (int offset = 0; offset < count;)
+		try
 		{
-			offset = DisassembleInstruction(offset, cinfo, tw);
+			tw ??= Console.Out;
+			tw.WriteLine($"== {name} ==");
+			var cinfo = dinfo?.GetChunkInfo(this);
+			for (int offset = 0; offset < count;)
+			{
+				offset = DisassembleInstruction(offset, cinfo, tw);
+			}
 		}
+		catch (Exception)
+		{ }
 	}
 
 	static string GetInstructionString(string s)

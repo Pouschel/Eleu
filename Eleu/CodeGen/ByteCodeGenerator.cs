@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Eleu.CodeGen
 {
-	class CodeGenError: Exception
+	class CodeGenError : Exception
 	{
 
 	}
@@ -31,18 +31,21 @@ namespace Eleu.CodeGen
 
 		public EleuResult GenCode()
 		{
-			try
+			foreach (var stm in result.Expr!)
 			{
-				foreach (var stm in result.Expr!)
+				try
 				{
 					stm.Accept(this);
 				}
+				catch (CodeGenError)
+				{
+					result.Result = EEleuResult.CodeGenError;
+				}
+			}
+			if (result.Result == Ok)
+			{
 				var funct = EndCompiler();
 				result.Function = funct;
-			}
-			catch (CodeGenError)
-			{
-				result.Result = EEleuResult.CodeGenError;
 			}
 			return result;
 		}
@@ -104,31 +107,45 @@ namespace Eleu.CodeGen
 
 		public bool VisitCallExpr(Expr.Call expr)
 		{
-			expr.callee.Accept(this);
-			byte name = 0;
-			if (expr.method != null)
-				name = MakeConstant(new Value(expr.method));
-			for (int i = 0; i < expr.arguments.Count; i++)
-			{
-				expr.arguments[i].Accept(this);
-			}
 			if (expr.method == null)
-				return EmitBytes(OP_CALL, (byte)expr.arguments.Count);
-			else
 			{
-				var opCode = expr.CallSuper ? OP_SUPER_INVOKE : OP_INVOKE;
-				EmitBytes(opCode, name);
-				EmitByte((byte)expr.arguments.Count);
+				expr.callee.Accept(this);
+				AcceptArguments();
+				return EmitBytes(OP_CALL, (byte)expr.arguments.Count);
 			}
-			return true;
+			// method
+			if (!expr.CallSuper)
+			{
+				expr.callee.Accept(this);
+				var name = MakeConstant(new Value(expr.method));
+				AcceptArguments();
+				EmitBytes(OP_INVOKE, name);
+				return EmitByte((byte)expr.arguments.Count);
+			}
+			// super call
+			{
+				new Expr.Variable("this").Accept(this);
+				var name = MakeConstant(new Value(expr.method));
+				AcceptArguments();
+				expr.callee.Accept(this);
+				EmitBytes(OP_SUPER_INVOKE, name);
+				return EmitByte((byte)expr.arguments.Count);
+			}
+			void AcceptArguments()
+			{
+				for (int i = 0; i < expr.arguments.Count; i++)
+				{
+					expr.arguments[i].Accept(this);
+				}
+			}
 		}
 
 		public bool VisitGetExpr(Expr.Get expr)
 		{
 			expr.obj.Accept(this);
 			byte name = IdentifierConstant(expr.name);
-			EmitBytes(OP_GET_PROPERTY, name);
-			return true;
+			bool isSuper = expr.obj is Expr.Super;
+			return EmitBytes(isSuper ? OP_GET_SUPER : OP_GET_PROPERTY, name);
 		}
 
 		public bool VisitGroupingExpr(Expr.Grouping expr) => expr.expression.Accept(this);

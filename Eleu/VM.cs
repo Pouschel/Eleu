@@ -341,6 +341,13 @@ public class VM
 		int argCount = ReadByte();
 		Invoke(method, argCount);
 	}
+	void SuperInvoke()
+	{
+		string method = ReadString();
+		int argCount = ReadByte();
+		ObjClass superclass = AsClass(Pop());
+		InvokeFromClass(superclass, method, argCount);
+	}
 	void Equal()
 	{
 		Value b = Pop();
@@ -393,13 +400,7 @@ public class VM
 		}
 	}
 
-	void SuperInvoke()
-	{
-		string method = ReadString();
-		int argCount = ReadByte();
-		ObjClass superclass = AsClass(Pop());
-		InvokeFromClass(superclass, method, argCount);
-	}
+
 	bool Return()
 	{
 		Value result = Pop();

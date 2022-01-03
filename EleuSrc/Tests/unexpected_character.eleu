@@ -1,2 +1,3 @@
 // Error at : Unexpected character: |
+// Error at : Unexpected character: |
 foo(a | b);
