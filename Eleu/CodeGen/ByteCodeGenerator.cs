@@ -88,7 +88,16 @@ namespace Eleu.CodeGen
 			return true;
 		}
 
-		public bool VisitCallExpr(Expr.Call expr) => throw new NotImplementedException();
+		public bool VisitCallExpr(Expr.Call expr)
+		{
+			expr.callee.Accept(this);
+			for (int i = 0; i < expr.arguments.Count; i++)
+			{
+				expr.arguments[i].Accept(this);
+			}
+			return EmitBytes(OP_CALL, (byte) expr.arguments.Count);
+		}
+
 		public bool VisitGetExpr(Expr.Get expr) => throw new NotImplementedException();
 		public bool VisitGroupingExpr(Expr.Grouping expr) => expr.expression.Accept(this);
 
@@ -210,11 +219,11 @@ namespace Eleu.CodeGen
 			}
 			return (byte)constant;
 		}
-		byte ParseVariable(Stmt.Var vstm)
+		byte ParseVariable(string name)
 		{
-			DeclareVariable(vstm.name.StringValue);
+			DeclareVariable(name);
 			if (current.scopeDepth > 0) return 0;
-			return IdentifierConstant(vstm.name);
+			return MakeConstant(new Value(name));
 		}
 		byte IdentifierConstant(Token name) => MakeConstant(new Value(name.StringValue));
 
@@ -323,12 +332,17 @@ namespace Eleu.CodeGen
 		public bool VisitBlockStmt(Stmt.Block stmt)
 		{
 			BeginScope();
-			foreach (var istmt in stmt.statements)
+			VisitStmtList(stmt.statements);
+			EndScope();
+			return true;
+		}
+
+		void VisitStmtList(List<Stmt> list)
+		{
+			foreach (var istmt in list)
 			{
 				istmt.Accept(this);
 			}
-			EndScope();
-			return true;
 		}
 
 		public bool VisitClassStmt(Stmt.Class stmt) => throw new NotImplementedException();
@@ -338,7 +352,36 @@ namespace Eleu.CodeGen
 			return EmitByte(OP_POP);
 		}
 
-		public bool VisitFunctionStmt(Stmt.Function stmt) => throw new NotImplementedException();
+		public bool VisitFunctionStmt(Stmt.Function stmt)
+		{
+			byte global = ParseVariable(stmt.name.StringValue);
+			MarkInitialized();
+			Function(FunTypeFunction, stmt);
+			DefineVariable(global);
+			return true;
+		}
+
+		void Function(FunctionType type, Stmt.Function stmt)
+		{
+			var compiler = InitCompiler(type, stmt.name.StringValue);
+			current = compiler;
+			BeginScope();
+			foreach (var para in stmt.paras)
+			{
+				byte constant = ParseVariable(para.StringValue);
+				DefineVariable(constant);
+			}
+			compiler.function.arity = stmt.paras.Count;
+			VisitStmtList(stmt.body);
+			var function = EndCompiler();
+			EmitBytes(OP_CLOSURE, MakeConstant(CreateObjVal(function)));
+			for (int i = 0; i < function.upvalueCount; i++)
+			{
+				EmitByte((byte)(compiler.upvalues[i].isLocal ? 1 : 0));
+				EmitByte(compiler.upvalues[i].index);
+			}
+		}
+
 		public bool VisitIfStmt(Stmt.If stmt)
 		{
 			stmt.condition.Accept(this);
@@ -380,7 +423,7 @@ namespace Eleu.CodeGen
 		public bool VisitReturnStmt(Stmt.Return stmt) => throw new NotImplementedException();
 		public bool VisitVarStmt(Stmt.Var stmt)
 		{
-			byte global = ParseVariable(stmt);
+			byte global = ParseVariable(stmt.name.StringValue);
 			if (stmt.initializer != null)
 				stmt.initializer.Accept(this);
 			else

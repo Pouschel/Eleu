@@ -100,6 +100,28 @@ namespace Eleu.Ast
 			consume(TokenSemicolon, "Expect ';' after expression.");
 			return new Stmt.Expression(expr);
 		}
+		private Stmt.Function function(String kind)
+		{
+			Token name = consume(TOKEN_IDENTIFIER, "Expect " + kind + " name.");
+			consume(TOKEN_LEFT_PAREN, "Expect '(' after " + kind + " name.");
+			List<Token> parameters = new ();
+			if (!check(TOKEN_RIGHT_PAREN))
+			{
+				do
+				{
+					if (parameters.Count >= 255)
+					{
+						error(peek(), "Can't have more than 255 parameters.");
+					}
+
+					parameters.Add(	consume(TOKEN_IDENTIFIER, "Expect parameter name."));
+				} while (match(TOKEN_COMMA));
+			}
+			consume(TOKEN_RIGHT_PAREN, "Expect ')' after parameters.");
+			consume(TOKEN_LEFT_BRACE, "Expect '{' before " + kind + " body.");
+			List<Stmt> body = block();
+			return new Stmt.Function(name, parameters, body);
+		}
 		private List<Stmt> block()
 		{
 			List<Stmt> statements = new();
@@ -157,6 +179,7 @@ namespace Eleu.Ast
 		{
 			try
 			{
+				if (match(TOKEN_FUN)) return function("function");
 				if (match(TOKEN_VAR)) return varDeclaration();
 				return statement();
 			}
@@ -239,8 +262,40 @@ namespace Eleu.Ast
 				Expr right = unary();
 				return new Expr.Unary(_operator, right);
 			}
-
-			return primary();
+			return call();
+		}
+		private Expr call()
+		{
+			Expr expr = primary();
+			while (true)
+			{
+				if (match(TOKEN_LEFT_PAREN))
+				{
+					expr = finishCall(expr);
+				}
+				else
+				{
+					break;
+				}
+			}
+			return expr;
+		}
+		private Expr finishCall(Expr callee)
+		{
+			List<Expr> arguments = new();
+			if (!check(TOKEN_RIGHT_PAREN))
+			{
+				do
+				{
+					if (arguments.Count >= 255)
+					{
+						error(peek(), "Can't have more than 255 arguments.");
+					}
+					arguments.Add(expression());
+				} while (match(TOKEN_COMMA));
+			}
+			Token paren = consume(TOKEN_RIGHT_PAREN, "Expect ')' after arguments.");
+			return new Expr.Call(callee, paren, arguments);
 		}
 		private Expr primary()
 		{
