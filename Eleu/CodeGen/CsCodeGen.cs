@@ -31,8 +31,9 @@ namespace Eleu.CodeGen
 			FunctionType type;
 			string funName, clsName;
 			List<State> childStates = new();
-			List<string> localNames = new();
+			List<string> localInitNames = new();
 			public readonly IndentedTextWriter Twcode;
+			internal readonly CompilerState cstate;
 
 			public State(FunctionType type, string clsName, string funName, State? parent)
 			{
@@ -41,8 +42,17 @@ namespace Eleu.CodeGen
 				this.funName = funName;
 				this.clsName = clsName;
 				this.Twcode = new IndentedTextWriter(new StringWriter(),"\t");
+				cstate = new CompilerState(type);
 			}
 
+			void WriteLocals(IndentedTextWriter tw, bool fStatic)
+			{
+				var sStatic = fStatic ? "static " : "";
+				foreach (var loc in localInitNames)
+				{
+					tw.WriteLine($"{sStatic}Value {loc};");
+				}
+			}
 			public void WriteTo(IndentedTextWriter tw)
 			{
 				if (type==FunctionType.FunTypeScript)
@@ -52,6 +62,8 @@ namespace Eleu.CodeGen
 					tw.WriteLine();
 					tw.WriteLine($"public class {clsName}");
 					tw.OpenBlock();
+					WriteLocals(tw, true);
+	
 				}
 				tw.WriteLine($"public static Value {funName}()");
 				tw.OpenBlock();
@@ -64,19 +76,26 @@ namespace Eleu.CodeGen
 					tw.CloseBlock();
 				}
 			}
+
+			public void AddLocalInitName(string str)
+			{
+				localInitNames.Add(str);
+			}
 		}
 		
-		State current;
-		IndentedTextWriter twcur => current.Twcode;
+		State state, globalState;
+		override protected CompilerState current => state.cstate;
+
+		IndentedTextWriter twcur => state.Twcode;
 
 		public CsCodeGen(EleuOptions options, List<Stmt> statements) : base(options, statements)
 		{
-			current = new State(FunTypeScript,Path.GetFileNameWithoutExtension(options.CsOutputFile)!,  "Main",null);
+			state = new State(FunTypeScript,Path.GetFileNameWithoutExtension(options.CsOutputFile)!,  "Main",null);
+			globalState = state;
 		}
 
 		public bool GenCode()
 		{
-
 			foreach (var stm in statements)
 			{
 				try
@@ -90,7 +109,7 @@ namespace Eleu.CodeGen
 			}
 			using var tw = File.CreateText(options.CsOutputFile!);
 			var idtw = new IndentedTextWriter(tw,"\t");
-			current.WriteTo(idtw);
+			state.WriteTo(idtw);
 			return true;
 		}
 
@@ -107,9 +126,24 @@ namespace Eleu.CodeGen
 
 		public bool VisitFunctionStmt(Stmt.Function stmt) => throw new NotImplementedException();
 		public bool VisitIfStmt(Stmt.If stmt) => throw new NotImplementedException();
-		public bool VisitPrintStmt(Stmt.Print stmt) => throw new NotImplementedException();
+		public bool VisitPrintStmt(Stmt.Print stmt)
+		{
+			var ex = stmt.expression.Accept(this);
+			twcur.Write($"Console.WriteLine({ex});");
+			return true;
+		}
+
 		public bool VisitReturnStmt(Stmt.Return stmt) => throw new NotImplementedException();
-		public bool VisitVarStmt(Stmt.Var stmt) => throw new NotImplementedException();
+		public bool VisitVarStmt(Stmt.Var stmt)
+		{
+			var name = ParseVariable(stmt.Name);
+			string initExpr = stmt.Initializer != null ? stmt.Initializer.Accept(this) : "Nil";
+			DefineVariable(name);
+			state.AddLocalInitName($"{name} = {initExpr}");
+			return true;
+		}
+
+
 		public bool VisitWhileStmt(Stmt.While stmt) => throw new NotImplementedException();
 		public string VisitAssignExpr(Expr.Assign expr) => throw new NotImplementedException();
 		public string VisitBinaryExpr(Expr.Binary expr)
@@ -160,5 +194,21 @@ namespace Eleu.CodeGen
 		}
 
 		public string VisitVariableExpr(Expr.Variable expr) => throw new NotImplementedException();
+
+		string ParseVariable(string name)
+		{
+			DeclareVariable(name);
+			if (current.scopeDepth > 0) 
+				return name;
+			return name;
+		}
+		void DefineVariable(string name)
+		{
+			if (current.scopeDepth > 0)
+			{
+				MarkInitialized();
+			}
+
+		}
 	}
 }
