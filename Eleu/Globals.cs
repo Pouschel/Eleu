@@ -34,7 +34,12 @@ public class Globals
 			Result = parser.ErrorCount > 0 ? CompileError : Ok,
 			Expr = parseResult,
 		};
-		if (result.Result != EEleuResult.Ok) return result;
+		if (result.Result != Ok) return result;
+		if (options.CsOutputFile!=null)
+		{
+			var csGen = new CsCodeGen(options, result.Expr);
+			csGen.GenCode();
+		}
 		var codeGen = new ByteCodeGenerator(fileName, options, result);
 		result = codeGen.GenCode();
 		if (result.Result != Ok)

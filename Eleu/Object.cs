@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Eleu;
 
-enum ObjType
+public enum ObjType
 {
 	OBJ_BOUND_METHOD,
 	OBJ_CLASS,
@@ -16,7 +16,7 @@ enum ObjType
 	OBJ_UPVALUE,
 }
 
-internal class Obj
+public class Obj
 {
 	public readonly ObjType type;
 

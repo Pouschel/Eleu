@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace Eleu;
 
-enum ValueType
+public enum ValueType
 {
 	VAL_NIL, // must go first to ensure, new Values are nil
 	VAL_BOOL,
@@ -14,7 +14,8 @@ enum ValueType
 	VAL_LIST,  // List<Value>
 	VAL_OBJ
 }
-struct Value
+
+public struct Value
 {
 	static object DummyObject = new ();
 	
@@ -43,7 +44,7 @@ struct Value
 		this.dValue = double.NaN;
 	}
 
-	public Value(ValList list)
+	internal Value(ValList list)
 	{
 		this.type = VAL_LIST;
 		this.oValue = list;
@@ -66,7 +67,7 @@ struct Value
 	}
 }
 
-static class ValueStatics
+public static class ValueStatics
 {
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static Value CreateBoolVal(bool value) => new(VAL_BOOL, value ? 1 : 0);

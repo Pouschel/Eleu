@@ -12,26 +12,42 @@ namespace Eleu.CodeGen
 
 	}
 
-	internal class ByteCodeGenerator : Expr.Visitor<bool>, Stmt.Visitor<bool>
+	internal class CodeGenBase
+	{
+		protected List<Stmt> statements;
+		protected EleuOptions options;
+
+		public CodeGenBase(EleuOptions options, List<Stmt> statements)
+		{
+			this.statements = statements;
+			this.options = options;
+		}
+		public void Error(string message)
+		{
+			options.Err.WriteLine(message);
+			throw new CodeGenError();
+		}
+	}
+
+	internal class ByteCodeGenerator : CodeGenBase, Expr.Visitor<bool>, Stmt.Visitor<bool>
 	{
 		string fileName;
-		EleuOptions options;
 		CompilerState current;
-		EleuResult result;
 		ClassCompiler? currentClass;
 		Chunk CurrentChunk => current.function.chunk;
-		public ByteCodeGenerator(string fileName, EleuOptions options, EleuResult result)
+		EleuResult result;
+		public ByteCodeGenerator(string fileName, EleuOptions options, EleuResult result):
+			base(options,result.Expr!)
 		{
-			this.options = options;
-			this.fileName = fileName;
 			this.result = result;
+			this.fileName = fileName;
 			current = new CompilerState(FunTypeScript);
 			currentClass = null;
 		}
 
 		public EleuResult GenCode()
 		{
-			foreach (var stm in result.Expr!)
+			foreach (var stm in statements)
 			{
 				try
 				{
@@ -422,11 +438,7 @@ namespace Eleu.CodeGen
 				current.localCount--;
 			}
 		}
-		void Error(string message)
-		{
-			options.Err.WriteLine(message);
-			throw new CodeGenError();
-		}
+
 
 		public bool VisitBlockStmt(Stmt.Block stmt)
 		{

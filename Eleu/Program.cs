@@ -9,6 +9,7 @@ public class EleuOptions
 	public bool PrintByteCode;
 	public bool DumpStackOnError = true;
 	public bool CreateDebugInfo = false;
+	public string? CsOutputFile;
 	public TextWriter Out = TextWriter.Null;
 	public TextWriter Err = TextWriter.Null;
 
@@ -16,7 +17,7 @@ public class EleuOptions
 
 class Program
 {
-	public const int Revision = 3;
+	public const int Revision = 4;
 
 	static void Main(string[] args)
 	{
@@ -28,6 +29,7 @@ Eleu -dumpByteCode fileName
 -waitAfterRun      waits for an ENTER after running
 -dumpByteCode      dumps the byte code of all functions
 -debugInfo         creates debug info
+-cs fileName			 create a cs file
 fileName           file to compile and run
 ");
 
@@ -43,6 +45,7 @@ fileName           file to compile and run
 				case "-waitAfterRun": waitAfterRun = true; break;
 				case "-dumpByteCode": options.PrintByteCode = true; break;
 				case "-debugInfo": options.CreateDebugInfo = true; break;
+				case "-cs": options.CsOutputFile = args[++i]; break;
 				default: fileName = arg; break;
 			}
 		}
@@ -51,7 +54,7 @@ fileName           file to compile and run
 			Console.WriteLine("No file to run");
 			return;
 		}
-		CompileAndRun(fileName, options);
+		//CompileAndRun(fileName, options);
 		CompileAndRunAst(fileName, options);
 		if (waitAfterRun) Console.ReadLine();
 	}
