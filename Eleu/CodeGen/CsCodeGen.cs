@@ -67,8 +67,11 @@ namespace Eleu.CodeGen
 				}
 				tw.WriteLine($"public static Value {funName}()");
 				tw.OpenBlock();
-				var s = (Twcode.InnerWriter as StringWriter)!.ToString();
-				tw.WriteLine(s);
+				var lines = (Twcode.InnerWriter as StringWriter)!.ToString().Split('\n');
+				foreach (var line in lines)
+				{
+					tw.WriteLine(line.TrimEnd());
+				}
 				tw.WriteLine("return Nil;");
 				tw.CloseBlock();
 				if (type==FunctionType.FunTypeScript)
@@ -118,7 +121,8 @@ namespace Eleu.CodeGen
 		public bool VisitExpressionStmt(Stmt.Expression stmt)
 		{
 			var sex= stmt.expression.Accept(this);
-			twcur.Write("_ = ");
+			if (stmt.expression is not Expr.Assign)
+			  twcur.Write("_ = ");
 			twcur.Write(sex);
 			twcur.WriteLine(';');
 			return true;
@@ -129,7 +133,7 @@ namespace Eleu.CodeGen
 		public bool VisitPrintStmt(Stmt.Print stmt)
 		{
 			var ex = stmt.expression.Accept(this);
-			twcur.Write($"Console.WriteLine({ex});");
+			twcur.WriteLine($"Console.WriteLine({ex});");
 			return true;
 		}
 
@@ -145,7 +149,13 @@ namespace Eleu.CodeGen
 
 
 		public bool VisitWhileStmt(Stmt.While stmt) => throw new NotImplementedException();
-		public string VisitAssignExpr(Expr.Assign expr) => throw new NotImplementedException();
+		public string VisitAssignExpr(Expr.Assign expr)
+		{
+			var rhs= expr.Value.Accept(this);
+			var name = expr.Name;
+			return $"{name} = {rhs}";
+		}
+
 		public string VisitBinaryExpr(Expr.Binary expr)
 		{
 			var lhs=expr.Left.Accept(this);
@@ -179,7 +189,7 @@ namespace Eleu.CodeGen
 				case bool b: return b ? "BoolTrue" : "BoolFalse";
 				case null: return "Nil";
 				case double d: return $"CreateNumberVal({d})";
-				case string s: return $"CreateStringVal({s})";
+				case string s: return $"CreateStringVal(@\"{s}\")";
 				default: Error($"Unsupported constant of type: {expr.Value}"); return "";
 			}
 		}
@@ -192,9 +202,10 @@ namespace Eleu.CodeGen
 		{
 			return $"{expr.Op.StringValue}{expr.Right.Accept(this)}";  
 		}
-
-		public string VisitVariableExpr(Expr.Variable expr) => throw new NotImplementedException();
-
+		public string VisitVariableExpr(Expr.Variable expr)
+		{
+			return expr.Name;
+		}
 		string ParseVariable(string name)
 		{
 			DeclareVariable(name);

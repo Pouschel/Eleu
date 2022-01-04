@@ -1,2 +1,5 @@
-var x = 6;
-//print x+7;
+var a = 1;
+var b = 2;
+b="Hallo";
+a=b;
+print b;
