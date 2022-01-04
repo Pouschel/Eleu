@@ -69,4 +69,11 @@ internal abstract class CodeGenBase
 		if (current.scopeDepth == 0) return;
 		current.locals[current.localCount - 1].depth = current.scopeDepth;
 	}
+	protected void VisitStmtList<R>(List<Stmt> list, Stmt.Visitor<R> visitor)
+	{
+		foreach (var istmt in list)
+		{
+			istmt.Accept(visitor);
+		}
+	}
 }

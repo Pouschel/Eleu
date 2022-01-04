@@ -4,12 +4,16 @@ using static Eleu.ValueStatics;
 public class Ex1
 {
 	static Value a = CreateNumberVal(1);
-	static Value b = CreateNumberVal(2);
+	
 	public static Value Main()
 	{
-		b = CreateStringVal(@"Hallo");
-		a = b;
+		var b = CreateNumberVal(2);
+		a = CreateStringVal(@"Hallo");
+		{
+			var c = CreateNumberVal(3);
+		}
 		Console.WriteLine(b);
+		Console.WriteLine(a);
 		
 		return Nil;
 	}

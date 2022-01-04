@@ -31,7 +31,6 @@ namespace Eleu.CodeGen
 			FunctionType type;
 			string funName, clsName;
 			List<State> childStates = new();
-			List<string> localInitNames = new();
 			public readonly IndentedTextWriter Twcode;
 			internal readonly CompilerState cstate;
 
@@ -45,15 +44,16 @@ namespace Eleu.CodeGen
 				cstate = new CompilerState(type);
 			}
 
-			void WriteLocals(IndentedTextWriter tw, bool fStatic)
+			void WriteInitedVars(IndentedTextWriter tw, List<string> initNames,  bool fStatic)
 			{
 				var sStatic = fStatic ? "static " : "";
-				foreach (var loc in localInitNames)
+				foreach (var loc in initNames)
 				{
 					tw.WriteLine($"{sStatic}Value {loc};");
 				}
+				tw.WriteLine();
 			}
-			public void WriteTo(IndentedTextWriter tw)
+			public void WriteTo(IndentedTextWriter tw, List<string> globals)
 			{
 				if (type==FunctionType.FunTypeScript)
 				{
@@ -62,11 +62,11 @@ namespace Eleu.CodeGen
 					tw.WriteLine();
 					tw.WriteLine($"public class {clsName}");
 					tw.OpenBlock();
-					WriteLocals(tw, true);
-	
+					WriteInitedVars(tw, globals, true);
 				}
 				tw.WriteLine($"public static Value {funName}()");
 				tw.OpenBlock();
+
 				var lines = (Twcode.InnerWriter as StringWriter)!.ToString().Split('\n');
 				foreach (var line in lines)
 				{
@@ -79,16 +79,11 @@ namespace Eleu.CodeGen
 					tw.CloseBlock();
 				}
 			}
-
-			public void AddLocalInitName(string str)
-			{
-				localInitNames.Add(str);
-			}
 		}
 		
 		State state, globalState;
 		override protected CompilerState current => state.cstate;
-
+		List<string> globalInits = new();
 		IndentedTextWriter twcur => state.Twcode;
 
 		public CsCodeGen(EleuOptions options, List<Stmt> statements) : base(options, statements)
@@ -112,11 +107,40 @@ namespace Eleu.CodeGen
 			}
 			using var tw = File.CreateText(options.CsOutputFile!);
 			var idtw = new IndentedTextWriter(tw,"\t");
-			state.WriteTo(idtw);
+			state.WriteTo(idtw, globalInits);
 			return true;
 		}
 
-		public bool VisitBlockStmt(Stmt.Block stmt) => throw new NotImplementedException();
+		public bool VisitBlockStmt(Stmt.Block stmt)
+		{
+			BeginScope();
+			VisitStmtList(stmt.Statements, this);
+			EndScope();
+			return true;
+		}
+		void BeginScope()
+		{
+			if (current.scopeDepth > 0)
+				twcur.OpenBlock();
+			current.scopeDepth++;
+		}
+		void EndScope()
+		{
+			current.scopeDepth--;
+			if (current.scopeDepth > 0)
+				twcur.CloseBlock();
+			while (current.localCount > 0
+				&& current.locals[current.localCount - 1].depth > current.scopeDepth)
+			{
+				if (current.locals[current.localCount - 1].isCaptured)
+				{ } //	EmitByte(OP_CLOSE_UPVALUE);
+				else
+				{
+					//EmitByte(OP_POP);
+				}
+				current.localCount--;
+			}
+		}
 		public bool VisitClassStmt(Stmt.Class stmt) => throw new NotImplementedException();
 		public bool VisitExpressionStmt(Stmt.Expression stmt)
 		{
@@ -143,10 +167,13 @@ namespace Eleu.CodeGen
 			var name = ParseVariable(stmt.Name);
 			string initExpr = stmt.Initializer != null ? stmt.Initializer.Accept(this) : "Nil";
 			DefineVariable(name);
-			state.AddLocalInitName($"{name} = {initExpr}");
+			var s = $"{name} = {initExpr}";
+			if (current.scopeDepth > 0)
+				twcur.WriteLine($"var {s};"); 
+			else
+				globalInits.Add(s);
 			return true;
 		}
-
 
 		public bool VisitWhileStmt(Stmt.While stmt) => throw new NotImplementedException();
 		public string VisitAssignExpr(Expr.Assign expr)

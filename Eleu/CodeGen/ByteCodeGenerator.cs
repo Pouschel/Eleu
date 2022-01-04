@@ -378,18 +378,12 @@ internal class ByteCodeGenerator : CodeGenBase, Expr.Visitor<bool>, Stmt.Visitor
 	public bool VisitBlockStmt(Stmt.Block stmt)
 	{
 		BeginScope();
-		VisitStmtList(stmt.Statements);
+		VisitStmtList(stmt.Statements, this);
 		EndScope();
 		return true;
 	}
 
-	void VisitStmtList(List<Stmt> list)
-	{
-		foreach (var istmt in list)
-		{
-			istmt.Accept(this);
-		}
-	}
+
 	public bool VisitClassStmt(Stmt.Class stmt)
 	{
 		var className = stmt.Name;
@@ -461,7 +455,7 @@ internal class ByteCodeGenerator : CodeGenBase, Expr.Visitor<bool>, Stmt.Visitor
 			DefineVariable(constant);
 		}
 		compiler.function.arity = stmt.Paras.Count;
-		VisitStmtList(stmt.Body);
+		VisitStmtList(stmt.Body, this);
 		var function = EndCompiler();
 		EmitBytes(OP_CLOSURE, MakeConstant(CreateObjVal(function)));
 		for (int i = 0; i < function.upvalueCount; i++)

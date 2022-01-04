@@ -1,5 +1,12 @@
+
 var a = 1;
-var b = 2;
-b="Hallo";
-a=b;
-print b;
+{
+  var b = 2;
+  a="Hallo";
+
+  {
+    var c =3;
+  }
+  print b;
+  print a;
+}
