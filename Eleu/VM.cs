@@ -137,7 +137,7 @@ public class VM
 		switch (instruction)
 		{
 			case OP_NOT:
-				Push(CreateBoolVal(IsFalsey(Pop())));
+				Push(!Pop());
 				break;
 			case OP_NEGATE: Negate(); break;
 			case OP_JUMP:
@@ -186,17 +186,41 @@ public class VM
 			case OP_SET_GLOBAL: SetGlobal(); break;
 			case OP_GET_UPVALUE: GetUpValue(); break;
 			case OP_SET_UPVALUE: SetUpValue(); break;
-			case OP_GET_PROPERTY: GetProperty(); break;
+			case OP_GET_PROPERTY: GetProperty(); break; 
 			case OP_SET_PROPERTY: SetProperty(); break;
 			case OP_GET_SUPER: GetSuper(); break;
-			case OP_EQUAL: Equal(); break;
-			case OP_GREATER: PopAndOp((a, b) => CreateBoolVal(a > b)); break;
-			case OP_LESS: PopAndOp((a, b) => CreateBoolVal(a < b)); break;
-			case OP_ADD: Add(); break;
-			case OP_SUBTRACT: PopAndOp((a, b) => CreateNumberVal(a - b)); break;
-			case OP_MULTIPLY: PopAndOp((a, b) => CreateNumberVal(a * b)); break;
-			case OP_DIVIDE: PopAndOp((a, b) => CreateNumberVal(a / b)); break;
-			case OP_REMAINDER: PopAndOp((a, b) => CreateNumberVal(a % b)); break;
+			case OP_EQUAL: Push(Pop()==Pop()); break; 
+			case OP_GREATER:
+				{
+					var b = Pop(); Push(Pop() > b);
+					break;
+				}
+			case OP_LESS:
+				{
+					var b = Pop(); Push(Pop() < b);
+					break;
+				}
+			case OP_ADD:
+				{
+					var b = Pop(); Push(Pop() + b);
+					break;
+				}
+			case OP_SUBTRACT:
+				{
+					var b = Pop(); Push(Pop() - b);
+					break;
+				}
+			case OP_MULTIPLY: Push(Pop() * Pop()); break;
+			case OP_DIVIDE:
+				{
+					var b = Pop(); Push(Pop() / b);
+					break;
+				}
+			case OP_REMAINDER:
+				{
+					var b = Pop(); Push(Pop() % b);
+					break;
+				}
 			case OP_CALL: Call(); break;
 			case OP_INVOKE: Invoke(); break;
 			case OP_CLOSURE: Closure(); break;
@@ -241,11 +265,19 @@ public class VM
 	public EEleuResult Run()
 	{
 		EEleuResult result;
-		do
+		try
 		{
-			result = NextStep();
+			do
+			{
+				result = NextStep();
+			}
+			while (result == EEleuResult.NextStep);
+		} 
+		catch (EleuRuntimeError ex)
+		{
+			RuntimeError(ex.Message);
+			result = EEleuResult.RuntimeError;
 		}
-		while (result == EEleuResult.NextStep);
 		return result;
 	}
 	void Negate()
@@ -399,8 +431,6 @@ public class VM
 			}
 		}
 	}
-
-
 	bool Return()
 	{
 		Value result = Pop();

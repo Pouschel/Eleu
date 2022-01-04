@@ -1,7 +1,6 @@
 var x=2;
 
-{  
-  
+{    
 
 fun Catalan( n)
 {
@@ -12,7 +11,8 @@ fun Catalan( n)
   return ((2 * (2 * n - 1)) / (n + 1)) * Catalan(n - 1);
 }
 
-for (var n=1; n<20; n=n+1) print Catalan(n);
+for (var n=1; n<20; n=n+1) 
+  print Catalan(n);
 
   x=4;
 }

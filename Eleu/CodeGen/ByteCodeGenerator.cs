@@ -9,7 +9,10 @@ namespace Eleu.CodeGen
 {
 	class CodeGenError : Exception
 	{
+		public CodeGenError(string msg=""): base(msg)
+		{
 
+		}
 	}
 
 	internal class CodeGenBase
