@@ -1,12 +1,6 @@
 
 var a = 1;
+while (true)
 {
-  var b = 2;
-  a="Hallo";
-
-  {
-    var c =3;
-  }
-  print b;
-  print a + b;
-}
+  a=a+1;
+}   

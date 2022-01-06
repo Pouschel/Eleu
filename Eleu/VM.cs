@@ -34,13 +34,15 @@ public class VM
 	ObjUpvalue? openUpvalues;
 	//this current frame
 	CallFrame frame;
-
 	//the current code chunk
 	internal Chunk chunk;
 
 	EleuOptions options;
 	internal EleuResult result;
 	internal int Ip => frame.ip;
+	int instructionCount;
+	public int InstructionCount => instructionCount;
+
 	internal VM(EleuOptions options, EleuResult result)
 	{
 		this.options = options;
@@ -91,15 +93,16 @@ public class VM
 
 	internal void Setup()
 	{
+		instructionCount = 0;
 		ObjFunction function = result.Function!;
 		var closure = new ObjClosure(function);
 		Push(CreateObjVal(closure));
 		Call(closure, 0);
 	}
-	internal void Interpret()
+	public EEleuResult Interpret()
 	{
 		Setup();
-		result.Result = Run();
+		return Run();
 	}
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	byte ReadByte() => chunk.code[frame.ip++];
@@ -133,6 +136,7 @@ public class VM
 			Console.WriteLine();
 			frame.closure!.function.chunk.DisassembleInstruction(frame.ip, null, Console.Out);
 #endif
+		instructionCount++;
 		var instruction = (OpCode)ReadByte();
 		switch (instruction)
 		{

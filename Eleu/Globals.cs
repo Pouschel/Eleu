@@ -16,13 +16,13 @@ public class Globals
 	internal static bool identifiersEqual(in Token a, string b)
 	=> a.StringValue == b;
 
-	internal static EleuResult CompileAndRunAst(string fileName, EleuOptions options)
+	internal static EEleuResult CompileAndRunAst(string fileName, EleuOptions options)
 	{
 		var source = File.ReadAllText(fileName);
 		return CompileAndRunAst(source, fileName, options);
 	}
 
-	internal static EleuResult CompileAndRunAst(string source, string fileName, EleuOptions options)
+	public static (EEleuResult, VM?) Compile(string source, string fileName, EleuOptions options)
 	{
 		var scanner = new Scanner(source);
 		var tokens = scanner.ScanAllTokens();
@@ -34,8 +34,8 @@ public class Globals
 			Result = parser.ErrorCount > 0 ? CompileError : Ok,
 			Expr = parseResult,
 		};
-		if (result.Result != Ok) return result;
-		if (options.JsOutputFile!=null)
+		if (result.Result != Ok) return (result.Result, null);
+		if (options.JsOutputFile != null)
 		{
 			var csGen = new JsCodeGen(options, result.Expr);
 			csGen.GenCode();
@@ -43,10 +43,16 @@ public class Globals
 		var codeGen = new ByteCodeGenerator(fileName, options, result);
 		result = codeGen.GenCode();
 		if (result.Result != Ok)
-			return result;
+			return (result.Result, null);
 		VM vm = new VM(options, result);
-		vm.Interpret();
-		return result;
+		return (result.Result, vm);
+	}
+
+	internal static EEleuResult CompileAndRunAst(string source, string fileName, EleuOptions options)
+	{
+		var (res, vm) = Compile(source, fileName, options);
+		if (res != Ok) return res;
+		return vm!.Interpret();
 	}
 
 	internal static EleuResult CompileAndRun(string fileName, EleuOptions options)
@@ -88,7 +94,7 @@ public class Globals
 			DumpStackOnError = false,
 		};
 		var cres = CompileAndRunAst(source, "", opt);
-		return cres.Result == Ok;
+		return cres == Ok;
 	}
 
 	internal static int ExpandArray<T>(ref T[] array)
