@@ -8,5 +8,5 @@ var a = 1;
     var c =3;
   }
   print b;
-  print a;
+  print a + b;
 }

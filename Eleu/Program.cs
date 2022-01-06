@@ -9,7 +9,7 @@ public class EleuOptions
 	public bool PrintByteCode;
 	public bool DumpStackOnError = true;
 	public bool CreateDebugInfo = false;
-	public string? CsOutputFile;
+	public string? JsOutputFile;
 	public TextWriter Out = TextWriter.Null;
 	public TextWriter Err = TextWriter.Null;
 
@@ -45,7 +45,7 @@ fileName           file to compile and run
 				case "-waitAfterRun": waitAfterRun = true; break;
 				case "-dumpByteCode": options.PrintByteCode = true; break;
 				case "-debugInfo": options.CreateDebugInfo = true; break;
-				case "-cs": options.CsOutputFile = args[++i]; break;
+				case "-js": options.JsOutputFile = args[++i]; break;
 				default: fileName = arg; break;
 			}
 		}

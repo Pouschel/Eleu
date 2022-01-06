@@ -35,9 +35,9 @@ public class Globals
 			Expr = parseResult,
 		};
 		if (result.Result != Ok) return result;
-		if (options.CsOutputFile!=null)
+		if (options.JsOutputFile!=null)
 		{
-			var csGen = new CsCodeGen(options, result.Expr);
+			var csGen = new JsCodeGen(options, result.Expr);
 			csGen.GenCode();
 		}
 		var codeGen = new ByteCodeGenerator(fileName, options, result);

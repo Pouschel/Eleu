@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Eleu.CodeGen.CsCodeGenHelper;
 
 namespace Eleu.CodeGen
 {
@@ -21,9 +22,10 @@ namespace Eleu.CodeGen
 			tw.WriteLine(c); 
 		}
 
+		public const string ReqPrefix = "ελευ";
 	}
 
-	internal class CsCodeGen : CodeGenBase, Expr.Visitor<string>, Stmt.Visitor<bool>
+	internal class JsCodeGen : CodeGenBase, Expr.Visitor<string>, Stmt.Visitor<bool>
 	{
 		class State
 		{
@@ -46,36 +48,32 @@ namespace Eleu.CodeGen
 
 			void WriteInitedVars(IndentedTextWriter tw, List<string> initNames,  bool fStatic)
 			{
-				var sStatic = fStatic ? "static " : "";
 				foreach (var loc in initNames)
 				{
-					tw.WriteLine($"{sStatic}Value {loc};");
+					tw.WriteLine($"var {loc};");
 				}
 				tw.WriteLine();
 			}
 			public void WriteTo(IndentedTextWriter tw, List<string> globals)
 			{
-				if (type==FunctionType.FunTypeScript)
+				if (type == FunctionType.FunTypeScript)
 				{
-					tw.WriteLine("using Eleu;");
-					tw.WriteLine("using static Eleu.ValueStatics;");
-					tw.WriteLine();
-					tw.WriteLine($"public class {clsName}");
-					tw.OpenBlock();
+					tw.WriteLine($"var {ReqPrefix} = require('./EleuCore');");
 					WriteInitedVars(tw, globals, true);
 				}
-				tw.WriteLine($"public static Value {funName}()");
-				tw.OpenBlock();
-
+				else
+				{
+					tw.WriteLine($"function {funName}()");
+					tw.OpenBlock();
+				}
 				var lines = (Twcode.InnerWriter as StringWriter)!.ToString().Split('\n');
 				foreach (var line in lines)
 				{
 					tw.WriteLine(line.TrimEnd());
 				}
-				tw.WriteLine("return Nil;");
-				tw.CloseBlock();
-				if (type==FunctionType.FunTypeScript)
+				if (type!=FunctionType.FunTypeScript)
 				{
+					tw.WriteLine($"return {ReqPrefix}.Nil;");
 					tw.CloseBlock();
 				}
 			}
@@ -86,9 +84,9 @@ namespace Eleu.CodeGen
 		List<string> globalInits = new();
 		IndentedTextWriter twcur => state.Twcode;
 
-		public CsCodeGen(EleuOptions options, List<Stmt> statements) : base(options, statements)
+		public JsCodeGen(EleuOptions options, List<Stmt> statements) : base(options, statements)
 		{
-			state = new State(FunTypeScript,Path.GetFileNameWithoutExtension(options.CsOutputFile)!,  "Main",null);
+			state = new State(FunTypeScript,Path.GetFileNameWithoutExtension(options.JsOutputFile)!,  "Main",null);
 			globalState = state;
 		}
 
@@ -105,7 +103,7 @@ namespace Eleu.CodeGen
 					return false;
 				}
 			}
-			using var tw = File.CreateText(options.CsOutputFile!);
+			using var tw = File.CreateText(options.JsOutputFile!);
 			var idtw = new IndentedTextWriter(tw,"\t");
 			state.WriteTo(idtw, globalInits);
 			return true;
@@ -120,14 +118,14 @@ namespace Eleu.CodeGen
 		}
 		void BeginScope()
 		{
-			if (current.scopeDepth > 0)
+			//if (current.scopeDepth > 0)
 				twcur.OpenBlock();
 			current.scopeDepth++;
 		}
 		void EndScope()
 		{
 			current.scopeDepth--;
-			if (current.scopeDepth > 0)
+			//if (current.scopeDepth > 0)
 				twcur.CloseBlock();
 			while (current.localCount > 0
 				&& current.locals[current.localCount - 1].depth > current.scopeDepth)
@@ -157,7 +155,7 @@ namespace Eleu.CodeGen
 		public bool VisitPrintStmt(Stmt.Print stmt)
 		{
 			var ex = stmt.expression.Accept(this);
-			twcur.WriteLine($"Console.WriteLine({ex});");
+			twcur.WriteLine($"console.log(({ex}).toString());");
 			return true;
 		}
 
@@ -213,10 +211,10 @@ namespace Eleu.CodeGen
 		{
 			switch (expr.Value)
 			{
-				case bool b: return b ? "BoolTrue" : "BoolFalse";
-				case null: return "Nil";
-				case double d: return $"CreateNumberVal({d})";
-				case string s: return $"CreateStringVal(@\"{s}\")";
+				case bool b: return  ReqPrefix + (b ? "BoolTrue" : "BoolFalse");
+				case null: return $"{ReqPrefix}.Nil";
+				case double d: return $"{ReqPrefix}.CreateNumberVal({d})";
+				case string s: return $"{ReqPrefix}.CreateStringVal(\"{s}\")";
 				default: Error($"Unsupported constant of type: {expr.Value}"); return "";
 			}
 		}
