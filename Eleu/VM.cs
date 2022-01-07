@@ -102,8 +102,51 @@ public class VM
 	public EEleuResult Interpret()
 	{
 		Setup();
-		return Run();
+		EEleuResult result;
+		try
+		{
+			do
+			{
+				result = NextStep();
+			}
+			while (result == EEleuResult.NextStep);
+		}
+		catch (EleuRuntimeError ex)
+		{
+			RuntimeError(ex.Message);
+			result = EEleuResult.RuntimeError;
+		}
+		return result;
 	}
+
+	public EEleuResult InterpretWithDebug(CancellationToken cts)
+	{
+		Setup();
+		EEleuResult result;
+		try
+		{
+			do
+			{
+				instructionCount++; 
+				result = NextStep();
+				if (cts.IsCancellationRequested)
+				{
+					RuntimeError("Execution aborted by user.");
+					cts.ThrowIfCancellationRequested();
+					return EEleuResult.RuntimeError;
+				}
+			}
+			while (result == EEleuResult.NextStep);
+		}
+		catch (EleuRuntimeError ex)
+		{
+			RuntimeError(ex.Message);
+			result = EEleuResult.RuntimeError;
+		}
+
+		return result;
+	}
+
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	byte ReadByte() => chunk.code[frame.ip++];
 
@@ -136,7 +179,6 @@ public class VM
 			Console.WriteLine();
 			frame.closure!.function.chunk.DisassembleInstruction(frame.ip, null, Console.Out);
 #endif
-		instructionCount++;
 		var instruction = (OpCode)ReadByte();
 		switch (instruction)
 		{
@@ -190,10 +232,10 @@ public class VM
 			case OP_SET_GLOBAL: SetGlobal(); break;
 			case OP_GET_UPVALUE: GetUpValue(); break;
 			case OP_SET_UPVALUE: SetUpValue(); break;
-			case OP_GET_PROPERTY: GetProperty(); break; 
+			case OP_GET_PROPERTY: GetProperty(); break;
 			case OP_SET_PROPERTY: SetProperty(); break;
 			case OP_GET_SUPER: GetSuper(); break;
-			case OP_EQUAL: Push(Pop()==Pop()); break; 
+			case OP_EQUAL: Push(Pop() == Pop()); break;
 			case OP_GREATER:
 				{
 					var b = Pop(); Push(Pop() > b);
@@ -256,7 +298,7 @@ public class VM
 
 	private void NewList()
 	{
-		var argCount = (int) AsNumber(Pop());
+		var argCount = (int)AsNumber(Pop());
 		var list = new ValList(argCount);
 		for (int i = 0; i < argCount; i++)
 		{
@@ -266,24 +308,7 @@ public class VM
 		Push(new Value(list));
 	}
 
-	public EEleuResult Run()
-	{
-		EEleuResult result;
-		try
-		{
-			do
-			{
-				result = NextStep();
-			}
-			while (result == EEleuResult.NextStep);
-		} 
-		catch (EleuRuntimeError ex)
-		{
-			RuntimeError(ex.Message);
-			result = EEleuResult.RuntimeError;
-		}
-		return result;
-	}
+
 	void Negate()
 	{
 		if (!IsNumber(Peek(0)))
