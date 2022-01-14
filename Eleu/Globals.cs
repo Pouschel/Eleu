@@ -37,7 +37,10 @@ public class Globals
 		};
 		if (result.Result != Ok) return (result.Result, null);
 		if (options.UseInterpreter)
-			return (result.Result, new Interpreter(options, result.Expr!));
+		{
+			var interpreter = new Interpreter(options, result.Expr!);
+			return (result.Result, interpreter);
+		}
 		var codeGen = new ByteCodeGenerator(fileName, options, result);
 		result = codeGen.GenCode();
 		if (result.Result != Ok)
@@ -90,6 +93,7 @@ public class Globals
 			Err = tw,
 			PrintByteCode = false,
 			DumpStackOnError = false,
+			UseInterpreter = true,
 		};
 		var cres = CompileAndRunAst(source, "", opt);
 		return cres == Ok;

@@ -103,6 +103,9 @@ class Program
 
 	void RunActionInDir(string dir, Action<string> action)
 	{
+		string locDir = Path.GetFileName(dir);
+		if (locDir[0] == '-') 
+			return;
 		var files = Directory.GetFiles(dir, "*.eleu");
 		foreach (var file in files)
 		{

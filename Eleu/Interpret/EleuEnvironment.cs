@@ -13,6 +13,27 @@ class EleuEnvironment
 		this.enclosing = enclosing;
 	}
 	public void Define(string name, in Value value) => values.Set(name, value);
+	public Value getAt(int distance, string name)
+	{
+		var tab = ancestor(distance)?.values;
+		Value val = Nil;
+		tab?.Get(name, out val);
+		return val;
+	}
+	public void assignAt(int distance, string name, Value value)
+	{
+		ancestor(distance)?.values.Set(name, value);
+	}
+
+	EleuEnvironment? ancestor(int distance)
+	{
+		var environment = this;
+		for (int i = 0; i < distance; i++)
+		{
+			environment = environment?.enclosing;
+		}
+		return environment;
+	}
 	public Value Get(string name)
 	{
 		if (values.Get(name, out var value))

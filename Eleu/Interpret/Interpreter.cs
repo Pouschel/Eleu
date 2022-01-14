@@ -6,6 +6,7 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 	private EleuOptions options;
 	internal EleuEnvironment globals = new();
 	private EleuEnvironment environment;
+	private Dictionary<Expr, int> locals = new();
 
 	public Interpreter(EleuOptions options, List<Stmt> statements)
 	{
@@ -26,6 +27,10 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 		EEleuResult result = Ok;
 		try
 		{
+			locals = new Dictionary<Expr, int>();
+			var resolver = new Resolver(this);
+			resolver.resolve(this.statements);
+			resolver = null;
 			foreach (var stmt in this.statements)
 			{
 				Execute(stmt);
@@ -33,7 +38,7 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 		}
 		catch (EleuRuntimeError ex)
 		{
-			options.Err.WriteLine(ex.Message);
+			options.Err.WriteLine("Rerr: " + ex.Message);
 			result = EEleuResult.RuntimeError;
 		}
 		return result;
@@ -50,7 +55,14 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 	public Value VisitAssignExpr(Expr.Assign expr)
 	{
 		var value = Evaluate(expr.Value);
-		environment.Assign(expr.Name, value);
+		if (locals.TryGetValue(expr, out var distance))
+		{
+			environment.assignAt(distance, expr.Name, value);
+		}
+		else
+		{
+			globals.Assign(expr.Name, value);
+		}
 		return value;
 	}
 
@@ -135,7 +147,23 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 		};
 	}
 
-	public Value VisitVariableExpr(Expr.Variable expr) => environment.Get(expr.Name);
+	internal void resolve(Expr expr, int depth)
+	{
+		locals[expr] = depth;
+	}
+
+	public Value VisitVariableExpr(Expr.Variable expr) => lookUpVariable(expr.Name, expr);
+	private Value lookUpVariable(string name, Expr expr)
+	{
+		if (locals.TryGetValue(expr, out int distance))
+		{
+			return environment.getAt(distance, name);
+		}
+		else
+		{
+			return globals.Get(name);
+		}
+	}
 
 	public InterpretResult VisitBlockStmt(Stmt.Block stmt) => executeBlock(stmt.Statements, new EleuEnvironment(environment));
 
@@ -209,6 +237,8 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 		while (IsTruthy(Evaluate(stmt.Condition)))
 		{
 			result = Execute(stmt.Body);
+			if (result.Stat != InterpretResult.Status.Normal) 
+				break;
 		}
 		return result;
 	}
