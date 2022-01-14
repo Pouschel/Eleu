@@ -2,7 +2,7 @@
   "profiles": {
     "CsLox": {
       "commandName": "Project",
-      "commandLineArgs": "-debugInfo -dumpByteCode -js C:\\Code\\Eleu\\EleuSrcNodejs\\Ex1.js C:\\Code\\Eleu\\EleuSrc\\Examples\\Ex1.eleu"
+      "commandLineArgs": "-debugInfo -interpret C:\\Code\\Eleu\\EleuSrc\\Examples\\Ex1.eleu"
     }
   }
 }

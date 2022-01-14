@@ -22,7 +22,7 @@ public class Globals
 		return CompileAndRunAst(source, fileName, options);
 	}
 
-	public static (EEleuResult, VM?) Compile(string source, string fileName, EleuOptions options)
+	public static (EEleuResult, IInterpreter?) Compile(string source, string fileName, EleuOptions options)
 	{
 		var scanner = new Scanner(source);
 		var tokens = scanner.ScanAllTokens();
@@ -35,11 +35,8 @@ public class Globals
 			Expr = parseResult,
 		};
 		if (result.Result != Ok) return (result.Result, null);
-		if (options.JsOutputFile != null)
-		{
-			var csGen = new JsCodeGen(options, result.Expr);
-			csGen.GenCode();
-		}
+		if (options.UseInterpreter)
+			return (result.Result, new Interpreter(options, result.Expr!));
 		var codeGen = new ByteCodeGenerator(fileName, options, result);
 		result = codeGen.GenCode();
 		if (result.Result != Ok)

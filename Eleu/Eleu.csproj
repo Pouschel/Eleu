@@ -11,6 +11,7 @@
 
 
   <ItemGroup>
+    <Compile Remove="CodeGen\JsCodeGen.cs" />
     <Compile Remove="Table.cs" />
   </ItemGroup>
 

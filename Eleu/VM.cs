@@ -14,6 +14,7 @@ public enum EEleuResult
 	NextStep
 }
 
+
 class CallFrame
 {
 	public ObjClosure? closure;
@@ -21,7 +22,12 @@ class CallFrame
 	public int slotIndex;
 };
 
-public class VM
+public interface IInterpreter
+{
+	EEleuResult Interpret();
+
+}
+public class VM: IInterpreter
 {
 	public int FRAMES_MAX = 1000;
 

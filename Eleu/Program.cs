@@ -9,7 +9,7 @@ public class EleuOptions
 	public bool PrintByteCode;
 	public bool DumpStackOnError = true;
 	public bool CreateDebugInfo = false;
-	public string? JsOutputFile;
+	public bool UseInterpreter = false;
 	public TextWriter Out = TextWriter.Null;
 	public TextWriter Err = TextWriter.Null;
 
@@ -29,7 +29,7 @@ Eleu -dumpByteCode fileName
 -waitAfterRun      waits for an ENTER after running
 -dumpByteCode      dumps the byte code of all functions
 -debugInfo         creates debug info
--cs fileName			 create a cs file
+-interpret         use interpreter instead of vm
 fileName           file to compile and run
 ");
 
@@ -45,7 +45,7 @@ fileName           file to compile and run
 				case "-waitAfterRun": waitAfterRun = true; break;
 				case "-dumpByteCode": options.PrintByteCode = true; break;
 				case "-debugInfo": options.CreateDebugInfo = true; break;
-				case "-js": options.JsOutputFile = args[++i]; break;
+				case "-interpret": options.UseInterpreter = true; break;
 				default: fileName = arg; break;
 			}
 		}

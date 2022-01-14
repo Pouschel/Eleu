@@ -27,7 +27,7 @@ namespace Eleu.CodeGen
 		public static implicit operator InterpretResult(in Value val) => new(val);
 	}
 
-	internal class Interpreter : Expr.Visitor<Value>
+	internal class Interpreter : IInterpreter, Expr.Visitor<Value>
 	{
 		protected List<Stmt> statements;
 		protected EleuOptions options;
@@ -78,5 +78,23 @@ namespace Eleu.CodeGen
 		}
 
 		public Value VisitVariableExpr(Expr.Variable expr) => throw new NotImplementedException();
+		public EEleuResult Interpret()
+		{
+			EEleuResult result = EEleuResult.Ok;
+			try
+			{
+				foreach (var stmt in this.statements)
+				{
+					if (stmt is Stmt.Expression sex)
+						Evaluate(sex.expression);
+				}
+			}
+			catch (EleuRuntimeError ex)
+			{
+				options.Err.WriteLine(ex.Message);
+				result = RuntimeError;
+			}
+			return result;
+		}
 	}
 }
