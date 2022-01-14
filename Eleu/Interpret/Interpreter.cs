@@ -4,13 +4,23 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 {
 	private List<Stmt> statements;
 	private EleuOptions options;
-	private EleuEnvironment environment = new();
+	private EleuEnvironment globals = new();
+	private EleuEnvironment environment;
 
 	public Interpreter(EleuOptions options, List<Stmt> statements)
 	{
+		this.environment = globals;
 		this.statements = statements;
 		this.options = options;
+		var _ = new NativeFunctions(this);
 	}
+
+	public void DefineNative(string name, NativeFn function)
+	{
+		var ofun = CreateObjVal(new ObjNative(function));
+		globals.Define(name, ofun);
+	}
+
 	public EEleuResult Interpret()
 	{
 		EEleuResult result = Ok;
@@ -24,7 +34,7 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 		catch (EleuRuntimeError ex)
 		{
 			options.Err.WriteLine(ex.Message);
-			result = RuntimeError;
+			result = EEleuResult.RuntimeError;
 		}
 		return result;
 	}
@@ -65,7 +75,24 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 		};
 	}
 
-	public Value VisitCallExpr(Expr.Call expr) => throw new NotImplementedException();
+	public Value VisitCallExpr(Expr.Call expr)
+	{
+		var callee = Evaluate(expr.Callee);
+		if (callee.oValue is not LoxCallable function)
+		{
+			throw new EleuRuntimeError("Can only call functions and classes.");
+		}
+		if (expr.Arguments.Count!=function.arity())
+			throw new EleuRuntimeError("Expected " + 	function.arity() + " arguments but got " + expr.Arguments.Count + ".");
+		var arguments = new Value[expr.Arguments.Count];
+		for (int i = 0; i < expr.Arguments.Count; i++)
+		{
+			var argument = expr.Arguments[i];
+			arguments[i]=Evaluate(argument);
+		}
+		return function.Call(this, arguments);
+	}
+
 	public Value VisitGetExpr(Expr.Get expr) => throw new NotImplementedException();
 	public Value VisitGroupingExpr(Expr.Grouping expr) => Evaluate(expr.Expression);
 	public Value VisitLiteralExpr(Expr.Literal expr)
@@ -80,7 +107,20 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 		};
 	}
 
-	public Value VisitLogicalExpr(Expr.Logical expr) => throw new NotImplementedException();
+	public Value VisitLogicalExpr(Expr.Logical expr)
+	{
+		var left = Evaluate(expr.Left);
+		if (expr.Op.type == TOKEN_OR)
+		{
+			if (IsTruthy(left)) return left;
+		}
+		else
+		{
+			if (IsFalsey(left)) return left;
+		}
+		return Evaluate(expr.Right);
+	}
+
 	public Value VisitSetExpr(Expr.Set expr) => throw new NotImplementedException();
 	public Value VisitSuperExpr(Expr.Super expr) => throw new NotImplementedException();
 	public Value VisitThisExpr(Expr.This expr) => throw new NotImplementedException();
@@ -97,7 +137,7 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 
 	public Value VisitVariableExpr(Expr.Variable expr) => environment.Get(expr.Name);
 
-	public InterpretResult VisitBlockStmt(Stmt.Block stmt) => executeBlock(stmt.Statements,new EleuEnvironment(environment));
+	public InterpretResult VisitBlockStmt(Stmt.Block stmt) => executeBlock(stmt.Statements, new EleuEnvironment(environment));
 
 	InterpretResult executeBlock(List<Stmt> statements, EleuEnvironment environment)
 	{
@@ -108,7 +148,7 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 			this.environment = environment;
 			foreach (Stmt statement in statements)
 			{
-				result= Execute(statement);
+				result = Execute(statement);
 			}
 			return result;
 		}
@@ -122,7 +162,15 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 	public InterpretResult VisitExpressionStmt(Stmt.Expression stmt) => Evaluate(stmt.expression);
 
 	public InterpretResult VisitFunctionStmt(Stmt.Function stmt) => throw new NotImplementedException();
-	public InterpretResult VisitIfStmt(Stmt.If stmt) => throw new NotImplementedException();
+	public InterpretResult VisitIfStmt(Stmt.If stmt)
+	{
+		if (IsTruthy(Evaluate(stmt.Condition)))
+			return Execute(stmt.ThenBranch);
+		else if (stmt.ElseBranch != null)
+			return Execute(stmt.ElseBranch);
+		return Nil;
+	}
+
 	public InterpretResult VisitPrintStmt(Stmt.Print stmt)
 	{
 		var val = Evaluate(stmt.expression);
@@ -141,6 +189,15 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 		environment.Define(stmt.Name, value);
 		return value;
 	}
+	public InterpretResult VisitWhileStmt(Stmt.While stmt)
+	{
+		var result = new InterpretResult(Nil);
+		while (IsTruthy(Evaluate(stmt.Condition)))
+		{
+			result = Execute(stmt.Body);
+		}
+		return result;
+	}
 
-	public InterpretResult VisitWhileStmt(Stmt.While stmt) => throw new NotImplementedException();
+	public void RuntimeError(string msg) => throw new EleuRuntimeError(msg);
 }

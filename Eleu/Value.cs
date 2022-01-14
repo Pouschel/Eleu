@@ -22,6 +22,7 @@ public class EleuRuntimeError : Exception
 	public EleuRuntimeError(string msg) : base(msg)
 	{
 	}
+
 }
 
 public struct Value
@@ -163,6 +164,8 @@ public static class ValueStatics
 	public static bool IsNumber(Value value) => value.type == VAL_NUMBER;
 	public static bool IsObj(Value value) => value.type == VAL_OBJ;
 	public static bool IsFalsey(Value value) => IsNil(value) || (IsBool(value) && !AsBool(value));
+	public static bool IsTruthy(Value value) => !IsFalsey(value);
+
 	public static bool ValuesEqual(Value a, Value b)
 	{
 		if (a.type != b.type) return false;

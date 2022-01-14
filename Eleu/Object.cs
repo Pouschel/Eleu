@@ -2,6 +2,7 @@
 global using static Eleu.ObjStatics;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Eleu.Interpret;
 
 namespace Eleu;
 
@@ -52,9 +53,9 @@ internal class ObjFunction : Obj
 	}
 }
 
-delegate Value NativeFn(Value[] args);
+public delegate Value NativeFn(Value[] args);
 
-internal class ObjNative : Obj
+internal class ObjNative : Obj, LoxCallable 
 {
 	public readonly NativeFn function;
 
@@ -62,6 +63,9 @@ internal class ObjNative : Obj
 	{
 		this.function = function;
 	}
+
+	public int arity() => function.Method.GetParameters().Length-1;
+	public Value Call(Interpreter interpreter, Value[] arguments) => this.function.Invoke(arguments);
 
 	public override string ToString() => "<native fn>";
 

@@ -13,9 +13,9 @@ class NativeException : Exception
 class NativeFunctions
 {
 	Dictionary<string, Type> typeDict = new Dictionary<string, Type>();
-	VM vm;
+	IInterpreter vm;
 
-	public NativeFunctions(VM vm)
+	public NativeFunctions(IInterpreter vm)
 	{
 		this.vm = vm;
 		vm.DefineNative("clock", Clock);

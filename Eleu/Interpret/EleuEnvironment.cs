@@ -1,4 +1,10 @@
 ﻿namespace Eleu.Interpret;
+interface LoxCallable
+{
+	Value Call(Interpreter interpreter, Value[] arguments);
+	int arity();
+
+}
 
 class EleuEnvironment
 {

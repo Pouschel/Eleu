@@ -25,8 +25,10 @@ class CallFrame
 public interface IInterpreter
 {
 	EEleuResult Interpret();
-
+	void RuntimeError(string msg);
+	void DefineNative(string name, NativeFn function);
 }
+
 public class VM: IInterpreter
 {
 	public int FRAMES_MAX = 1000;
@@ -63,7 +65,7 @@ public class VM: IInterpreter
 		}
 
 		initString = string.Intern("init");
-		var natives = new NativeFunctions(this);
+		var _ = new NativeFunctions(this);
 		// to avoid warnings
 		frame = new CallFrame();
 		chunk = new Chunk();
@@ -625,7 +627,7 @@ public class VM: IInterpreter
 		Push(CreateObjVal(bound));
 		return true;
 	}
-	internal void DefineNative(string name, NativeFn function)
+	public void DefineNative(string name, NativeFn function)
 	{
 		var oname = name;
 		var ofun = CreateObjVal(new ObjNative(function));
@@ -656,7 +658,7 @@ public class VM: IInterpreter
 		double a = AsNumber(Pop());
 		Push(func(a, b));
 	}
-	internal void RuntimeError(string msg)
+	public void RuntimeError(string msg)
 	{
 		int instruction = frame.ip - 1;
 		string text = $"Rerr: {msg}";
