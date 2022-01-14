@@ -1,4 +1,5 @@
 ﻿global using static Eleu.TableStatics;
+using System.Text;
 
 namespace Eleu;
 
@@ -111,6 +112,25 @@ class Table
 		return true;
 	}
 
+	void EntriesToString(StringBuilder sb, int count)
+	{
+		for (int i = 0; i < entries.Length && count>0; i++)
+		{
+			ref var e = ref entries[i];
+			if (e.key == null) continue;
+			sb.Append($"{e.key}: {e.value}; ");
+			count--;
+		}
+	}
+
+	public override string ToString()
+	{
+		var sb = new StringBuilder();
+		sb.Append('{');
+		EntriesToString(sb, 16);
+		sb.Append('}');
+		return sb.ToString();
+	}
 }
 
 

@@ -1,10 +1,7 @@
 ﻿namespace Eleu.Interpret;
-interface LoxCallable
-{
-	Value Call(Interpreter interpreter, Value[] arguments);
-	int arity();
 
-}
+
+
 
 class EleuEnvironment
 {
@@ -20,7 +17,7 @@ class EleuEnvironment
 	{
 		if (values.Get(name, out var value))
 			return value;
-		if (enclosing != null) 
+		if (enclosing != null)
 			return enclosing.Get(name);
 		throw new EleuRuntimeError("Undefined variable '" + name + "'.");
 	}
@@ -31,7 +28,7 @@ class EleuEnvironment
 			values.Set(name, value);
 			return;
 		}
-		if (enclosing!=null)
+		if (enclosing != null)
 		{
 			enclosing.Assign(name, value);
 			return;

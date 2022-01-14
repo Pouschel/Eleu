@@ -146,6 +146,8 @@ class ObjBoundMethod : Obj
 	public override string ToString() => method.function.ToString();
 }
 
+
+
 class ValList: List<Value>
 {
 	

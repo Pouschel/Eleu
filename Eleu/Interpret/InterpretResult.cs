@@ -4,7 +4,8 @@ public struct InterpretResult
 {
 	public enum Status
 	{
-		Normal
+		Normal,
+		Return,
 	}
 
 
