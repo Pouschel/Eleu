@@ -2,7 +2,7 @@
   "profiles": {
     "CsLox": {
       "commandName": "Project",
-      "commandLineArgs": "-debugInfo -interpret C:\\Code\\Eleu\\EleuSrc\\Examples\\Ex1.eleu"
+      "commandLineArgs": "-waitAfterRun -debugInfo -interpret C:\\Code\\Eleu\\EleuSrc\\Examples\\Ex1.eleu"
     }
   }
 }

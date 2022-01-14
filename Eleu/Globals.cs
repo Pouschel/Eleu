@@ -4,6 +4,7 @@ global using static Eleu.OpCode;
 global using static Eleu.Globals;
 global using Eleu.Ast;
 using Eleu.CodeGen;
+using Eleu.Interpret;
 
 namespace Eleu;
 
