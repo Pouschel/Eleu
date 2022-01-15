@@ -322,9 +322,10 @@ namespace Eleu.Ast
 				else if (match(TOKEN_DOT))
 				{
 					Token name = consume(TOKEN_IDENTIFIER, "Expect property name after '.'.");
-					if (match(TOKEN_LEFT_PAREN))
-						expr = finishCall(expr, name.StringValue);
-					else
+					//TODO for Byte code gen
+					//if (match(TOKEN_LEFT_PAREN))
+					//	expr = finishCall(expr, name.StringValue);
+					//else
 						expr = new Expr.Get(expr, name.StringValue);
 				}
 				else

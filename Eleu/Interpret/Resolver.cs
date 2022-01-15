@@ -80,6 +80,11 @@ namespace Eleu.Interpret
 		{
 			declare(stmt.Name);
 			define(stmt.Name);
+			foreach (Stmt.Function method in stmt.Methods)
+			{
+				FunctionType declaration = FunTypeMethod;
+				resolveFunction(method, declaration);
+			}
 			return null;
 		}
 

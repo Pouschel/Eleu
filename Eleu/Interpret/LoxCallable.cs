@@ -42,6 +42,14 @@ class LoxClass : ObjClass, LoxCallable
 		var instance = new LoxInstance(this);
 		return CreateObjVal(instance);
 	}
+
+	public Value findMethod(String name)
+	{
+		if (methods.Get(name, out var val))
+			return val;
+		return Nil;
+	}
+
 }
 
 class LoxInstance : ObjInstance
@@ -55,7 +63,11 @@ class LoxInstance : ObjInstance
 	public Value get(string name)
 	{
 		if (!fields.Get(name, out var val))
+		{
+			var method = klass.findMethod(name);
+			if (!IsNil(method)) return method;
 			throw new EleuRuntimeError("Undefined property '" + name + "'.");
+		}
 		return val;
 	}
 

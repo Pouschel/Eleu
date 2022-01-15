@@ -225,6 +225,11 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 	{
 		environment.Define(stmt.Name, Nil);
 		var klass = new LoxClass(stmt.Name);
+		foreach (Stmt.Function method in stmt.Methods)
+		{
+			LoxFunction function = new LoxFunction(method, environment);
+			klass.methods.Set(method.Name, CreateObjVal(function));
+		}
 		var kval = CreateObjVal(klass); 
 		environment.Assign(stmt.Name, kval);
 		return kval;
