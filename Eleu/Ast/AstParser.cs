@@ -365,10 +365,10 @@ namespace Eleu.Ast
 			if (match(TOKEN_SUPER))
 			{
 				if (!check(TOKEN_DOT)) error(peek(), "Expect '.' after 'super'.");
-				//Token keyword = previous();
-				//consume(TOKEN_DOT, "Expect '.' after 'super'.");
-				//Token method = consume(TOKEN_IDENTIFIER, "Expect superclass method name.");
-				return new Expr.Super(previous().StringValue);
+				Token keyword = previous();
+				consume(TOKEN_DOT, "Expect '.' after 'super'.");
+				Token method = consume(TOKEN_IDENTIFIER, "Expect superclass method name.");
+				return new Expr.Super(keyword.StringValue, method.StringValue);
 			}
 			if (match(TOKEN_THIS)) return new Expr.This(previous().StringValue);
 			if (match(TOKEN_IDENTIFIER))

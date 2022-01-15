@@ -153,9 +153,11 @@ public abstract class Expr {
 //> expr-super
   public class Super : Expr {
     public readonly string Keyword;
+    public readonly string Method;
 
-    internal Super(string Keyword) {
+    internal Super(string Keyword, string Method) {
       this.Keyword = Keyword;
+      this.Method = Method;
     }
 
     public override R Accept<R>(Visitor<R> visitor) {

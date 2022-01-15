@@ -44,8 +44,10 @@ class LoxFunction : Obj, LoxCallable
 
 class LoxClass : ObjClass, LoxCallable
 {
-	public LoxClass(string name) : base(name)
+	private LoxClass? superclass;
+	public LoxClass(string name, LoxClass? superclass) : base(name)
 	{
+		this.superclass = superclass;
 	}
 	public int arity()
 	{
@@ -68,6 +70,10 @@ class LoxClass : ObjClass, LoxCallable
 	{
 		if (methods.Get(name, out var val))
 			return val;
+		if (superclass != null)
+		{
+			return superclass.findMethod(name);
+		}
 		return Nil;
 	}
 

@@ -5,7 +5,7 @@
 
 class EleuEnvironment
 {
-	readonly EleuEnvironment? enclosing;
+	public readonly EleuEnvironment? enclosing;
 	readonly Table values = new();
 
 	public EleuEnvironment(EleuEnvironment? enclosing = null)

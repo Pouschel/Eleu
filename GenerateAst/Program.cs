@@ -21,7 +21,7 @@ defineAst(outputDir, "Expr", new string[] {
 	"Set      : Expr Obj, string Name, Expr Value",
 	//< Classes set-ast
 	//> Inheritance super-expr
-	"Super    : string Keyword",
+	"Super    : string Keyword, string Method",
 	//< Inheritance super-expr
 	//> Classes this-ast
 	"This     : string Keyword",

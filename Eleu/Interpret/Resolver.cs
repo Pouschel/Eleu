@@ -12,7 +12,8 @@ namespace Eleu.Interpret
 		private enum ClassType
 		{
 			NONE,
-			CLASS
+			CLASS,
+			SUBCLASS
 		}
 		private Interpreter interpreter;
 		private List<Dictionary<string, bool>> scopes = new();
@@ -88,6 +89,20 @@ namespace Eleu.Interpret
 			currentClass = ClassType.CLASS;
 			declare(stmt.Name);
 			define(stmt.Name);
+			if (stmt.Superclass != null && stmt.Name == stmt.Superclass.Name)
+			{
+				error("A class can't inherit from itself.");
+			}
+			if (stmt.Superclass != null)
+			{
+				currentClass = ClassType.SUBCLASS;
+				resolve(stmt.Superclass);
+			}
+			if (stmt.Superclass != null)
+			{
+				beginScope();
+				Peek()!["super"] = true;
+			}
 			beginScope();
 			Peek()!["this"] = true;
 			foreach (Stmt.Function method in stmt.Methods)
@@ -97,6 +112,7 @@ namespace Eleu.Interpret
 				resolveFunction(method, declaration);
 			}
 			endScope();
+			if (stmt.Superclass != null) endScope();
 			currentClass = enclosingClass;
 			return null;
 		}
@@ -159,7 +175,19 @@ namespace Eleu.Interpret
 			return null;
 		}
 
-		public object? VisitSuperExpr(Expr.Super expr) => throw new NotImplementedException();
+		public object? VisitSuperExpr(Expr.Super expr)
+		{
+			if (currentClass == ClassType.NONE)
+			{
+				error("Can't use 'super' outside of a class.");
+			}
+			else if (currentClass != ClassType.SUBCLASS)
+			{
+				error("Can't use 'super' in a class with no superclass.");
+			}
+			return resolveLocal(expr, expr.Keyword);
+		}
+
 		public object? VisitThisExpr(Expr.This expr)
 		{
 			if (currentClass == ClassType.NONE)

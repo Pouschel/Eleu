@@ -170,10 +170,21 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 		return value;
 	}
 
-	public Value VisitSuperExpr(Expr.Super expr) => throw new NotImplementedException();
+	public Value VisitSuperExpr(Expr.Super expr)
+	{
+		int distance = locals[expr];
+		LoxClass superclass = (LoxClass)environment.getAt(distance, "super").oValue;
+		LoxInstance obj = (LoxInstance)environment.getAt(distance - 1, "this").oValue;
+		LoxFunction? method = superclass.findMethod(expr.Method).oValue as LoxFunction;
+		if (method == null)
+		{
+			throw Error("Undefined property '" + expr.Method + "'.");
+		}
+		return CreateObjVal(method.bind(obj));
+	}
+
 	public Value VisitThisExpr(Expr.This expr)
 	{
-
 		return lookUpVariable(expr.Keyword, expr);
 	}
 
@@ -230,14 +241,33 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 
 	public InterpretResult VisitClassStmt(Stmt.Class stmt)
 	{
+		LoxClass? superclass = null;
+		if (stmt.Superclass != null)
+		{
+			var superclassV = Evaluate(stmt.Superclass);
+			if (superclassV.oValue is not LoxClass)
+			{
+				throw new EleuRuntimeError("Superclass must be a class.");
+			}
+			superclass = superclassV.oValue as LoxClass;
+		}
 		environment.Define(stmt.Name, Nil);
-		var klass = new LoxClass(stmt.Name);
+		if (superclass != null)
+		{
+			environment = new EleuEnvironment(environment);
+			environment.Define("super", CreateObjVal(superclass));
+		}
+		var klass = new LoxClass(stmt.Name, superclass);
 		foreach (Stmt.Function method in stmt.Methods)
 		{
-			LoxFunction function = new LoxFunction(method, environment, method.Name=="init");
+			LoxFunction function = new LoxFunction(method, environment, method.Name == "init");
 			klass.methods.Set(method.Name, CreateObjVal(function));
 		}
 		var kval = CreateObjVal(klass);
+		if (superclass != null)
+		{
+			environment = environment.enclosing!;
+		}
 		environment.Assign(stmt.Name, kval);
 		return kval;
 	}
