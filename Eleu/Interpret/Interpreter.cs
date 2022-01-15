@@ -2,11 +2,7 @@
 
 internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<InterpretResult>
 {
-	private enum ClassType
-	{
-		NONE,
-		CLASS
-	}
+
 
 	private List<Stmt> statements;
 	private EleuOptions options;
@@ -14,7 +10,6 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 	private EleuEnvironment environment;
 	private Dictionary<Expr, int> locals = new();
 	private CancellationToken ctoken = CancellationToken.None;
-	private ClassType currentClass = ClassType.NONE;
 
 	public Interpreter(EleuOptions options, List<Stmt> statements)
 	{
@@ -51,7 +46,7 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 		}
 		catch (EleuRuntimeError ex)
 		{
-			options.Err.WriteLine("Rerr: " + ex.Message);
+			options.Err.WriteLine(ex.Message);
 			result = EEleuResult.RuntimeError;
 		}
 		catch (OperationCanceledException)
@@ -178,10 +173,7 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 	public Value VisitSuperExpr(Expr.Super expr) => throw new NotImplementedException();
 	public Value VisitThisExpr(Expr.This expr)
 	{
-		if (currentClass == ClassType.NONE)
-		{
-			throw Error("Can't use 'this' outside of a class.");
-		}
+
 		return lookUpVariable(expr.Keyword, expr);
 	}
 
@@ -238,8 +230,6 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 
 	public InterpretResult VisitClassStmt(Stmt.Class stmt)
 	{
-		ClassType enclosingClass = currentClass;
-		currentClass = ClassType.CLASS;
 		environment.Define(stmt.Name, Nil);
 		var klass = new LoxClass(stmt.Name);
 		foreach (Stmt.Function method in stmt.Methods)
@@ -249,7 +239,6 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 		}
 		var kval = CreateObjVal(klass);
 		environment.Assign(stmt.Name, kval);
-		currentClass = enclosingClass;
 		return kval;
 	}
 

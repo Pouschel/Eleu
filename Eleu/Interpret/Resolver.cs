@@ -9,10 +9,16 @@ namespace Eleu.Interpret
 {
 	internal class Resolver : Expr.Visitor<object?>, Stmt.Visitor<object?>
 	{
+		private enum ClassType
+		{
+			NONE,
+			CLASS
+		}
 		private Interpreter interpreter;
 		private List<Dictionary<string, bool>> scopes = new();
 		private int stackLen;
 		private FunctionType currentFunction = FunTypeScript;
+		private ClassType currentClass = ClassType.NONE;
 
 		void Push(Dictionary<string, bool> d)
 		{
@@ -78,6 +84,8 @@ namespace Eleu.Interpret
 
 		public object? VisitClassStmt(Stmt.Class stmt)
 		{
+			ClassType enclosingClass = currentClass;
+			currentClass = ClassType.CLASS;
 			declare(stmt.Name);
 			define(stmt.Name);
 			beginScope();
@@ -89,6 +97,7 @@ namespace Eleu.Interpret
 				resolveFunction(method, declaration);
 			}
 			endScope();
+			currentClass = enclosingClass;
 			return null;
 		}
 
@@ -138,7 +147,7 @@ namespace Eleu.Interpret
 			{
 				error("Can't return from top-level code.");
 			}
-			if (stmt.Value != null)
+			if (currentFunction == FunTypeInitializer && stmt.Value != null)
 				error("Can't return a value from an initializer.");
 			return resolve(stmt.Value);
 		}
@@ -151,7 +160,16 @@ namespace Eleu.Interpret
 		}
 
 		public object? VisitSuperExpr(Expr.Super expr) => throw new NotImplementedException();
-		public object? VisitThisExpr(Expr.This expr) => resolveLocal(expr, expr.Keyword);
+		public object? VisitThisExpr(Expr.This expr)
+		{
+			if (currentClass == ClassType.NONE)
+			{
+				error("Can't use 'this' outside of a class.");
+				return null;
+			}
+			return resolveLocal(expr, expr.Keyword);
+		}
+
 		public object? VisitUnaryExpr(Expr.Unary expr) => resolve(expr.Right);
 		public object? VisitVariableExpr(Expr.Variable expr)
 		{

@@ -80,7 +80,7 @@ class Program
 			idx = line.IndexOf(searchRtErr);
 			if (idx >= 0)
 			{
-				var txt = "Rerr: " + line[(idx + searchRtErr.Length)..].TrimEnd();
+				var txt = line[(idx + searchRtErr.Length)..].TrimEnd();
 				sw.WriteLine(txt);
 				continue;
 			}
