@@ -364,7 +364,7 @@ namespace Eleu.Ast
 			}
 			if (match(TOKEN_SUPER))
 			{
-				if (!check(TOKEN_DOT)) error(peek(), "Expect '.' after 'super'.");
+				//if (!check(TOKEN_DOT)) error(peek(), "Expect '.' after 'super'.");
 				Token keyword = previous();
 				consume(TOKEN_DOT, "Expect '.' after 'super'.");
 				Token method = consume(TOKEN_IDENTIFIER, "Expect superclass method name.");
