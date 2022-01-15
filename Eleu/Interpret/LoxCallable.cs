@@ -29,3 +29,18 @@ class LoxFunction : Obj, LoxCallable
 	}
 	public override string ToString() => $"<fn {declaration.Name}>";
 }
+
+class LoxClass
+{
+	private String name;
+
+  public LoxClass(String name)
+	{
+		this.name = name;
+	}
+
+	override public String ToString()
+	{
+		return name;
+	}
+}

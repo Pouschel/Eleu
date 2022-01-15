@@ -7,6 +7,7 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 	internal EleuEnvironment globals = new();
 	private EleuEnvironment environment;
 	private Dictionary<Expr, int> locals = new();
+	private CancellationToken ctoken = CancellationToken.None;
 
 	public Interpreter(EleuOptions options, List<Stmt> statements)
 	{
@@ -20,6 +21,11 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 	{
 		var ofun = CreateObjVal(new ObjNative(function));
 		globals.Define(name, ofun);
+	}
+	public EEleuResult InterpretWithDebug(CancellationToken token)
+	{
+		this.ctoken = token;
+		return Interpret();
 	}
 
 	public EEleuResult Interpret()
@@ -41,6 +47,10 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 			options.Err.WriteLine("Rerr: " + ex.Message);
 			result = EEleuResult.RuntimeError;
 		}
+		catch (OperationCanceledException)
+		{
+			result = EEleuResult.RuntimeError;
+		}
 		return result;
 	}
 	public EleuRuntimeError Error(string message)
@@ -50,7 +60,11 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 	}
 	private Value Evaluate(Expr expr) => expr.Accept(this);
 
-	private InterpretResult Execute(Stmt stmt) => stmt.Accept(this);
+	private InterpretResult Execute(Stmt stmt)
+	{
+		ctoken.ThrowIfCancellationRequested();
+		return stmt.Accept(this);
+	}
 
 	public Value VisitAssignExpr(Expr.Assign expr)
 	{
@@ -187,7 +201,15 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 		}
 	}
 
-	public InterpretResult VisitClassStmt(Stmt.Class stmt) => throw new NotImplementedException();
+	public InterpretResult VisitClassStmt(Stmt.Class stmt)
+	{
+		environment.Define(stmt.Name, Nil);
+		var klass = new LoxClass(stmt.Name);
+		var kval = new Value(VAL_OBJ, klass);
+		environment.Assign(stmt.Name, kval);
+		return kval;
+	}
+
 	public InterpretResult VisitExpressionStmt(Stmt.Expression stmt) => Evaluate(stmt.expression);
 
 	public InterpretResult VisitFunctionStmt(Stmt.Function stmt)
@@ -244,4 +266,5 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 	}
 
 	public void RuntimeError(string msg) => throw new EleuRuntimeError(msg);
+	
 }

@@ -76,7 +76,13 @@ namespace Eleu.Interpret
 			return null;
 		}
 
-		public object? VisitClassStmt(Stmt.Class stmt) => throw new NotImplementedException();
+		public object? VisitClassStmt(Stmt.Class stmt)
+		{
+			declare(stmt.Name);
+			define(stmt.Name);
+			return null;
+		}
+
 		public object? VisitExpressionStmt(Stmt.Expression stmt) => resolve(stmt.expression);
 		public object? VisitFunctionStmt(Stmt.Function stmt)
 		{

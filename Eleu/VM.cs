@@ -27,6 +27,10 @@ public interface IInterpreter
 	EEleuResult Interpret();
 	void RuntimeError(string msg);
 	void DefineNative(string name, NativeFn function);
+
+	public int InstructionCount => 0;
+	EEleuResult InterpretWithDebug(CancellationToken token);
+
 }
 
 public class VM: IInterpreter
