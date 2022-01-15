@@ -73,7 +73,7 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 		var value = Evaluate(expr.Value);
 		if (locals.TryGetValue(expr, out var distance))
 		{
-			environment.assignAt(distance, expr.Name, value);
+			environment.AssignAt(distance, expr.Name, value);
 		}
 		else
 		{

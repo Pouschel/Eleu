@@ -1,8 +1,5 @@
 ﻿namespace Eleu.Interpret;
 
-
-
-
 class EleuEnvironment
 {
 	public readonly EleuEnvironment? enclosing;
@@ -15,17 +12,14 @@ class EleuEnvironment
 	public void Define(string name, in Value value) => values.Set(name, value);
 	public Value getAt(int distance, string name)
 	{
-		var tab = ancestor(distance)?.values;
+		var tab = Ancestor(distance)?.values;
 		Value val = Nil;
 		tab?.Get(name, out val);
 		return val;
 	}
-	public void assignAt(int distance, string name, Value value)
-	{
-		ancestor(distance)?.values.Set(name, value);
-	}
+	public void AssignAt(int distance, string name, Value value) => Ancestor(distance)?.values.Set(name, value);
 
-	EleuEnvironment? ancestor(int distance)
+	EleuEnvironment? Ancestor(int distance)
 	{
 		var environment = this;
 		for (int i = 0; i < distance; i++)
