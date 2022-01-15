@@ -61,7 +61,7 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 	private Value Evaluate(Expr expr) => expr.Accept(this);
 
 	private InterpretResult Execute(Stmt stmt)
-	{
+	{													   
 		ctoken.ThrowIfCancellationRequested();
 		return stmt.Accept(this);
 	}
@@ -119,7 +119,16 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 		return function.Call(this, arguments);
 	}
 
-	public Value VisitGetExpr(Expr.Get expr) => throw new NotImplementedException();
+	public Value VisitGetExpr(Expr.Get expr)
+	{
+		var obj = Evaluate(expr.Obj);
+		if (obj.oValue is LoxInstance inst) 
+		{
+			return inst.get(expr.Name);
+		}
+		throw Error("Only instances have properties.");
+	}
+
 	public Value VisitGroupingExpr(Expr.Grouping expr) => Evaluate(expr.Expression);
 	public Value VisitLiteralExpr(Expr.Literal expr)
 	{
@@ -147,7 +156,18 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 		return Evaluate(expr.Right);
 	}
 
-	public Value VisitSetExpr(Expr.Set expr) => throw new NotImplementedException();
+	public Value VisitSetExpr(Expr.Set expr)
+	{
+		var obj = Evaluate(expr.Obj);
+		if (obj.oValue is not LoxInstance li) 
+		{
+			throw Error("Only instances have fields.");
+		}
+		var value = Evaluate(expr.Value);
+		li.set(expr.Name, value);
+		return value;
+	}
+
 	public Value VisitSuperExpr(Expr.Super expr) => throw new NotImplementedException();
 	public Value VisitThisExpr(Expr.This expr) => throw new NotImplementedException();
 	public Value VisitUnaryExpr(Expr.Unary expr)
@@ -205,7 +225,7 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 	{
 		environment.Define(stmt.Name, Nil);
 		var klass = new LoxClass(stmt.Name);
-		var kval = new Value(VAL_OBJ, klass);
+		var kval = CreateObjVal(klass); 
 		environment.Assign(stmt.Name, kval);
 		return kval;
 	}

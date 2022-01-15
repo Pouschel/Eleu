@@ -23,24 +23,43 @@ class LoxFunction : Obj, LoxCallable
 		var environment = new EleuEnvironment(closure);
 		for (int i = 0; i < declaration.Paras.Count; i++)
 		{
-			environment.Define(declaration.Paras[i].StringValue,arguments[i]);
+			environment.Define(declaration.Paras[i].StringValue, arguments[i]);
 		}
 		return interpreter.executeBlock(declaration.Body, environment).Value;
 	}
 	public override string ToString() => $"<fn {declaration.Name}>";
 }
 
-class LoxClass
+class LoxClass : ObjClass, LoxCallable
 {
-	private String name;
-
-  public LoxClass(String name)
+	public LoxClass(string name) : base(name)
 	{
-		this.name = name;
+
 	}
-
-	override public String ToString()
+	public int arity() => 0;
+	public Value Call(Interpreter interpreter, Value[] arguments)
 	{
-		return name;
+		var instance = new LoxInstance(this);
+		return CreateObjVal(instance);
 	}
 }
+
+class LoxInstance : ObjInstance
+{
+	private new LoxClass klass => (LoxClass)base.klass;
+
+	public LoxInstance(LoxClass klass) : base(klass)
+	{
+	}
+
+	public Value get(string name)
+	{
+		if (!fields.Get(name, out var val))
+			throw new EleuRuntimeError("Undefined property '" + name + "'.");
+		return val;
+	}
+
+	public void set(string name, Value value) => fields.Set(name, value);
+
+}
+

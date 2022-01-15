@@ -106,7 +106,7 @@ namespace Eleu.Interpret
 			currentFunction = enclosingFunction;
 		}
 
-		public object? VisitGetExpr(Expr.Get expr) => throw new NotImplementedException();
+		public object? VisitGetExpr(Expr.Get expr) => resolve(expr.Obj);
 		public object? VisitGroupingExpr(Expr.Grouping expr) => resolve(expr.Expression);
 		public object? VisitIfStmt(Stmt.If stmt)
 		{
@@ -132,7 +132,13 @@ namespace Eleu.Interpret
 			return resolve(stmt.Value);
 		}
 
-		public object? VisitSetExpr(Expr.Set expr) => throw new NotImplementedException();
+		public object? VisitSetExpr(Expr.Set expr)
+		{
+			resolve(expr.Value);
+			resolve(expr.Obj);
+			return null;
+		}
+
 		public object? VisitSuperExpr(Expr.Super expr) => throw new NotImplementedException();
 		public object? VisitThisExpr(Expr.This expr) => throw new NotImplementedException();
 		public object? VisitUnaryExpr(Expr.Unary expr) => resolve(expr.Right);

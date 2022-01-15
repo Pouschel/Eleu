@@ -113,9 +113,12 @@ class ObjClass : Obj
 		this.methods = new Table();
 	}
 
+
+
 	public override string ToString() => name;
 
 }
+
 
 class ObjInstance : Obj
 {

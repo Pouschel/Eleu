@@ -395,13 +395,13 @@ namespace Eleu.Ast
 			}
 			return false;
 		}
-		private Token consume(TokenType type, String message)
+		private Token consume(TokenType type, string message)
 		{
 			if (check(type)) return advance();
 
 			throw error(peek(), message);
 		}
-		private ParseError error(Token token, String message)
+		private ParseError error(Token token, string message)
 		{
 			errorAt(token, message);
 			return new ParseError();
