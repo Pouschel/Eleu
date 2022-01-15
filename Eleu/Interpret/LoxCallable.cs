@@ -1,5 +1,10 @@
 ﻿namespace Eleu.Interpret;
 
+static class InterpreterStatics
+{
+	public static object Nil = new object();
+}
+
 interface LoxCallable
 {
 	Value Call(Interpreter interpreter, Value[] arguments);
