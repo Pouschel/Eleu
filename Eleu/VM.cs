@@ -223,7 +223,7 @@ public class VM: IInterpreter
 				Value constant = ReadConstant();
 				Push(constant);
 				break;
-			case OP_NIL: Push(Nil); break;
+			case OP_NIL: Push(NilValue); break;
 			case OP_TRUE: Push(BoolTrue); break;
 			case OP_FALSE: Push(BoolFalse); break;
 			case OP_POP: Pop(); break;

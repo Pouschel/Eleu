@@ -15,6 +15,6 @@ public class Ex1
 		Console.WriteLine(b);
 		Console.WriteLine(a);
 		
-		return Nil;
+		return NilValue;
 	}
 }

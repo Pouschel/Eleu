@@ -2,8 +2,6 @@
 
 internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<InterpretResult>
 {
-
-
 	private List<Stmt> statements;
 	private EleuOptions options;
 	internal EleuEnvironment globals = new();
@@ -137,7 +135,7 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 		return expr.Value switch
 		{
 			bool b => b ? BoolTrue : BoolFalse,
-			null => Nil,
+			null => NilValue,
 			double d => CreateNumberVal(d),
 			string s => CreateStringVal(s),
 			_ => throw Error($"Unsupported constant of type: {expr.Value}"),
@@ -222,7 +220,7 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 	internal InterpretResult executeBlock(List<Stmt> statements, EleuEnvironment environment)
 	{
 		var previous = this.environment;
-		InterpretResult result = Nil;
+		InterpretResult result = NilValue;
 		try
 		{
 			this.environment = environment;
@@ -251,7 +249,7 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 			}
 			superclass = superclassV.oValue as LoxClass;
 		}
-		environment.Define(stmt.Name, Nil);
+		environment.Define(stmt.Name, NilValue);
 		if (superclass != null)
 		{
 			environment = new EleuEnvironment(environment);
@@ -288,7 +286,7 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 			return Execute(stmt.ThenBranch);
 		else if (stmt.ElseBranch != null)
 			return Execute(stmt.ElseBranch);
-		return Nil;
+		return NilValue;
 	}
 
 	public InterpretResult VisitPrintStmt(Stmt.Print stmt)
@@ -300,14 +298,14 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 
 	public InterpretResult VisitReturnStmt(Stmt.Return stmt)
 	{
-		var val = Nil;
+		var val = NilValue;
 		if (stmt.Value != null) val = Evaluate(stmt.Value);
 		return new InterpretResult(val, InterpretResult.Status.Return);
 	}
 
 	public InterpretResult VisitVarStmt(Stmt.Var stmt)
 	{
-		Value value = Nil;
+		Value value = NilValue;
 		if (stmt.Initializer != null)
 		{
 			value = Evaluate(stmt.Initializer);
@@ -317,7 +315,7 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 	}
 	public InterpretResult VisitWhileStmt(Stmt.While stmt)
 	{
-		var result = new InterpretResult(Nil);
+		var result = new InterpretResult(NilValue);
 		while (IsTruthy(Evaluate(stmt.Condition)))
 		{
 			result = Execute(stmt.Body);

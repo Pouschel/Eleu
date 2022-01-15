@@ -144,7 +144,7 @@ public static class ValueStatics
 	public static Value CreateBoolVal(bool value) => value ? BoolTrue : BoolFalse;
 	public static readonly Value BoolTrue = new(VAL_BOOL, 1);
 	public static readonly Value BoolFalse = new(VAL_BOOL, 0);
-	public static readonly Value Nil = new(VAL_NIL, 0);
+	public static readonly Value NilValue = new(VAL_NIL, 0);
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static Value CreateNumberVal(double value) => new(VAL_NUMBER, value);
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]

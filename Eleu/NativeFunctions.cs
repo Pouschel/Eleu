@@ -26,7 +26,7 @@ class NativeFunctions
 	Value RuntimeErrorWithNil(string msg)
 	{
 		vm.RuntimeError(msg);
-		return Nil;
+		return NilValue;
 	}
 
 	public Value Clock(Value[] _)
@@ -93,7 +93,7 @@ class NativeFunctions
 
 	static Value ConvertResult(object? result)
 	{
-		if (result is null) return Nil;
+		if (result is null) return NilValue;
 		var type = result.GetType();
 		if (IsNumberTypeCode(Type.GetTypeCode(type)))
 		{
@@ -145,7 +145,7 @@ class NativeFunctions
 					return (true, ConvertResult(prop.GetValue(_this)));
 			}
 		}
-		return (false, Nil);
+		return (false, NilValue);
 	}
 
 	public Value Invoke(Value[] args)

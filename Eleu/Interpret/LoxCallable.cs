@@ -74,7 +74,7 @@ class LoxClass : ObjClass, LoxCallable
 		{
 			return superclass.findMethod(name);
 		}
-		return Nil;
+		return NilValue;
 	}
 
 }

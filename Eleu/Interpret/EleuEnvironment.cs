@@ -13,7 +13,7 @@ class EleuEnvironment
 	public Value getAt(int distance, string name)
 	{
 		var tab = Ancestor(distance)?.values;
-		Value val = Nil;
+		Value val = NilValue;
 		tab?.Get(name, out val);
 		return val;
 	}

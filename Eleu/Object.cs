@@ -80,7 +80,7 @@ class ObjUpvalue : Obj
 	public ObjUpvalue(int local) : base(OBJ_UPVALUE)
 	{
 		this.slotIndex = local;
-		this.closed = Nil;
+		this.closed = NilValue;
 		this.next = null;
 	}
 	public override string ToString() => "upvalue";

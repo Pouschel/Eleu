@@ -90,7 +90,7 @@ class Table
 
 	public bool Get(string key, out Value value)
 	{
-		value = Nil;
+		value = NilValue;
 		if (count == 0) return false;
 		ref Entry entry = ref findEntry(entries, key);
 		if (entry.key == null) return false;
