@@ -206,11 +206,15 @@ internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<In
 	public object VisitUnaryExpr(Expr.Unary expr)
 	{
 		var right = Evaluate(expr.Right);
-		return expr.Op.type switch
+		switch (expr.Op.type)
 		{
-			TOKEN_BANG => !(bool)right,
-			TokenMinus => -(double)right,
-			_ => throw Error("Unknown op type: " + expr.Op.type),// Unreachable.
+			case TOKEN_BANG: return !IsTruthy(right);
+			case TokenMinus:
+				{
+					if (right is not double d) throw Error("Operand must be a number.");
+					return -d;
+				}
+			default: throw Error("Unknown op type: " + expr.Op.type);// Unreachable.
 		};
 	}
 
@@ -276,7 +280,7 @@ internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<In
 		foreach (Stmt.Function method in stmt.Methods)
 		{
 			LoxFunction function = new LoxFunction(method, environment, method.Name == "init");
-			klass.methods.Set(method.Name, function);
+			klass.Methods.Set(method.Name, function);
 		}
 		var kval = klass;
 		if (superclass != null)
@@ -308,7 +312,13 @@ internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<In
 	public InterpretResult VisitPrintStmt(Stmt.Print stmt)
 	{
 		var val = Evaluate(stmt.expression);
-		options.Out.WriteLine(val);
+		var s = val switch
+		{
+			bool b => b ? "true" : "false",
+			object o when o == Nil => "nil",
+			_ => val.ToString(),
+		};
+		options.Out.WriteLine(s);
 		return new(val);
 	}
 

@@ -25,8 +25,6 @@ internal class LoxNative : LoxCallable
 	public override string ToString() => "<native fn>";
 
 }
-
-
 class LoxFunction :  LoxCallable
 {
 	private Stmt.Function declaration;
@@ -63,14 +61,14 @@ class LoxFunction :  LoxCallable
 
 class LoxClass :  LoxCallable
 {
-	private string name;
-	public readonly OTable methods;
+	public readonly string Name;
+	public readonly OTable Methods;
 	private LoxClass? superclass;
 	public LoxClass(string name, LoxClass? superclass) 
 	{
-		this.name = name;
+		this.Name = name;
 		this.superclass = superclass;
-		this.methods = new OTable();
+		this.Methods = new OTable();
 	}
 	public int arity()
 	{
@@ -91,7 +89,7 @@ class LoxClass :  LoxCallable
 
 	public object findMethod(String name)
 	{
-		if (methods.Get(name, out var val))
+		if (Methods.Get(name, out var val))
 			return val;
 		if (superclass != null)
 		{
@@ -99,6 +97,7 @@ class LoxClass :  LoxCallable
 		}
 		return Nil;
 	}
+	public override string ToString() => Name;
 }
 
 class LoxInstance 
@@ -126,6 +125,6 @@ class LoxInstance
 	}
 
 	public void set(string name, object value) => fields.Set(name, value);
-
+	public override string ToString() => $"{klass.Name} instance";
 }
 

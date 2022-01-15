@@ -74,6 +74,7 @@ trees             :  1,306 ms
 zoo               :    231 ms
             Total :   8.14 s
 --- 01/15/2022 20:49:21 ---
+// vm
 binary_trees      :    717 ms
 equality          :  1,081 ms
 fib               :    587 ms
@@ -86,6 +87,7 @@ trees             :  1,295 ms
 zoo               :    223 ms
             Total :   7.98 s
 --- 01/15/2022 20:50:15 ---
+// interpreter
 binary_trees      :  1,591 ms
 equality          :  1,789 ms
 fib               :  1,684 ms
@@ -97,3 +99,16 @@ string_equality   :  1,646 ms
 trees             :  2,736 ms
 zoo               :    524 ms
             Total :  16.22 s
+--- 01/15/2022 23:19:49 ---
+// removed value fluff
+binary_trees      :  1,734 ms
+equality          :  1,376 ms
+fib               :  1,771 ms
+instantiation     :    851 ms
+invocation        :    832 ms
+method_call       :  2,921 ms
+properties        :  1,390 ms
+string_equality   :    615 ms
+trees             :  2,765 ms
+zoo               :    510 ms
+            Total :  14.78 s

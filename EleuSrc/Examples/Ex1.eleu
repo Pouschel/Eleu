@@ -1,6 +1,6 @@
-  class Eclair {
-  cook() {
-    super.cook();
-    print "Pipe full of crème pâtissière.";
-  }
-}
+var nan = 0/0;
+print nan;
+
+// NaN is not equal to self.
+print nan == nan; // expect: false
+print nan != nan; // expect: true

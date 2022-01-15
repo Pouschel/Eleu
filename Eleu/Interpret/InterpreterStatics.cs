@@ -8,7 +8,8 @@ static class InterpreterStatics
 
 	public static bool ObjEquals(object a, object b)
 	{
-		if (a == b) return true;
+		if (a is double da && b is double db) return da == db;
+		if (ReferenceEquals(a, b)) return true;
 		if (a.Equals(b)) return true;
 		return false;
 	}
