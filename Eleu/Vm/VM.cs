@@ -1,19 +1,9 @@
 ﻿//#define DEBUG_TRACE_EXECUTION
-global using static Eleu.EEleuResult;
+using static Eleu.Vm.ValueStatics;
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.CompilerServices;
-namespace Eleu;
-
-public enum EEleuResult
-{
-	Ok,
-	CompileError,
-	CodeGenError,
-	RuntimeError,
-	NextStep
-}
-
+namespace Eleu.Vm;
 
 class CallFrame
 {
@@ -22,16 +12,7 @@ class CallFrame
 	public int slotIndex;
 };
 
-public interface IInterpreter
-{
-	EEleuResult Interpret();
-	void RuntimeError(string msg);
-	void DefineNative(string name, NativeFn function);
 
-	public int InstructionCount => 0;
-	EEleuResult InterpretWithDebug(CancellationToken token);
-
-}
 
 public class VM: IInterpreter
 {

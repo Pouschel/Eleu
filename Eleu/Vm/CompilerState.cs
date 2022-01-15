@@ -1,6 +1,6 @@
 ﻿using static Eleu.FunctionType;
 
-namespace Eleu;
+namespace Eleu.Vm;
 
 class CompilerState
 {

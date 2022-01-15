@@ -1,5 +1,6 @@
 ﻿global using static Eleu.TableStatics;
 using System.Text;
+using Eleu.Vm;
 
 namespace Eleu;
 

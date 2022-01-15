@@ -1,11 +1,10 @@
-﻿global using static Eleu.ValueType;
-global using static Eleu.ValueStatics;
+﻿global using static Eleu.Vm.ValueType;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Diagnostics.CodeAnalysis;
 
 #pragma warning disable 660, 661
-namespace Eleu;
+namespace Eleu.Vm;
 
 public enum ValueType
 {
@@ -15,14 +14,6 @@ public enum ValueType
 	VAL_STRING,
 	VAL_LIST,  // List<Value>
 	VAL_OBJ
-}
-
-public class EleuRuntimeError : Exception
-{
-	public EleuRuntimeError(string msg) : base(msg)
-	{
-	}
-
 }
 
 public struct Value

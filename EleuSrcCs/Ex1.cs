@@ -1,5 +1,5 @@
 using Eleu;
-using static Eleu.ValueStatics;
+
 
 public class Ex1
 {

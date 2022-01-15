@@ -1,4 +1,5 @@
-﻿namespace Eleu.CodeGen;
+﻿using Eleu.Vm;
+namespace Eleu.CodeGen;
 
 
 internal class ByteCodeGenerator : CodeGenBase, Expr.Visitor<bool>, Stmt.Visitor<bool>

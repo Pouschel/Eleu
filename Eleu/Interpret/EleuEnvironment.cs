@@ -1,23 +1,38 @@
 ﻿namespace Eleu.Interpret;
 
+
+class OTable : Dictionary<string, object>
+{
+
+	public void Set(string name, object val) => this[name] = val;
+
+	public bool Get(string name, out object val)
+	{
+		bool b = TryGetValue(name, out val!);
+		if (val == null)
+			val = Nil;
+		return b;
+	}
+}
+
 class EleuEnvironment
 {
 	public readonly EleuEnvironment? enclosing;
-	readonly Table values = new();
+	readonly OTable values = new();
 
 	public EleuEnvironment(EleuEnvironment? enclosing = null)
 	{
 		this.enclosing = enclosing;
 	}
-	public void Define(string name, in Value value) => values.Set(name, value);
-	public Value getAt(int distance, string name)
+	public void Define(string name, object value) => values.Set(name, value);
+	public object getAt(int distance, string name)
 	{
 		var tab = Ancestor(distance)?.values;
-		Value val = NilValue;
+		var val = Nil;
 		tab?.Get(name, out val);
 		return val;
 	}
-	public void AssignAt(int distance, string name, Value value) => Ancestor(distance)?.values.Set(name, value);
+	public void AssignAt(int distance, string name, object value) => Ancestor(distance)?.values.Set(name, value);
 
 	EleuEnvironment? Ancestor(int distance)
 	{
@@ -28,7 +43,7 @@ class EleuEnvironment
 		}
 		return environment;
 	}
-	public Value Get(string name)
+	public object Get(string name)
 	{
 		if (values.Get(name, out var value))
 			return value;
@@ -36,7 +51,7 @@ class EleuEnvironment
 			return enclosing.Get(name);
 		throw new EleuRuntimeError("Undefined variable '" + name + "'.");
 	}
-	public void Assign(string name, Value value)
+	public void Assign(string name, object value)
 	{
 		if (values.Get(name, out var _))
 		{

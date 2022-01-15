@@ -1,6 +1,7 @@
 ﻿namespace Eleu.Interpret;
+using static Eleu.Interpret.InterpreterStatics;
 
-internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<InterpretResult>
+internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
 {
 	private List<Stmt> statements;
 	private EleuOptions options;
@@ -17,11 +18,12 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 		var _ = new NativeFunctions(this);
 	}
 
-	public void DefineNative(string name, NativeFn function)
+	public void DefineNative(string name, Vm.NativeFn function)
 	{
-		var ofun = CreateObjVal(new ObjNative(function));
+		var ofun = new LoxNative(function);
 		globals.Define(name, ofun);
 	}
+
 	public EEleuResult InterpretWithDebug(CancellationToken token)
 	{
 		this.ctoken = token;
@@ -58,7 +60,20 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 		//options.Err.WriteLine(message);
 		return new EleuRuntimeError(message);
 	}
-	private Value Evaluate(Expr expr) => expr.Accept(this);
+	private object Evaluate(Expr expr)
+	{
+		var evaluated = expr.Accept(this);
+		return evaluated;
+		//return evaluated switch
+		//{
+		//	bool b => b ? BoolTrue : BoolFalse,
+		//	null => NilValue,
+		//	double d => CreateNumberVal(d),
+		//	string s => CreateStringVal(s),
+		//	object o when o == Nil => NilValue,
+		//	_ => throw Error($"Unsupported constant of type: {evaluated}"),
+		//};
+	}
 
 	private InterpretResult Execute(Stmt stmt)
 	{
@@ -66,7 +81,7 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 		return stmt.Accept(this);
 	}
 
-	public Value VisitAssignExpr(Expr.Assign expr)
+	public object VisitAssignExpr(Expr.Assign expr)
 	{
 		var value = Evaluate(expr.Value);
 		if (locals.TryGetValue(expr, out var distance))
@@ -80,37 +95,37 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 		return value;
 	}
 
-	public Value VisitBinaryExpr(Expr.Binary expr)
+	public object VisitBinaryExpr(Expr.Binary expr)
 	{
 		var lhs = Evaluate(expr.Left);
 		var rhs = Evaluate(expr.Right);
 		return expr.Op.type switch
 		{
-			TOKEN_BANG_EQUAL => lhs != rhs,
-			TOKEN_EQUAL_EQUAL => lhs == rhs,
-			TOKEN_GREATER => lhs > rhs,
-			TOKEN_GREATER_EQUAL => lhs >= rhs,
-			TOKEN_LESS => lhs < rhs,
-			TOKEN_LESS_EQUAL => lhs <= rhs,
-			TokenPlus => lhs + rhs,
-			TokenMinus => lhs - rhs,
-			TokenStar => lhs * rhs,
-			TokenPercent => lhs % rhs,
-			TOKEN_SLASH => lhs / rhs,
+			TOKEN_BANG_EQUAL => !ObjEquals(lhs, rhs),
+			TOKEN_EQUAL_EQUAL => ObjEquals(lhs, rhs),
+			TOKEN_GREATER => InternalCompare(lhs, rhs) > 0,
+			TOKEN_GREATER_EQUAL => InternalCompare(lhs, rhs) >= 0,
+			TOKEN_LESS => InternalCompare(lhs, rhs) < 0,
+			TOKEN_LESS_EQUAL => InternalCompare(lhs, rhs) <= 0,
+			TokenPlus => NumStrOp(lhs, rhs, (a, b) => a + b, (a, b) => a + b),
+			TokenMinus => NumberOp(lhs, rhs, (a, b) => a - b),
+			TokenStar => NumberOp(lhs, rhs, (a, b) => a * b),
+			TokenPercent => NumberOp(lhs, rhs, (a, b) => a % b),
+			TOKEN_SLASH => NumberOp(lhs, rhs, (a, b) => a / b),
 			_ => throw Error("Invalid op: " + expr.Op.type),
 		};
 	}
 
-	public Value VisitCallExpr(Expr.Call expr)
+	public object VisitCallExpr(Expr.Call expr)
 	{
 		var callee = Evaluate(expr.Callee);
-		if (callee.oValue is not LoxCallable function)
+		if (callee is not LoxCallable function)
 		{
 			throw new EleuRuntimeError("Can only call functions and classes.");
 		}
 		if (expr.Arguments.Count != function.arity())
 			throw new EleuRuntimeError("Expected " + function.arity() + " arguments but got " + expr.Arguments.Count + ".");
-		var arguments = new Value[expr.Arguments.Count];
+		var arguments = new object[expr.Arguments.Count];
 		for (int i = 0; i < expr.Arguments.Count; i++)
 		{
 			var argument = expr.Arguments[i];
@@ -119,30 +134,32 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 		return function.Call(this, arguments);
 	}
 
-	public Value VisitGetExpr(Expr.Get expr)
+	public object VisitGetExpr(Expr.Get expr)
 	{
 		var obj = Evaluate(expr.Obj);
-		if (obj.oValue is LoxInstance inst)
+		if (obj is LoxInstance inst)
 		{
 			return inst.get(expr.Name);
 		}
 		throw Error("Only instances have properties.");
 	}
 
-	public Value VisitGroupingExpr(Expr.Grouping expr) => Evaluate(expr.Expression);
-	public Value VisitLiteralExpr(Expr.Literal expr)
+	public object VisitGroupingExpr(Expr.Grouping expr) => Evaluate(expr.Expression);
+	public object VisitLiteralExpr(Expr.Literal expr)
 	{
-		return expr.Value switch
-		{
-			bool b => b ? BoolTrue : BoolFalse,
-			null => NilValue,
-			double d => CreateNumberVal(d),
-			string s => CreateStringVal(s),
-			_ => throw Error($"Unsupported constant of type: {expr.Value}"),
-		};
+		if (expr.Value == null) return Nil;
+		return expr.Value;
+		//return expr.Value switch
+		//{
+		//	bool b => b ? BoolTrue : BoolFalse,
+		//	null => NilValue,
+		//	double d => CreateNumberVal(d),
+		//	string s => CreateStringVal(s),
+		//	_ => throw Error($"Unsupported constant of type: {expr.Value}"),
+		//};
 	}
 
-	public Value VisitLogicalExpr(Expr.Logical expr)
+	public object VisitLogicalExpr(Expr.Logical expr)
 	{
 		var left = Evaluate(expr.Left);
 		if (expr.Op.type == TOKEN_OR)
@@ -156,10 +173,10 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 		return Evaluate(expr.Right);
 	}
 
-	public Value VisitSetExpr(Expr.Set expr)
+	public object VisitSetExpr(Expr.Set expr)
 	{
 		var obj = Evaluate(expr.Obj);
-		if (obj.oValue is not LoxInstance li)
+		if (obj is not LoxInstance li)
 		{
 			throw Error("Only instances have fields.");
 		}
@@ -168,31 +185,31 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 		return value;
 	}
 
-	public Value VisitSuperExpr(Expr.Super expr)
+	public object VisitSuperExpr(Expr.Super expr)
 	{
 		int distance = locals[expr];
-		LoxClass superclass = (LoxClass)environment.getAt(distance, "super").oValue;
-		LoxInstance obj = (LoxInstance)environment.getAt(distance - 1, "this").oValue;
-		LoxFunction? method = superclass.findMethod(expr.Method).oValue as LoxFunction;
+		LoxClass superclass = (LoxClass)environment.getAt(distance, "super");
+		LoxInstance obj = (LoxInstance)environment.getAt(distance - 1, "this");
+		LoxFunction? method = superclass.findMethod(expr.Method) as LoxFunction;
 		if (method == null)
 		{
 			throw Error("Undefined property '" + expr.Method + "'.");
 		}
-		return CreateObjVal(method.bind(obj));
+		return method.bind(obj);
 	}
 
-	public Value VisitThisExpr(Expr.This expr)
+	public object VisitThisExpr(Expr.This expr)
 	{
 		return lookUpVariable(expr.Keyword, expr);
 	}
 
-	public Value VisitUnaryExpr(Expr.Unary expr)
+	public object VisitUnaryExpr(Expr.Unary expr)
 	{
 		var right = Evaluate(expr.Right);
 		return expr.Op.type switch
 		{
-			TOKEN_BANG => !right,
-			TokenMinus => -right,
+			TOKEN_BANG => !(bool)right,
+			TokenMinus => -(double)right,
 			_ => throw Error("Unknown op type: " + expr.Op.type),// Unreachable.
 		};
 	}
@@ -202,8 +219,8 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 		locals[expr] = depth;
 	}
 
-	public Value VisitVariableExpr(Expr.Variable expr) => lookUpVariable(expr.Name, expr);
-	private Value lookUpVariable(string name, Expr expr)
+	public object VisitVariableExpr(Expr.Variable expr) => lookUpVariable(expr.Name, expr);
+	private object lookUpVariable(string name, Expr expr)
 	{
 		if (locals.TryGetValue(expr, out int distance))
 		{
@@ -220,7 +237,7 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 	internal InterpretResult executeBlock(List<Stmt> statements, EleuEnvironment environment)
 	{
 		var previous = this.environment;
-		InterpretResult result = NilValue;
+		InterpretResult result = InterpretResult.NilResult;
 		try
 		{
 			this.environment = environment;
@@ -243,41 +260,40 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 		if (stmt.Superclass != null)
 		{
 			var superclassV = Evaluate(stmt.Superclass);
-			if (superclassV.oValue is not LoxClass)
+			if (superclassV is not LoxClass)
 			{
 				throw new EleuRuntimeError("Superclass must be a class.");
 			}
-			superclass = superclassV.oValue as LoxClass;
+			superclass = superclassV as LoxClass;
 		}
 		environment.Define(stmt.Name, NilValue);
 		if (superclass != null)
 		{
 			environment = new EleuEnvironment(environment);
-			environment.Define("super", CreateObjVal(superclass));
+			environment.Define("super", superclass);
 		}
 		var klass = new LoxClass(stmt.Name, superclass);
 		foreach (Stmt.Function method in stmt.Methods)
 		{
 			LoxFunction function = new LoxFunction(method, environment, method.Name == "init");
-			klass.methods.Set(method.Name, CreateObjVal(function));
+			klass.methods.Set(method.Name, function);
 		}
-		var kval = CreateObjVal(klass);
+		var kval = klass;
 		if (superclass != null)
 		{
 			environment = environment.enclosing!;
 		}
 		environment.Assign(stmt.Name, kval);
-		return kval;
+		return new InterpretResult(kval);
 	}
 
-	public InterpretResult VisitExpressionStmt(Stmt.Expression stmt) => Evaluate(stmt.expression);
+	public InterpretResult VisitExpressionStmt(Stmt.Expression stmt) => new(Evaluate(stmt.expression));
 
 	public InterpretResult VisitFunctionStmt(Stmt.Function stmt)
 	{
 		LoxFunction function = new LoxFunction(stmt, environment, false);
-		var val = new Value(VAL_OBJ, function);
-		environment.Define(stmt.Name, val);
-		return val;
+		environment.Define(stmt.Name, function);
+		return new(function);
 	}
 
 	public InterpretResult VisitIfStmt(Stmt.If stmt)
@@ -286,36 +302,36 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 			return Execute(stmt.ThenBranch);
 		else if (stmt.ElseBranch != null)
 			return Execute(stmt.ElseBranch);
-		return NilValue;
+		return InterpretResult.NilResult;
 	}
 
 	public InterpretResult VisitPrintStmt(Stmt.Print stmt)
 	{
 		var val = Evaluate(stmt.expression);
 		options.Out.WriteLine(val);
-		return val;
+		return new(val);
 	}
 
 	public InterpretResult VisitReturnStmt(Stmt.Return stmt)
 	{
-		var val = NilValue;
+		var val = Nil;
 		if (stmt.Value != null) val = Evaluate(stmt.Value);
 		return new InterpretResult(val, InterpretResult.Status.Return);
 	}
 
 	public InterpretResult VisitVarStmt(Stmt.Var stmt)
 	{
-		Value value = NilValue;
+		var value = Nil;
 		if (stmt.Initializer != null)
 		{
 			value = Evaluate(stmt.Initializer);
 		}
 		environment.Define(stmt.Name, value);
-		return value;
+		return new(value);
 	}
 	public InterpretResult VisitWhileStmt(Stmt.While stmt)
 	{
-		var result = new InterpretResult(NilValue);
+		var result = InterpretResult.NilResult;
 		while (IsTruthy(Evaluate(stmt.Condition)))
 		{
 			result = Execute(stmt.Body);

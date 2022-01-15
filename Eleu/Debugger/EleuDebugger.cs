@@ -1,4 +1,6 @@
-﻿namespace Eleu.Debugger
+﻿using Eleu.Vm;
+
+namespace Eleu.Debugger
 {
 	struct FileLineInfo
 	{

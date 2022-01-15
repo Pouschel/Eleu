@@ -1,12 +1,50 @@
 ﻿global using System;
+global using static Eleu.FunctionType;
+global using static Eleu.EEleuResult;
+global using static Eleu.Vm.ValueStatics;
 global using Eleu.Debugger;
-global using static Eleu.OpCode;
 global using static Eleu.Globals;
 global using Eleu.Ast;
+
 using Eleu.CodeGen;
 using Eleu.Interpret;
+using Eleu.Vm;
 
 namespace Eleu;
+
+public enum FunctionType
+{
+	FunTypeFunction,
+	FunTypeInitializer,
+	FunTypeMethod,
+	FunTypeScript
+}
+
+public enum EEleuResult
+{
+	Ok,
+	CompileError,
+	CodeGenError,
+	RuntimeError,
+	NextStep
+}
+class EleuResult
+{
+	public EEleuResult Result;
+	public Vm.ObjFunction? Function;
+	public List<Stmt>? Expr;
+	public DebugInfo? DebugInfo;
+}
+public interface IInterpreter
+{
+	EEleuResult Interpret();
+	void RuntimeError(string msg);
+	void DefineNative(string name, Vm.NativeFn function);
+
+	public int InstructionCount => 0;
+	EEleuResult InterpretWithDebug(CancellationToken token);
+
+}
 
 
 public class Globals

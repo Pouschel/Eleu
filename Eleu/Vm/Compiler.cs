@@ -1,9 +1,7 @@
-﻿global using static Eleu.FunctionType;
+﻿global using static Eleu.Vm.Precedence;
 using System.Globalization;
-using static Eleu.Precedence;
-using Eleu.Ast;
 
-namespace Eleu;
+namespace Eleu.Vm;
 
 enum Precedence
 {
@@ -20,13 +18,7 @@ enum Precedence
 	PREC_PRIMARY
 }
 
-public enum FunctionType
-{
-	FunTypeFunction,
-	FunTypeInitializer,
-	FunTypeMethod,
-	FunTypeScript
-}
+
 
 delegate void PaserAction(bool canAssign);
 
@@ -57,13 +49,7 @@ class ClassCompiler
 	public bool inSuper;
 }
 
-class EleuResult
-{
-	public EEleuResult Result;
-	public ObjFunction? Function;
-	public List<Stmt>? Expr;
-	public DebugInfo? DebugInfo;
-}
+
 
 internal class Compiler
 {

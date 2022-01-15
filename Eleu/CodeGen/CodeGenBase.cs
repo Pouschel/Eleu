@@ -1,4 +1,5 @@
 ﻿namespace Eleu.CodeGen;
+using Eleu.Vm;
 
 class CodeGenError : Exception
 {

@@ -7,16 +7,16 @@ public struct InterpretResult
 		Normal,
 		Return,
 	}
-
-
-	public readonly Value Value;
+	public readonly object Value;
 	public readonly Status Stat;
 
-	public InterpretResult(Value val, Status stat = Status.Normal)
+	public InterpretResult(object val, Status stat = Status.Normal)
 	{
 		Value = val;
 		this.Stat = stat;
 	}
 
-	public static implicit operator InterpretResult(in Value val) => new(val);
+	public static readonly InterpretResult NilResult=new (Nil);
+
+	//public static implicit operator InterpretResult(object val) => new(val);
 }

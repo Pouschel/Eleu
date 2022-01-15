@@ -1,10 +1,10 @@
-﻿global using static Eleu.ObjType;
-global using static Eleu.ObjStatics;
+﻿global using static Eleu.Vm.ObjType;
+global using static Eleu.Vm.ObjStatics;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Eleu.Interpret;
 
-namespace Eleu;
+namespace Eleu.Vm;
 
 public enum ObjType
 {
@@ -55,7 +55,7 @@ internal class ObjFunction : Obj
 
 public delegate Value NativeFn(Value[] args);
 
-internal class ObjNative : Obj, LoxCallable 
+internal class ObjNative : Obj 
 {
 	public readonly NativeFn function;
 

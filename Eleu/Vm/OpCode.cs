@@ -1,4 +1,5 @@
-﻿namespace Eleu;
+﻿global using static Eleu.Vm.OpCode;
+namespace Eleu.Vm;
 
 enum OpCode : byte
 {

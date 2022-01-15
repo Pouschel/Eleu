@@ -1,31 +1,45 @@
 ﻿namespace Eleu.Interpret;
 
-static class InterpreterStatics
-{
-	public static object Nil = new object();
-}
-
 interface LoxCallable
 {
-	Value Call(Interpreter interpreter, Value[] arguments);
+	object Call(Interpreter interpreter, object[] arguments);
 	int arity();
+}
+
+internal class LoxNative : LoxCallable
+{
+	public readonly Vm.NativeFn function;
+
+	public LoxNative(Vm.NativeFn function) 
+	{
+		this.function = function;
+	}
+
+	public int arity() => function.Method.GetParameters().Length - 1;
+
+	public object Call(Interpreter interpreter, object[] arguments)
+	{
+		
+		return Nil;
+	}
+	public override string ToString() => "<native fn>";
 
 }
 
-class LoxFunction : Obj, LoxCallable
+
+class LoxFunction :  LoxCallable
 {
 	private Stmt.Function declaration;
 	private EleuEnvironment closure;
 	private bool isInitializer;
 	public LoxFunction(Stmt.Function declaration, EleuEnvironment closure, bool isInitializer) 
-		: base(OBJ_FUNCTION)
 	{
 		this.declaration = declaration;
 		this.closure = closure;
 		this.isInitializer = isInitializer;
 	}
 	public int arity() => declaration.Paras.Count;
-	public Value Call(Interpreter interpreter, Value[] arguments)
+	public object Call(Interpreter interpreter, object[] arguments)
 	{
 		var environment = new EleuEnvironment(closure);
 		for (int i = 0; i < declaration.Paras.Count; i++)
@@ -41,37 +55,41 @@ class LoxFunction : Obj, LoxCallable
 	public LoxFunction bind(LoxInstance instance)
 	{
 		var environment = new EleuEnvironment(closure);
-		environment.Define("this", CreateObjVal(instance));
+		environment.Define("this", instance);
 		return new LoxFunction(declaration, environment, isInitializer);
 	}
 
 }
 
-class LoxClass : ObjClass, LoxCallable
+class LoxClass :  LoxCallable
 {
+	private string name;
+	public readonly OTable methods;
 	private LoxClass? superclass;
-	public LoxClass(string name, LoxClass? superclass) : base(name)
+	public LoxClass(string name, LoxClass? superclass) 
 	{
+		this.name = name;
 		this.superclass = superclass;
+		this.methods = new OTable();
 	}
 	public int arity()
 	{
-		if (findMethod("init").oValue is not LoxFunction initializer) return 0;
+		if (findMethod("init") is not LoxFunction initializer) return 0;
 		return initializer.arity();
 	}
 
-	public Value Call(Interpreter interpreter, Value[] arguments)
+	public object Call(Interpreter interpreter, object[] arguments)
 	{
 		var instance = new LoxInstance(this);
-		LoxFunction? initializer = findMethod("init").oValue as LoxFunction;
+		LoxFunction? initializer = findMethod("init") as LoxFunction;
 		if (initializer != null)
 		{
 			initializer.bind(instance).Call(interpreter, arguments);
 		}
-		return CreateObjVal(instance);
+		return instance;
 	}
 
-	public Value findMethod(String name)
+	public object findMethod(String name)
 	{
 		if (methods.Get(name, out var val))
 			return val;
@@ -79,32 +97,35 @@ class LoxClass : ObjClass, LoxCallable
 		{
 			return superclass.findMethod(name);
 		}
-		return NilValue;
+		return Nil;
 	}
-
 }
 
-class LoxInstance : ObjInstance
+class LoxInstance 
 {
-	private new LoxClass klass => (LoxClass)base.klass;
+	private LoxClass klass;
+	private OTable fields;
 
-	public LoxInstance(LoxClass klass) : base(klass)
+
+	public LoxInstance(LoxClass klass) 
 	{
+		this.klass = klass;
+		this.fields = new OTable();
 	}
 
-	public Value get(string name)
+	public object get(string name)
 	{
 		if (!fields.Get(name, out var val))
 		{
 			var method = klass.findMethod(name);
-			if (IsNil(method)) throw new EleuRuntimeError("Undefined property '" + name + "'.");
-			var func = method.oValue as LoxFunction;
-			return CreateObjVal(func!.bind(this));
+			if (method== Nil) throw new EleuRuntimeError("Undefined property '" + name + "'.");
+			var func = method as LoxFunction;
+			return func!.bind(this);
 		}
 		return val;
 	}
 
-	public void set(string name, Value value) => fields.Set(name, value);
+	public void set(string name, object value) => fields.Set(name, value);
 
 }
 

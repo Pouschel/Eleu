@@ -1,5 +1,7 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
+using Eleu.Vm;
+
 [assembly: InternalsVisibleTo("EleuDebugger")]
 
 namespace Eleu;

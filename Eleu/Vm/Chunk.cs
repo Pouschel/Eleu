@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using System.Text;
 
-namespace Eleu;
+namespace Eleu.Vm;
 
 class Chunk
 {
