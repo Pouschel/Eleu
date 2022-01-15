@@ -2,12 +2,19 @@
 
 internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<InterpretResult>
 {
+	private enum ClassType
+	{
+		NONE,
+		CLASS
+	}
+
 	private List<Stmt> statements;
 	private EleuOptions options;
 	internal EleuEnvironment globals = new();
 	private EleuEnvironment environment;
 	private Dictionary<Expr, int> locals = new();
 	private CancellationToken ctoken = CancellationToken.None;
+	private ClassType currentClass = ClassType.NONE;
 
 	public Interpreter(EleuOptions options, List<Stmt> statements)
 	{
@@ -61,7 +68,7 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 	private Value Evaluate(Expr expr) => expr.Accept(this);
 
 	private InterpretResult Execute(Stmt stmt)
-	{													   
+	{
 		ctoken.ThrowIfCancellationRequested();
 		return stmt.Accept(this);
 	}
@@ -122,7 +129,7 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 	public Value VisitGetExpr(Expr.Get expr)
 	{
 		var obj = Evaluate(expr.Obj);
-		if (obj.oValue is LoxInstance inst) 
+		if (obj.oValue is LoxInstance inst)
 		{
 			return inst.get(expr.Name);
 		}
@@ -159,7 +166,7 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 	public Value VisitSetExpr(Expr.Set expr)
 	{
 		var obj = Evaluate(expr.Obj);
-		if (obj.oValue is not LoxInstance li) 
+		if (obj.oValue is not LoxInstance li)
 		{
 			throw Error("Only instances have fields.");
 		}
@@ -169,7 +176,15 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 	}
 
 	public Value VisitSuperExpr(Expr.Super expr) => throw new NotImplementedException();
-	public Value VisitThisExpr(Expr.This expr) => throw new NotImplementedException();
+	public Value VisitThisExpr(Expr.This expr)
+	{
+		if (currentClass == ClassType.NONE)
+		{
+			throw Error("Can't use 'this' outside of a class.");
+		}
+		return lookUpVariable(expr.Keyword, expr);
+	}
+
 	public Value VisitUnaryExpr(Expr.Unary expr)
 	{
 		var right = Evaluate(expr.Right);
@@ -223,15 +238,18 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 
 	public InterpretResult VisitClassStmt(Stmt.Class stmt)
 	{
+		ClassType enclosingClass = currentClass;
+		currentClass = ClassType.CLASS;
 		environment.Define(stmt.Name, Nil);
 		var klass = new LoxClass(stmt.Name);
 		foreach (Stmt.Function method in stmt.Methods)
 		{
-			LoxFunction function = new LoxFunction(method, environment);
+			LoxFunction function = new LoxFunction(method, environment, method.Name=="init");
 			klass.methods.Set(method.Name, CreateObjVal(function));
 		}
-		var kval = CreateObjVal(klass); 
+		var kval = CreateObjVal(klass);
 		environment.Assign(stmt.Name, kval);
+		currentClass = enclosingClass;
 		return kval;
 	}
 
@@ -239,7 +257,7 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 
 	public InterpretResult VisitFunctionStmt(Stmt.Function stmt)
 	{
-		LoxFunction function = new LoxFunction(stmt, environment);
+		LoxFunction function = new LoxFunction(stmt, environment, false);
 		var val = new Value(VAL_OBJ, function);
 		environment.Define(stmt.Name, val);
 		return val;
@@ -284,12 +302,12 @@ internal class Interpreter : IInterpreter, Expr.Visitor<Value>, Stmt.Visitor<Int
 		while (IsTruthy(Evaluate(stmt.Condition)))
 		{
 			result = Execute(stmt.Body);
-			if (result.Stat != InterpretResult.Status.Normal) 
+			if (result.Stat != InterpretResult.Status.Normal)
 				break;
 		}
 		return result;
 	}
 
 	public void RuntimeError(string msg) => throw new EleuRuntimeError(msg);
-	
+
 }

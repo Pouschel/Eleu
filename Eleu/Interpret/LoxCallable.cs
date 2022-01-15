@@ -9,13 +9,15 @@ interface LoxCallable
 
 class LoxFunction : Obj, LoxCallable
 {
-
 	private Stmt.Function declaration;
 	private EleuEnvironment closure;
-	public LoxFunction(Stmt.Function declaration, EleuEnvironment closure) : base(OBJ_FUNCTION)
+	private bool isInitializer;
+	public LoxFunction(Stmt.Function declaration, EleuEnvironment closure, bool isInitializer) 
+		: base(OBJ_FUNCTION)
 	{
 		this.declaration = declaration;
 		this.closure = closure;
+		this.isInitializer = isInitializer;
 	}
 	public int arity() => declaration.Paras.Count;
 	public Value Call(Interpreter interpreter, Value[] arguments)
@@ -25,21 +27,40 @@ class LoxFunction : Obj, LoxCallable
 		{
 			environment.Define(declaration.Paras[i].StringValue, arguments[i]);
 		}
-		return interpreter.executeBlock(declaration.Body, environment).Value;
+		var retVal= interpreter.executeBlock(declaration.Body, environment).Value;
+		if (isInitializer) return closure.getAt(0, "this");
+		return retVal;
 	}
 	public override string ToString() => $"<fn {declaration.Name}>";
+
+	public LoxFunction bind(LoxInstance instance)
+	{
+		var environment = new EleuEnvironment(closure);
+		environment.Define("this", CreateObjVal(instance));
+		return new LoxFunction(declaration, environment, isInitializer);
+	}
+
 }
 
 class LoxClass : ObjClass, LoxCallable
 {
 	public LoxClass(string name) : base(name)
 	{
-
 	}
-	public int arity() => 0;
+	public int arity()
+	{
+		if (findMethod("init").oValue is not LoxFunction initializer) return 0;
+		return initializer.arity();
+	}
+
 	public Value Call(Interpreter interpreter, Value[] arguments)
 	{
 		var instance = new LoxInstance(this);
+		LoxFunction? initializer = findMethod("init").oValue as LoxFunction;
+		if (initializer != null)
+		{
+			initializer.bind(instance).Call(interpreter, arguments);
+		}
 		return CreateObjVal(instance);
 	}
 
@@ -65,8 +86,9 @@ class LoxInstance : ObjInstance
 		if (!fields.Get(name, out var val))
 		{
 			var method = klass.findMethod(name);
-			if (!IsNil(method)) return method;
-			throw new EleuRuntimeError("Undefined property '" + name + "'.");
+			if (IsNil(method)) throw new EleuRuntimeError("Undefined property '" + name + "'.");
+			var func = method.oValue as LoxFunction;
+			return CreateObjVal(func!.bind(this));
 		}
 		return val;
 	}

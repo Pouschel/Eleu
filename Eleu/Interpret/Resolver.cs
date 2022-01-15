@@ -18,13 +18,13 @@ namespace Eleu.Interpret
 		{
 			if (stackLen < scopes.Count)
 				scopes[stackLen] = d;
-			else 
+			else
 				scopes.Add(d);
 			stackLen++;
 		}
 
 		void Pop() => stackLen--;
-		Dictionary<string, bool>? Peek() => stackLen>0 ? scopes[stackLen - 1]: null;
+		Dictionary<string, bool>? Peek() => stackLen > 0 ? scopes[stackLen - 1] : null;
 
 		public Resolver(Interpreter interpreter)
 		{
@@ -80,11 +80,15 @@ namespace Eleu.Interpret
 		{
 			declare(stmt.Name);
 			define(stmt.Name);
+			beginScope();
+			Peek()!["this"] = true;
 			foreach (Stmt.Function method in stmt.Methods)
 			{
 				FunctionType declaration = FunTypeMethod;
+				if (method.Name == "init") declaration = FunTypeInitializer;
 				resolveFunction(method, declaration);
 			}
+			endScope();
 			return null;
 		}
 
@@ -134,6 +138,8 @@ namespace Eleu.Interpret
 			{
 				error("Can't return from top-level code.");
 			}
+			if (stmt.Value != null)
+				error("Can't return a value from an initializer.");
 			return resolve(stmt.Value);
 		}
 
@@ -145,29 +151,29 @@ namespace Eleu.Interpret
 		}
 
 		public object? VisitSuperExpr(Expr.Super expr) => throw new NotImplementedException();
-		public object? VisitThisExpr(Expr.This expr) => throw new NotImplementedException();
+		public object? VisitThisExpr(Expr.This expr) => resolveLocal(expr, expr.Keyword);
 		public object? VisitUnaryExpr(Expr.Unary expr) => resolve(expr.Right);
 		public object? VisitVariableExpr(Expr.Variable expr)
 		{
 			var scope = Peek();
-			if (scope!=null && scope.TryGetValue(expr.Name, out bool b) && !b)
+			if (scope != null && scope.TryGetValue(expr.Name, out bool b) && !b)
 			{
 				error("Can't read local variable in its own initializer.");
 			}
 			resolveLocal(expr, expr.Name);
 			return null;
 		}
-		private void resolveLocal(Expr expr, string name)
+		private object? resolveLocal(Expr expr, string name)
 		{
 			for (int i = stackLen - 1; i >= 0; i--)
 			{
-
 				if (scopes[i].ContainsKey(name))
 				{
 					interpreter.resolve(expr, stackLen - 1 - i);
-					return;
+					return null;
 				}
 			}
+			return null;
 		}
 		void error(string msg) => interpreter.RuntimeError(msg);
 
