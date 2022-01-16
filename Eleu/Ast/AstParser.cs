@@ -408,7 +408,7 @@ internal class AstParser
 	void errorAt(in Token token, string message)
 	{
 		ErrorCount++;
-		var msg = string.IsNullOrEmpty(fileName) ? message : $"{fileName}({token.line}): Cerr: {message}";
+		var msg = string.IsNullOrEmpty(fileName) ? message : $"{token.status.Message}: Cerr: {message}";
 		//msg = $"File \"{fileName}\", line {token.line}: Compiler error: {message}";
 		options.Err.WriteLine(msg);
 		System.Diagnostics.Trace.WriteLine(msg);

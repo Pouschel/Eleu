@@ -1,6 +1,6 @@
 ﻿namespace Eleu.Scanning;
 
-struct InputStatus
+public struct InputStatus
 {
 	public string FileName = "";
 

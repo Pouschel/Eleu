@@ -52,7 +52,7 @@ public class Globals
 
 	public static (EEleuResult, IInterpreter?) Compile(string source, string fileName, EleuOptions options)
 	{
-		var scanner = new Scanner(source);
+		var scanner = new Scanner(source, fileName);
 		var tokens = scanner.ScanAllTokens();
 		var parser = new AstParser(options, fileName, tokens);
 		var parseResult = parser.parse();

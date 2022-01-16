@@ -1,61 +1,19 @@
 ﻿namespace Eleu.Scanning;
 
-public enum TokenType
-{
-	// Single-character tokens.
-	TOKEN_LEFT_PAREN, TOKEN_RIGHT_PAREN,
-	TOKEN_LEFT_BRACE, TOKEN_RIGHT_BRACE,
-	TOKEN_COMMA, TOKEN_DOT, TokenMinus, TokenPlus,
-	TokenSemicolon, TOKEN_SLASH, TokenStar,
-	TokenPercent, TokenLeftBracket, TokenRightBracket,
-	// One or two character tokens.
-	TOKEN_BANG, TOKEN_BANG_EQUAL,
-	TOKEN_EQUAL, TOKEN_EQUAL_EQUAL,
-	TOKEN_GREATER, TOKEN_GREATER_EQUAL,
-	TOKEN_LESS, TOKEN_LESS_EQUAL,
-	// Literals.
-	TOKEN_IDENTIFIER, TOKEN_STRING, TOKEN_NUMBER,
-	// Keywords.
-	TOKEN_AND, TOKEN_CLASS, TOKEN_ELSE, TOKEN_FALSE,
-	TOKEN_FOR, TOKEN_FUN, TOKEN_IF, TOKEN_NIL, TOKEN_OR,
-	TOKEN_PRINT, TOKEN_RETURN, TOKEN_SUPER, TOKEN_THIS,
-	TOKEN_TRUE, TOKEN_VAR, TOKEN_WHILE,
-	TOKEN_ERROR, TOKEN_EOF
-}
-
-public struct Token
-{
-	public TokenType type;
-	public int start;
-	public int end;
-	public int line;
-	public string source;
-
-	public string StringValue => string.Intern(source[start..end]);
-
-	public string StringStringValue => source[(start + 1)..(end - 1)];
-
-	public override string ToString() => $"{type}: {StringValue}";
-
-}
-
 internal class Scanner
 {
-	int line;
 	int start;
 	int current;
+	private string fileName;
 	private string source;
+	int line, col;
 
-	public Scanner(string source)
+	public Scanner(string source, string fileName = "")
 	{
+		this.fileName = fileName;
 		this.source = source;
-		Reset();
-	}
-
-	public void Reset()
-	{
-		this.line = 1;
 		this.start = this.current = 0;
+		this.line = this.col = 1;
 	}
 
 	public Token ScanToken()
@@ -216,6 +174,7 @@ internal class Scanner
 					break;
 				case '\n':
 					line++;
+					col = 0;
 					Advance();
 					break;
 				case '/':
@@ -237,7 +196,12 @@ internal class Scanner
 		}
 	}
 
-	char Advance() => source[current++];
+	char Advance()
+	{
+		col++;
+		return source[current++];
+	}
+
 	char Peek() => current >= source.Length ? '\0' : source[current];
 	char PeekNext() => current >= source.Length - 1 ? '\0' : source[current + 1];
 
@@ -254,14 +218,25 @@ internal class Scanner
 		return true;
 	}
 
+	InputStatus CreateStatus()
+	{
+		return new InputStatus(fileName)
+		{
+			LineStart = line,
+			LineEnd = line,
+			ColStart = col - (current - start),
+			ColEnd = col
+		};
+	}
+
 	Token MakeToken(TokenType type)
 	{
 		Token token = new();
 		token.type = type;
 		token.start = start;
 		token.end = current;
-		token.line = line;
 		token.source = source;
+		token.status = CreateStatus();
 		return token;
 	}
 
@@ -271,8 +246,8 @@ internal class Scanner
 		token.type = TOKEN_ERROR;
 		token.start = 0;
 		token.end = message.Length;
-		token.line = line;
 		token.source = message;
+		token.status = CreateStatus();
 		return token;
 	}
 
