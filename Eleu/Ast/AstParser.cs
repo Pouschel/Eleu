@@ -1,4 +1,6 @@
-﻿namespace Eleu.Ast;
+﻿using System.Globalization;
+
+namespace Eleu.Ast;
 
 internal class AstParser
 {
@@ -39,7 +41,7 @@ internal class AstParser
 			;
 		Stmt stmt;
 		var curStat = CurrentInputStatus;
-		if (Match(TOKEN_PRINT)) stmt= PrintStatement();
+		if (Match(TOKEN_PRINT)) stmt = PrintStatement();
 		else if (Match(TOKEN_LEFT_BRACE)) stmt = new Stmt.Block(Block());
 		else if (Match(TOKEN_FOR)) stmt = ForStatement();
 		else if (Match(TOKEN_IF)) stmt = IfStatement();
@@ -62,13 +64,13 @@ internal class AstParser
 		Expr? condition = null;
 		if (!Check(TokenSemicolon))
 		{
-			condition = expression();
+			condition = Expression();
 		}
 		Consume(TokenSemicolon, "Expect ';' after loop condition.");
 		Expr? increment = null;
 		if (!Check(TOKEN_RIGHT_PAREN))
 		{
-			increment = expression();
+			increment = Expression();
 		}
 		Consume(TOKEN_RIGHT_PAREN, "Expect ')' after for clauses.");
 		Stmt body = Statement();
@@ -91,7 +93,7 @@ internal class AstParser
 	private Stmt IfStatement()
 	{
 		Consume(TOKEN_LEFT_PAREN, "Expect '(' after 'if'.");
-		Expr condition = expression();
+		Expr condition = Expression();
 		Consume(TOKEN_RIGHT_PAREN, "Expect ')' after if condition.");
 
 		Stmt thenBranch = Statement();
@@ -104,7 +106,7 @@ internal class AstParser
 	}
 	private Stmt PrintStatement()
 	{
-		Expr value = expression();
+		Expr value = Expression();
 		Consume(TokenSemicolon, "Expect ';' after value.");
 		return new Stmt.Print(value);
 	}
@@ -114,14 +116,14 @@ internal class AstParser
 		Expr? value = null;
 		if (!Check(TokenSemicolon))
 		{
-			value = expression();
+			value = Expression();
 		}
 		Consume(TokenSemicolon, "Expect ';' after return value.");
 		return new Stmt.Return(keyword, value);
 	}
 	private Stmt ExpressionStatement()
 	{
-		Expr expr = expression();
+		Expr expr = Expression();
 		Consume(TokenSemicolon, "Expect ';' after expression.");
 		return new Stmt.Expression(expr);
 	}
@@ -201,7 +203,7 @@ internal class AstParser
 		}
 		return expr;
 	}
-	private Expr expression()
+	private Expr Expression()
 	{
 		return Assignment();
 	}
@@ -244,7 +246,7 @@ internal class AstParser
 		Expr? initializer = null;
 		if (Match(TOKEN_EQUAL))
 		{
-			initializer = expression();
+			initializer = Expression();
 		}
 		Consume(TokenSemicolon, "Expect ';' after variable declaration.");
 		return new Stmt.Var(name.StringValue, initializer);
@@ -252,7 +254,7 @@ internal class AstParser
 	private Stmt WhileStatement()
 	{
 		Consume(TOKEN_LEFT_PAREN, "Expect '(' after 'while'.");
-		Expr condition = expression();
+		Expr condition = Expression();
 		Consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
 		Stmt body = Statement();
 		return new Stmt.While(condition, body);
@@ -349,7 +351,7 @@ internal class AstParser
 				{
 					Error(Peek(), "Can't have more than 255 arguments.");
 				}
-				arguments.Add(expression());
+				arguments.Add(Expression());
 			} while (Match(TOKEN_COMMA));
 		}
 		Token paren = Consume(TOKEN_RIGHT_PAREN, "Expect ')' after arguments.");
@@ -360,7 +362,7 @@ internal class AstParser
 		if (Match(TOKEN_FALSE)) return new Expr.Literal(false);
 		if (Match(TOKEN_TRUE)) return new Expr.Literal(true);
 		if (Match(TOKEN_NIL)) return new Expr.Literal(null);
-		if (Match(TOKEN_NUMBER)) return new Expr.Literal(double.Parse(Previous.StringValue));
+		if (Match(TOKEN_NUMBER)) return new Expr.Literal(double.Parse(Previous.StringValue, CultureInfo.InvariantCulture));
 		if (Match(TOKEN_STRING))
 		{
 			return new Expr.Literal(Previous.StringStringValue);
@@ -380,7 +382,7 @@ internal class AstParser
 		}
 		if (Match(TOKEN_LEFT_PAREN))
 		{
-			Expr expr = expression();
+			Expr expr = Expression();
 			Consume(TOKEN_RIGHT_PAREN, "Expect ')' after expression.");
 			return new Expr.Grouping(expr);
 		}

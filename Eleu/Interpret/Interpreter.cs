@@ -1,6 +1,7 @@
 ﻿namespace Eleu.Interpret;
 
 using System.Diagnostics;
+using System.Globalization;
 using static Eleu.Interpret.InterpreterStatics;
 
 internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
@@ -147,7 +148,7 @@ internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<In
 			throw new EleuRuntimeError("Can only call functions and classes.");
 		}
 		if (expr.Arguments.Count != function.Arity)
-			throw new EleuRuntimeError("Expected " + function.Arity+ " arguments but got " + expr.Arguments.Count + ".");
+			throw new EleuRuntimeError("Expected " + function.Arity + " arguments but got " + expr.Arguments.Count + ".");
 		var arguments = new object[expr.Arguments.Count];
 		for (int i = 0; i < expr.Arguments.Count; i++)
 		{
@@ -339,6 +340,7 @@ internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<In
 		{
 			bool b => b ? "true" : "false",
 			object o when o == Nil => "nil",
+			double d => d.ToString(CultureInfo.InvariantCulture),
 			_ => val.ToString(),
 		};
 		options.Out.WriteLine(s);

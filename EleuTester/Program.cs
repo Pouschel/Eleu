@@ -218,18 +218,18 @@ class Program
 
 	public static void Main(string[] args)
 	{
-		Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+		//Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 		Console.WriteLine("Eleu Tester v1");
 		Console.WriteLine(
 @"Arguments: 
 -test TestDir [FileToExecute]
 -benchmark BenchmarkDir");
 		if (args.Length < 2) return;
+		var prog = new Program();
 		switch (args[0])
 		{
 			case "-test":
 				{
-					var prog = new Program();
 					prog.RunTests(args[1]);
 					if (args.Length >= 3 && prog.nFail == 0)
 					{
@@ -240,7 +240,6 @@ class Program
 				}
 			case "-benchmark":
 				{
-					var prog = new Program();
 					prog.RunBenchmarks(args[1]);
 					break;
 				}

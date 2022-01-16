@@ -1,15 +1,4 @@
-{
-  // classes are scope local
-  class A
-  {
-    f()
-    {
-      return "in A";
-    }
-  }
-  var a=A();
-  print a.f();
-}
+ print 1.2;
+ 
 
-var b=A();
-
+  
