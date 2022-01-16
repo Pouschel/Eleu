@@ -33,45 +33,49 @@ internal class Resolver : Expr.Visitor<object?>, Stmt.Visitor<object?>
 
 	public object? VisitAssignExpr(Expr.Assign expr)
 	{
-		resolve(expr.Value);
-		resolveLocal(expr, expr.Name);
+		Resolve(expr.Value);
+		ResolveLocal(expr, expr.Name);
 		return null;
 	}
 
 	public object? VisitBinaryExpr(Expr.Binary expr)
 	{
-		resolve(expr.Left);
-		resolve(expr.Right);
+		Resolve(expr.Left);
+		Resolve(expr.Right);
 		return null;
 	}
 
 	public object? VisitBlockStmt(Stmt.Block stmt)
 	{
-		beginScope();
-		resolve(stmt.Statements);
-		endScope();
+		BeginScope();
+		Resolve(stmt.Statements);
+		EndScope();
 		return null;
 	}
-	public void resolve(List<Stmt> statements)
+	public void Resolve(List<Stmt> statements)
 	{
 		foreach (Stmt statement in statements)
 		{
-			resolve(statement);
+			Resolve(statement);
 		}
 	}
 
-	private object? resolve(Stmt stmt) => stmt.Accept(this);
+	private object? Resolve(Stmt stmt)
+	{
+		interpreter.RegisterStatus(stmt.Status);
+		return stmt.Accept(this);
+	}
 
-	private object? resolve(Expr? expr) => expr?.Accept(this);
-	private void beginScope() => Push(new());
-	private void endScope() => Pop();
+	private object? Resolve(Expr? expr) => expr?.Accept(this);
+	private void BeginScope() => Push(new());
+	private void EndScope() => Pop();
 
 	public object? VisitCallExpr(Expr.Call expr)
 	{
-		resolve(expr.Callee);
+		Resolve(expr.Callee);
 		foreach (Expr argument in expr.Arguments)
 		{
-			resolve(argument);
+			Resolve(argument);
 		}
 		return null;
 	}
@@ -80,91 +84,91 @@ internal class Resolver : Expr.Visitor<object?>, Stmt.Visitor<object?>
 	{
 		ClassType enclosingClass = currentClass;
 		currentClass = ClassType.CLASS;
-		declare(stmt.Name);
+		Declare(stmt.Name);
 		define(stmt.Name);
 		if (stmt.Superclass != null && stmt.Name == stmt.Superclass.Name)
 		{
-			error("A class can't inherit from itself.");
+			Error("A class can't inherit from itself.");
 		}
 		if (stmt.Superclass != null)
 		{
 			currentClass = ClassType.SUBCLASS;
-			resolve(stmt.Superclass);
+			Resolve(stmt.Superclass);
 		}
 		if (stmt.Superclass != null)
 		{
-			beginScope();
+			BeginScope();
 			Peek()!["super"] = true;
 		}
-		beginScope();
+		BeginScope();
 		Peek()!["this"] = true;
 		foreach (Stmt.Function method in stmt.Methods)
 		{
 			FunctionType declaration = FunTypeMethod;
 			if (method.Name == "init") declaration = FunTypeInitializer;
-			resolveFunction(method, declaration);
+			ResolveFunction(method, declaration);
 		}
-		endScope();
-		if (stmt.Superclass != null) endScope();
+		EndScope();
+		if (stmt.Superclass != null) EndScope();
 		currentClass = enclosingClass;
 		return null;
 	}
 
-	public object? VisitExpressionStmt(Stmt.Expression stmt) => resolve(stmt.expression);
+	public object? VisitExpressionStmt(Stmt.Expression stmt) => Resolve(stmt.expression);
 	public object? VisitFunctionStmt(Stmt.Function stmt)
 	{
-		declare(stmt.Name);
+		Declare(stmt.Name);
 		define(stmt.Name);
-		resolveFunction(stmt, FunTypeFunction);
+		ResolveFunction(stmt, FunTypeFunction);
 		return null;
 	}
-	private void resolveFunction(Stmt.Function function, FunctionType type)
+	private void ResolveFunction(Stmt.Function function, FunctionType type)
 	{
 		FunctionType enclosingFunction = currentFunction;
 		currentFunction = type;
-		beginScope();
+		BeginScope();
 		foreach (var param in function.Paras)
 		{
-			declare(param.StringValue);
+			Declare(param.StringValue);
 			define(param.StringValue);
 		}
-		resolve(function.Body);
-		endScope();
+		Resolve(function.Body);
+		EndScope();
 		currentFunction = enclosingFunction;
 	}
 
-	public object? VisitGetExpr(Expr.Get expr) => resolve(expr.Obj);
-	public object? VisitGroupingExpr(Expr.Grouping expr) => resolve(expr.Expression);
+	public object? VisitGetExpr(Expr.Get expr) => Resolve(expr.Obj);
+	public object? VisitGroupingExpr(Expr.Grouping expr) => Resolve(expr.Expression);
 	public object? VisitIfStmt(Stmt.If stmt)
 	{
-		resolve(stmt.Condition);
-		resolve(stmt.ThenBranch);
-		if (stmt.ElseBranch != null) resolve(stmt.ElseBranch);
+		Resolve(stmt.Condition);
+		Resolve(stmt.ThenBranch);
+		if (stmt.ElseBranch != null) Resolve(stmt.ElseBranch);
 		return null;
 	}
 	public object? VisitLiteralExpr(Expr.Literal expr) => null;
 	public object? VisitLogicalExpr(Expr.Logical expr)
 	{
-		resolve(expr.Left);
-		resolve(expr.Right);
+		Resolve(expr.Left);
+		Resolve(expr.Right);
 		return null;
 	}
-	public object? VisitPrintStmt(Stmt.Print stmt) => resolve(stmt.expression);
+	public object? VisitPrintStmt(Stmt.Print stmt) => Resolve(stmt.expression);
 	public object? VisitReturnStmt(Stmt.Return stmt)
 	{
 		if (currentFunction == FunTypeScript)
 		{
-			error("Can't return from top-level code.");
+			Error("Can't return from top-level code.");
 		}
 		if (currentFunction == FunTypeInitializer && stmt.Value != null)
-			error("Can't return a value from an initializer.");
-		return resolve(stmt.Value);
+			Error("Can't return a value from an initializer.");
+		return Resolve(stmt.Value);
 	}
 
 	public object? VisitSetExpr(Expr.Set expr)
 	{
-		resolve(expr.Value);
-		resolve(expr.Obj);
+		Resolve(expr.Value);
+		Resolve(expr.Obj);
 		return null;
 	}
 
@@ -172,37 +176,37 @@ internal class Resolver : Expr.Visitor<object?>, Stmt.Visitor<object?>
 	{
 		if (currentClass == ClassType.NONE)
 		{
-			error("Can't use 'super' outside of a class.");
+			Error("Can't use 'super' outside of a class.");
 		}
 		else if (currentClass != ClassType.SUBCLASS)
 		{
-			error("Can't use 'super' in a class with no superclass.");
+			Error("Can't use 'super' in a class with no superclass.");
 		}
-		return resolveLocal(expr, expr.Keyword);
+		return ResolveLocal(expr, expr.Keyword);
 	}
 
 	public object? VisitThisExpr(Expr.This expr)
 	{
 		if (currentClass == ClassType.NONE)
 		{
-			error("Can't use 'this' outside of a class.");
+			Error("Can't use 'this' outside of a class.");
 			return null;
 		}
-		return resolveLocal(expr, expr.Keyword);
+		return ResolveLocal(expr, expr.Keyword);
 	}
 
-	public object? VisitUnaryExpr(Expr.Unary expr) => resolve(expr.Right);
+	public object? VisitUnaryExpr(Expr.Unary expr) => Resolve(expr.Right);
 	public object? VisitVariableExpr(Expr.Variable expr)
 	{
 		var scope = Peek();
 		if (scope != null && scope.TryGetValue(expr.Name, out bool b) && !b)
 		{
-			error("Can't read local variable in its own initializer.");
+			Error("Can't read local variable in its own initializer.");
 		}
-		resolveLocal(expr, expr.Name);
+		ResolveLocal(expr, expr.Name);
 		return null;
 	}
-	private object? resolveLocal(Expr expr, string name)
+	private object? ResolveLocal(Expr expr, string name)
 	{
 		for (int i = stackLen - 1; i >= 0; i--)
 		{
@@ -214,25 +218,25 @@ internal class Resolver : Expr.Visitor<object?>, Stmt.Visitor<object?>
 		}
 		return null;
 	}
-	void error(string msg) => interpreter.RuntimeError("Cerr: " + msg);
+	void Error(string msg) => interpreter.RuntimeError("Cerr: " + msg);
 
 	public object? VisitVarStmt(Stmt.Var stmt)
 	{
-		declare(stmt.Name);
+		Declare(stmt.Name);
 		if (stmt.Initializer != null)
 		{
-			resolve(stmt.Initializer);
+			Resolve(stmt.Initializer);
 		}
 		define(stmt.Name);
 		return null;
 	}
-	private void declare(string name)
+	private void Declare(string name)
 	{
 		var scope = Peek();
 		if (scope == null) return;
 		if (scope.ContainsKey(name))
 		{
-			error("Already a variable with this name in this scope.");
+			Error("Already a variable with this name in this scope.");
 		}
 		scope[name] = false;
 	}
@@ -246,10 +250,8 @@ internal class Resolver : Expr.Visitor<object?>, Stmt.Visitor<object?>
 
 	public object? VisitWhileStmt(Stmt.While stmt)
 	{
-		resolve(stmt.Condition);
-		resolve(stmt.Body);
+		Resolve(stmt.Condition);
+		Resolve(stmt.Body);
 		return null;
 	}
-
-
 }

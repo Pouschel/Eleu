@@ -137,3 +137,16 @@ string_equality   :  1,383 ms
 trees             :  2,722 ms
 zoo               :    559 ms
             Total :  16.11 s
+--- 01/16/2022 18:14:16 ---
+// different release - debug execute
+binary_trees      :  1,734 ms
+equality          :  1,600 ms
+fib               :  1,810 ms
+instantiation     :    835 ms
+invocation        :    766 ms
+method_call       :  3,009 ms
+properties        :  1,464 ms
+string_equality   :  1,403 ms
+trees             :  2,826 ms
+zoo               :    586 ms
+            Total :  16.04 s

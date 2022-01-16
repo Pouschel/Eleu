@@ -1,6 +1,10 @@
 {
   "profiles": {
-    "CsLoxTester": {
+    "Benchmark": {
+      "commandName": "Project",
+      "commandLineArgs": "-benchmark C:\\Code\\Eleu\\EleuSrc\\Benchmarks"
+    },
+    "EleuTester": {
       "commandName": "Project",
       "commandLineArgs": "-test C:\\Code\\Eleu\\EleuSrc\\Tests C:\\Code\\Eleu\\EleuSrc\\Examples\\Ex1.eleu"
     }

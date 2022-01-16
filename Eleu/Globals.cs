@@ -43,13 +43,11 @@ public interface IInterpreter
 
 public class Globals
 {
-
 	internal static EEleuResult CompileAndRunAst(string fileName, EleuOptions options)
 	{
 		var source = File.ReadAllText(fileName);
 		return CompileAndRunAst(source, fileName, options);
 	}
-
 	public static (EEleuResult, IInterpreter?) Compile(string source, string fileName, EleuOptions options)
 	{
 		var scanner = new Scanner(source, fileName);
@@ -76,35 +74,25 @@ public class Globals
 		//return (result.Result, vm);
 	}
 
-	internal static EEleuResult CompileAndRunAst(string source, string fileName, EleuOptions options)
+	public static EEleuResult CompileAndRunAst(string source, string fileName, EleuOptions options)
 	{
 		var (res, vm) = Compile(source, fileName, options);
 		if (res != Ok) return res;
-		return vm!.Interpret();
+		if (options.UseDebugger)
+			return vm!.InterpretWithDebug(CancellationToken.None);
+		else
+			return vm!.Interpret();
 	}
 
-	public static bool RunFile(string path, TextWriter tw, bool debugPrintCode = false)
+	public static bool RunFile(string path, TextWriter tw)
 	{
 		var opt = new EleuOptions()
 		{
 			Out = tw,
-			PrintByteCode = debugPrintCode
 		};
 		var result = CompileAndRunAst(path, opt);
 		return result == Ok;
 	}
 
-	public static bool RunTestCode(string path, string source, TextWriter tw)
-	{
-		var opt = new EleuOptions()
-		{
-			Out = tw,
-			Err = tw,
-			PrintByteCode = false,
-			DumpStackOnError = false,
-			UseInterpreter = true,
-		};
-		var cres = CompileAndRunAst(source, path, opt);
-		return cres == Ok;
-	}
+
 }

@@ -12,6 +12,7 @@ internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<In
 	private Dictionary<Expr, int> locals = new();
 	private CancellationToken ctoken = CancellationToken.None;
 	InputStatus currentStatus;
+	private Func<Stmt, InterpretResult> Execute;
 
 	public Interpreter(EleuOptions options, List<Stmt> statements)
 	{
@@ -19,6 +20,7 @@ internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<In
 		this.statements = statements;
 		this.options = options;
 		var _ = new NativeFunctions(this);
+		Execute = ExecuteRelease;
 	}
 
 	public int InstructionCount
@@ -36,19 +38,25 @@ internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<In
 	public EEleuResult InterpretWithDebug(CancellationToken token)
 	{
 		this.ctoken = token;
-		return Interpret();
+		Execute = ExecuteDebug;
+		return DoInterpret();
 	}
 
 	public EEleuResult Interpret()
 	{
+		Execute = ExecuteRelease;
+		return DoInterpret();
+	}
+	public EEleuResult DoInterpret()
+	{
 		EEleuResult result = Ok;
-		InstructionCount = 0;
 		try
 		{
 			locals = new Dictionary<Expr, int>();
 			var resolver = new Resolver(this);
-			resolver.resolve(this.statements);
+			resolver.Resolve(this.statements);
 			resolver = null;
+			InstructionCount = 0;
 			foreach (var stmt in this.statements)
 			{
 				Execute(stmt);
@@ -78,12 +86,20 @@ internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<In
 		var evaluated = expr.Accept(this);
 		return evaluated;
 	}
-
-	private InterpretResult Execute(Stmt stmt)
+	internal void RegisterStatus(in InputStatus? status)
 	{
 		ctoken.ThrowIfCancellationRequested();
-		if (stmt.Status.HasValue)
-			currentStatus = stmt.Status.Value;
+		if (status.HasValue)
+			currentStatus = status.Value;
+	}
+	private InterpretResult ExecuteRelease(Stmt stmt)
+	{
+		return stmt.Accept(this);
+	}
+
+	private InterpretResult ExecuteDebug(Stmt stmt)
+	{
+		RegisterStatus(stmt.Status);
 		InstructionCount++;
 		return stmt.Accept(this);
 	}

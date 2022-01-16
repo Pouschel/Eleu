@@ -6,13 +6,10 @@ namespace Eleu;
 
 public class EleuOptions
 {
-	public bool PrintByteCode;
 	public bool DumpStackOnError = true;
-	public bool CreateDebugInfo = false;
-	public bool UseInterpreter = false;
+	public bool UseDebugger = false;
 	public TextWriter Out = TextWriter.Null;
 	public TextWriter Err = TextWriter.Null;
-
 }
 
 class Program
@@ -27,7 +24,6 @@ class Program
 			Console.WriteLine(@"Usage:
 Eleu -dumpByteCode fileName
 -waitAfterRun      waits for an ENTER after running
--dumpByteCode      dumps the byte code of all functions
 -debugInfo         creates debug info
 -interpret         use interpreter instead of vm
 fileName           file to compile and run
@@ -43,9 +39,7 @@ fileName           file to compile and run
 			switch (arg)
 			{
 				case "-waitAfterRun": waitAfterRun = true; break;
-				case "-dumpByteCode": options.PrintByteCode = true; break;
-				case "-debugInfo": options.CreateDebugInfo = true; break;
-				case "-interpret": options.UseInterpreter = true; break;
+				case "-debugInfo": options.UseDebugger = true; break;
 				default: fileName = arg; break;
 			}
 		}

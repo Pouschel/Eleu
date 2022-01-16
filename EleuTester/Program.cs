@@ -18,7 +18,7 @@ class Program
 			Interlocked.Increment(ref nTests);
 			var source = File.ReadAllText(fileName);
 			var sw = new StringWriter();
-			Globals.RunTestCode(fileName, source, sw);
+			RunTestCode(fileName, source, sw);
 			var res = ProcessScriptOutput(sw.ToString()).ReplaceLineEndings().TrimEnd();
 			var expected = GetSourceOutput(source).ReplaceLineEndings().TrimEnd();
 			if (res == expected)
@@ -66,13 +66,27 @@ class Program
 	{
 		Interlocked.Increment(ref nTests);
 		var source = File.ReadAllText(fileName);
+		var opt = new EleuOptions();
 		Stopwatch watch = Stopwatch.StartNew();
-		Globals.RunTestCode(fileName, source, TextWriter.Null);
+		Globals.CompileAndRunAst( source, fileName,opt);
 		var elapsed = watch.Elapsed;
 		lock (benchMarkResults)
 		{
 			benchMarkResults.Add(fileName, elapsed);
 		}
+	}
+
+	public static bool RunTestCode(string path, string source, TextWriter tw)
+	{
+		var opt = new EleuOptions()
+		{
+			Out = tw,
+			Err = tw,
+			DumpStackOnError = false,
+			UseDebugger = true,
+		};
+		var cres = Globals.CompileAndRunAst(source, path, opt);
+		return cres == EEleuResult.Ok;
 	}
 
 	static string GetSourceOutput(string source)
@@ -220,7 +234,7 @@ class Program
 					if (args.Length >= 3 && prog.nFail == 0)
 					{
 						Console.WriteLine($"Running file: {args[2]}");
-						Globals.RunFile(args[2], Console.Out, true);
+						Globals.RunFile(args[2], Console.Out);
 					}
 					break;
 				}
