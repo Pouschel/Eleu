@@ -24,7 +24,7 @@ class EleuEnvironment
 		this.enclosing = enclosing;
 	}
 	public void Define(string name, object value) => values.Set(name, value);
-	public object getAt(int distance, string name)
+	public object GetAt(string name, int distance)
 	{
 		var tab = Ancestor(distance)?.values;
 		var val = Nil;

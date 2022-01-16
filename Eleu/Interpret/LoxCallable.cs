@@ -44,7 +44,7 @@ class LoxFunction :  LoxCallable
 			environment.Define(declaration.Paras[i].StringValue, arguments[i]);
 		}
 		var retVal= interpreter.executeBlock(declaration.Body, environment).Value;
-		if (isInitializer) return closure.getAt(0, "this");
+		if (isInitializer) return closure.GetAt("this", 0);
 		return retVal;
 	}
 	public override string ToString() => $"<fn {declaration.Name}>";

@@ -11,3 +11,5 @@ print clock() - start;
 // After chapter 24: 5.358 s double the time of my python program
 // After some optimizations at the end: 5.002 s
 
+
+

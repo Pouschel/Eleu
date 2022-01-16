@@ -195,8 +195,8 @@ internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<In
 	public object VisitSuperExpr(Expr.Super expr)
 	{
 		int distance = locals[expr];
-		LoxClass superclass = (LoxClass)environment.getAt(distance, "super");
-		LoxInstance obj = (LoxInstance)environment.getAt(distance - 1, "this");
+		LoxClass superclass = (LoxClass)environment.GetAt("super", distance);
+		LoxInstance obj = (LoxInstance)environment.GetAt("this", distance - 1);
 		LoxFunction? method = superclass.findMethod(expr.Method) as LoxFunction;
 		if (method == null)
 		{
@@ -207,7 +207,7 @@ internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<In
 
 	public object VisitThisExpr(Expr.This expr)
 	{
-		return lookUpVariable(expr.Keyword, expr);
+		return LookUpVariable(expr.Keyword, expr);
 	}
 
 	public object VisitUnaryExpr(Expr.Unary expr)
@@ -230,12 +230,12 @@ internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<In
 		locals[expr] = depth;
 	}
 
-	public object VisitVariableExpr(Expr.Variable expr) => lookUpVariable(expr.Name, expr);
-	private object lookUpVariable(string name, Expr expr)
+	public object VisitVariableExpr(Expr.Variable expr) => LookUpVariable(expr.Name, expr);
+	private object LookUpVariable(string name, Expr expr)
 	{
 		if (locals.TryGetValue(expr, out int distance))
 		{
-			return environment.getAt(distance, name);
+			return environment.GetAt(name, distance);
 		}
 		else
 		{

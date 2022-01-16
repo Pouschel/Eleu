@@ -1,5 +1,5 @@
-var l=[1,"Ups",true,false];
-var a = l[0];
-print a; //: 1
+
+assert true;
+
 
 

@@ -8,8 +8,8 @@
     }
   }
   var a=A();
-  print a.f();
+  print a.f(); // expect: in A
 }
-
+// expect runtime error: Undefined variable 'A'.
 var b=A();
 

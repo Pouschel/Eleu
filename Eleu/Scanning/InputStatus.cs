@@ -54,4 +54,22 @@ public struct InputStatus
 
 	public override string ToString() => Message;
 
+	public static readonly InputStatus Empty = new ();
+	public static InputStatus Parse(string hint)
+	{
+		int idx = hint.IndexOf("): ");
+		if (idx < 0) return Empty;
+		int idx0 = hint.LastIndexOf('(', idx);
+		if (idx0 < 0) return Empty;
+		var fileName = hint[..idx0];
+		var numbers = hint[(idx0 + 1)..idx].Split(',', StringSplitOptions.RemoveEmptyEntries)
+			.Select(s => int.Parse(s)).ToArray();
+		return new InputStatus(fileName)
+		{
+			LineStart = numbers[0],
+			ColStart = numbers[1],
+			LineEnd = numbers[2],
+			ColEnd = numbers[3]
+		};
+	}
 }
