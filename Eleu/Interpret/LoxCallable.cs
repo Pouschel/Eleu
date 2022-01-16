@@ -1,21 +1,21 @@
 ﻿namespace Eleu.Interpret;
 
-interface LoxCallable
+interface ICallable
 {
 	object Call(Interpreter interpreter, object[] arguments);
-	int arity();
+	int Arity { get; }
 }
 
-internal class LoxNative : LoxCallable
+internal class NativeFunction : ICallable
 {
 	public readonly NativeFn function;
 
-	public LoxNative(NativeFn function) 
+	public NativeFunction(NativeFn function) 
 	{
 		this.function = function;
 	}
 
-	public int arity() => function.Method.GetParameters().Length - 1;
+	public int Arity => function.Method.GetParameters().Length - 1;
 
 	public object Call(Interpreter interpreter, object[] arguments)
 	{
@@ -24,18 +24,18 @@ internal class LoxNative : LoxCallable
 	public override string ToString() => "<native fn>";
 
 }
-class LoxFunction :  LoxCallable
+class EleuFunction : ICallable
 {
-	private Stmt.Function declaration;
-	private EleuEnvironment closure;
-	private bool isInitializer;
-	public LoxFunction(Stmt.Function declaration, EleuEnvironment closure, bool isInitializer) 
+	private readonly Stmt.Function declaration;
+	private readonly EleuEnvironment closure;
+	private readonly bool isInitializer;
+	public EleuFunction(Stmt.Function declaration, EleuEnvironment closure, bool isInitializer) 
 	{
 		this.declaration = declaration;
 		this.closure = closure;
 		this.isInitializer = isInitializer;
 	}
-	public int arity() => declaration.Paras.Count;
+	public int Arity => declaration.Paras.Count;
 	public object Call(Interpreter interpreter, object[] arguments)
 	{
 		var environment = new EleuEnvironment(closure);
@@ -49,36 +49,39 @@ class LoxFunction :  LoxCallable
 	}
 	public override string ToString() => $"<fn {declaration.Name}>";
 
-	public LoxFunction bind(LoxInstance instance)
+	public EleuFunction bind(EleuInstance instance)
 	{
 		var environment = new EleuEnvironment(closure);
 		environment.Define("this", instance);
-		return new LoxFunction(declaration, environment, isInitializer);
+		return new EleuFunction(declaration, environment, isInitializer);
 	}
 
 }
 
-class LoxClass :  LoxCallable
+class EleuClass :  ICallable
 {
 	public readonly string Name;
 	public readonly OTable Methods;
-	private LoxClass? superclass;
-	public LoxClass(string name, LoxClass? superclass) 
+	private EleuClass? superclass;
+	public EleuClass(string name, EleuClass? superclass) 
 	{
 		this.Name = name;
 		this.superclass = superclass;
 		this.Methods = new OTable();
 	}
-	public int arity()
+	public int Arity
 	{
-		if (findMethod("init") is not LoxFunction initializer) return 0;
-		return initializer.arity();
+		get
+		{
+			if (FindMethod("init") is not EleuFunction initializer) return 0;
+			return initializer.Arity;
+		}
 	}
 
 	public object Call(Interpreter interpreter, object[] arguments)
 	{
-		var instance = new LoxInstance(this);
-		LoxFunction? initializer = findMethod("init") as LoxFunction;
+		var instance = new EleuInstance(this);
+		EleuFunction? initializer = FindMethod("init") as EleuFunction;
 		if (initializer != null)
 		{
 			initializer.bind(instance).Call(interpreter, arguments);
@@ -86,44 +89,42 @@ class LoxClass :  LoxCallable
 		return instance;
 	}
 
-	public object findMethod(String name)
+	public object FindMethod(string name)
 	{
 		if (Methods.Get(name, out var val))
 			return val;
 		if (superclass != null)
 		{
-			return superclass.findMethod(name);
+			return superclass.FindMethod(name);
 		}
 		return Nil;
 	}
 	public override string ToString() => Name;
 }
 
-class LoxInstance 
+class EleuInstance 
 {
-	private LoxClass klass;
-	private OTable fields;
+	private readonly EleuClass klass;
+	private readonly OTable fields;
 
-
-	public LoxInstance(LoxClass klass) 
+	public EleuInstance(EleuClass klass) 
 	{
 		this.klass = klass;
 		this.fields = new OTable();
 	}
-
-	public object get(string name)
+	public object Get(string name)
 	{
 		if (!fields.Get(name, out var val))
 		{
-			var method = klass.findMethod(name);
+			var method = klass.FindMethod(name);
 			if (method== Nil) throw new EleuRuntimeError("Undefined property '" + name + "'.");
-			var func = method as LoxFunction;
+			var func = method as EleuFunction;
 			return func!.bind(this);
 		}
 		return val;
 	}
 
-	public void set(string name, object value) => fields.Set(name, value);
+	public void Set(string name, object value) => fields.Set(name, value);
 	public override string ToString() => $"{klass.Name} instance";
 }
 

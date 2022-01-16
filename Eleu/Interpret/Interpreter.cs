@@ -31,7 +31,7 @@ internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<In
 
 	public void DefineNative(string name, NativeFn function)
 	{
-		var ofun = new LoxNative(function);
+		var ofun = new NativeFunction(function);
 		globals.Define(name, ofun);
 	}
 
@@ -142,12 +142,12 @@ internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<In
 	public object VisitCallExpr(Expr.Call expr)
 	{
 		var callee = Evaluate(expr.Callee);
-		if (callee is not LoxCallable function)
+		if (callee is not ICallable function)
 		{
 			throw new EleuRuntimeError("Can only call functions and classes.");
 		}
-		if (expr.Arguments.Count != function.arity())
-			throw new EleuRuntimeError("Expected " + function.arity() + " arguments but got " + expr.Arguments.Count + ".");
+		if (expr.Arguments.Count != function.Arity)
+			throw new EleuRuntimeError("Expected " + function.Arity+ " arguments but got " + expr.Arguments.Count + ".");
 		var arguments = new object[expr.Arguments.Count];
 		for (int i = 0; i < expr.Arguments.Count; i++)
 		{
@@ -160,9 +160,9 @@ internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<In
 	public object VisitGetExpr(Expr.Get expr)
 	{
 		var obj = Evaluate(expr.Obj);
-		if (obj is LoxInstance inst)
+		if (obj is EleuInstance inst)
 		{
-			return inst.get(expr.Name);
+			return inst.Get(expr.Name);
 		}
 		throw Error("Only instances have properties.");
 	}
@@ -199,21 +199,21 @@ internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<In
 	public object VisitSetExpr(Expr.Set expr)
 	{
 		var obj = Evaluate(expr.Obj);
-		if (obj is not LoxInstance li)
+		if (obj is not EleuInstance li)
 		{
 			throw Error("Only instances have fields.");
 		}
 		var value = Evaluate(expr.Value);
-		li.set(expr.Name, value);
+		li.Set(expr.Name, value);
 		return value;
 	}
 
 	public object VisitSuperExpr(Expr.Super expr)
 	{
 		int distance = locals[expr];
-		LoxClass superclass = (LoxClass)environment.GetAt("super", distance);
-		LoxInstance obj = (LoxInstance)environment.GetAt("this", distance - 1);
-		LoxFunction? method = superclass.findMethod(expr.Method) as LoxFunction;
+		EleuClass superclass = (EleuClass)environment.GetAt("super", distance);
+		EleuInstance obj = (EleuInstance)environment.GetAt("this", distance - 1);
+		EleuFunction? method = superclass.FindMethod(expr.Method) as EleuFunction;
 		if (method == null)
 		{
 			throw Error("Undefined property '" + expr.Method + "'.");
@@ -283,15 +283,15 @@ internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<In
 
 	public InterpretResult VisitClassStmt(Stmt.Class stmt)
 	{
-		LoxClass? superclass = null;
+		EleuClass? superclass = null;
 		if (stmt.Superclass != null)
 		{
 			var superclassV = Evaluate(stmt.Superclass);
-			if (superclassV is not LoxClass)
+			if (superclassV is not EleuClass)
 			{
 				throw new EleuRuntimeError("Superclass must be a class.");
 			}
-			superclass = superclassV as LoxClass;
+			superclass = superclassV as EleuClass;
 		}
 		environment.Define(stmt.Name, Nil);
 		if (superclass != null)
@@ -299,10 +299,10 @@ internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<In
 			environment = new EleuEnvironment(environment);
 			environment.Define("super", superclass);
 		}
-		var klass = new LoxClass(stmt.Name, superclass);
+		var klass = new EleuClass(stmt.Name, superclass);
 		foreach (Stmt.Function method in stmt.Methods)
 		{
-			LoxFunction function = new LoxFunction(method, environment, method.Name == "init");
+			EleuFunction function = new EleuFunction(method, environment, method.Name == "init");
 			klass.Methods.Set(method.Name, function);
 		}
 		var kval = klass;
@@ -318,7 +318,7 @@ internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<In
 
 	public InterpretResult VisitFunctionStmt(Stmt.Function stmt)
 	{
-		LoxFunction function = new LoxFunction(stmt, environment, false);
+		EleuFunction function = new EleuFunction(stmt, environment, false);
 		environment.Define(stmt.Name, function);
 		return new(function);
 	}
