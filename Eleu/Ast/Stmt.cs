@@ -3,6 +3,8 @@
 namespace Eleu.Ast;
 
 public abstract class Stmt {
+  public InputStatus? Status;
+
   public interface Visitor<R> {
     R VisitBlockStmt(Block stmt);
     R VisitClassStmt(Class stmt);

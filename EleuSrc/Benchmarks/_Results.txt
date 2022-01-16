@@ -124,3 +124,16 @@ string_equality   :  1,495 ms
 trees             :  2,720 ms
 zoo               :    513 ms
             Total :  15.87 s
+--- 01/16/2022 11:01:56 ---
+// InputStatus support
+binary_trees      :  1,730 ms
+equality          :  1,650 ms
+fib               :  1,862 ms
+instantiation     :    831 ms
+invocation        :    755 ms
+method_call       :  3,126 ms
+properties        :  1,483 ms
+string_equality   :  1,383 ms
+trees             :  2,722 ms
+zoo               :    559 ms
+            Total :  16.11 s

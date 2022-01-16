@@ -15,6 +15,8 @@ public struct InputStatus
 		this.FileName = fileName;
 	}
 
+	public bool IsEmpty => LineStart == LineEnd && ColStart == ColEnd;
+
 	internal void NextLine()
 	{
 		this.LineStart++; this.LineEnd++;

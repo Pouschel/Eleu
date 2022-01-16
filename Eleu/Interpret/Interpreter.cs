@@ -1,4 +1,6 @@
 ﻿namespace Eleu.Interpret;
+
+using System.Diagnostics;
 using static Eleu.Interpret.InterpreterStatics;
 
 internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
@@ -9,6 +11,7 @@ internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<In
 	private EleuEnvironment environment;
 	private Dictionary<Expr, int> locals = new();
 	private CancellationToken ctoken = CancellationToken.None;
+	InputStatus currentStatus;
 
 	public Interpreter(EleuOptions options, List<Stmt> statements)
 	{
@@ -53,7 +56,9 @@ internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<In
 		}
 		catch (EleuRuntimeError ex)
 		{
-			options.Err.WriteLine(ex.Message);
+			var msg = $"{currentStatus.Message}: {ex.Message}";
+			options.Err.WriteLine(msg);
+			Trace.WriteLine(msg);
 			result = EEleuResult.RuntimeError;
 		}
 		catch (OperationCanceledException)
@@ -77,6 +82,8 @@ internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<In
 	private InterpretResult Execute(Stmt stmt)
 	{
 		ctoken.ThrowIfCancellationRequested();
+		if (stmt.Status.HasValue)
+			currentStatus = stmt.Status.Value;
 		InstructionCount++;
 		return stmt.Accept(this);
 	}

@@ -55,7 +55,7 @@ public class Globals
 		var scanner = new Scanner(source, fileName);
 		var tokens = scanner.ScanAllTokens();
 		var parser = new AstParser(options, fileName, tokens);
-		var parseResult = parser.parse();
+		var parseResult = parser.Parse();
 
 		var result = new EleuResult()
 		{

@@ -94,6 +94,8 @@ static void defineAst(string outputDir, string baseName, string[] types)
 	writer.println();
 	writer.println("public abstract class " + baseName + " {");
 
+	writer.println("  public InputStatus? Status;");
+	writer.println("");
 	//> call-define-visitor
 	defineVisitor(writer, baseName, types);
 

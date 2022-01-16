@@ -3,6 +3,8 @@
 namespace Eleu.Ast;
 
 public abstract class Expr {
+  public InputStatus? Status;
+
   public interface Visitor<R> {
     R VisitAssignExpr(Assign expr);
     R VisitBinaryExpr(Binary expr);

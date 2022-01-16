@@ -19,8 +19,8 @@ class Program
 			var source = File.ReadAllText(fileName);
 			var sw = new StringWriter();
 			Globals.RunTestCode(source, sw);
-			var res = sw.ToString().ReplaceLineEndings();
-			var expected = GetSourceOutput(source).ReplaceLineEndings();
+			var res = ProcessScriptOutput(sw.ToString()).ReplaceLineEndings().TrimEnd();
+			var expected = GetSourceOutput(source).ReplaceLineEndings().TrimEnd();
 			if (res == expected)
 			{
 				Interlocked.Increment(ref nSuccess);
@@ -48,6 +48,20 @@ class Program
 		}
 	}
 
+	string ProcessScriptOutput(string s)
+	{
+		var lines = s.Split('\n');
+		var sw = new StringWriter();
+		foreach (var line in lines)
+		{
+			var l = line.TrimEnd();
+			int idx = l.IndexOf("): ");
+			if (idx >= 0)
+				l = l[(idx + 3)..];
+			sw.WriteLine(l);
+		}
+		return sw.ToString();
+	}
 	void BenchmarkFile(string fileName)
 	{
 		Interlocked.Increment(ref nTests);
