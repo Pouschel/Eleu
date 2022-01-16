@@ -1,6 +1,6 @@
-﻿global using static Eleu.TokenType;
+﻿
 
-namespace Eleu;
+namespace Eleu.Scanning;
 
 public enum TokenType
 {

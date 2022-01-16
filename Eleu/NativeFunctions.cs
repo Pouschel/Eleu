@@ -1,7 +1,9 @@
 ﻿using System.Reflection;
-using Eleu.Vm;
 
 namespace Eleu;
+using Value = System.Object;
+
+public delegate object NativeFn(object[] args);
 
 class NativeException : Exception
 {
@@ -27,20 +29,19 @@ class NativeFunctions
 	Value RuntimeErrorWithNil(string msg)
 	{
 		vm.RuntimeError(msg);
-		return NilValue;
+		return Nil;
 	}
 
 	public Value Clock(Value[] _)
 	{
-		return CreateNumberVal(DateTime.Now.Ticks / 10000000.0);
+		return DateTime.Now.Ticks / 10000000.0;
 	}
 
 	public Value Len(Value[] args)
 	{
 		if (args.Length != 1) return RuntimeErrorWithNil("len must have 1 argument");
 		var arg = args[0];
-		if (IsString(arg)) return CreateNumberVal(AsString(arg).Length);
-		if (IsList(arg)) return CreateNumberVal(AsList(arg).Count);
+		if (arg is string s) return (double) s.Length;
 		return RuntimeErrorWithNil($"{arg} has no length");
 	}
 
@@ -78,31 +79,30 @@ class NativeFunctions
 	object? MatchParameter(Value value, Type? paraType)
 	{
 		if (paraType == null) return null;
-		if (IsNumber(value))
+		if (value is double num)
 		{
-			var num = AsNumber(value);
 			if (!IsNumberTypeCode(Type.GetTypeCode(paraType)))
 				return null;
 			return Convert.ChangeType(num, paraType);
 		}
-		if (IsString(value))
+		if (value is string s)
 		{
-			if (paraType == typeof(string)) return AsString(value);
+			if (paraType == typeof(string)) return s;
 		}
 		return null;
 	}
 
 	static Value ConvertResult(object? result)
 	{
-		if (result is null) return NilValue;
+		if (result is null) return Nil;
 		var type = result.GetType();
 		if (IsNumberTypeCode(Type.GetTypeCode(type)))
 		{
 			double d = (double)Convert.ChangeType(result, TypeCode.Double);
-			return CreateNumberVal(d);
+			return d;
 		}
 		if (result is string str) 
-			return CreateStringVal(str);
+			return str;
 		throw new NativeException($"Value conversion error for type {type.Name}");
 	}
 
@@ -146,12 +146,12 @@ class NativeFunctions
 					return (true, ConvertResult(prop.GetValue(_this)));
 			}
 		}
-		return (false, NilValue);
+		return (false, Nil);
 	}
 
 	public Value Invoke(Value[] args)
 	{
-		var funcName = AsString(args[0]);
+		var funcName = (string) args[0];
 		int idx = funcName.LastIndexOf('.');
 		var clsName = funcName[..idx];
 		if (!typeDict.TryGetValue(clsName, out var type))

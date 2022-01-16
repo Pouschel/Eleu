@@ -8,9 +8,9 @@ interface LoxCallable
 
 internal class LoxNative : LoxCallable
 {
-	public readonly Vm.NativeFn function;
+	public readonly NativeFn function;
 
-	public LoxNative(Vm.NativeFn function) 
+	public LoxNative(NativeFn function) 
 	{
 		this.function = function;
 	}
@@ -19,8 +19,7 @@ internal class LoxNative : LoxCallable
 
 	public object Call(Interpreter interpreter, object[] arguments)
 	{
-		
-		return Nil;
+		return function(arguments);
 	}
 	public override string ToString() => "<native fn>";
 

@@ -9,10 +9,27 @@
 		<Deterministic>False</Deterministic>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="Debugger\**" />
+    <Compile Remove="Vm\**" />
+    <EmbeddedResource Remove="Debugger\**" />
+    <EmbeddedResource Remove="Vm\**" />
+    <None Remove="Debugger\**" />
+    <None Remove="Vm\**" />
+  </ItemGroup>
+
 
   <ItemGroup>
+    <Compile Remove="CodeGen\ByteCodeGenerator.cs" />
+    <Compile Remove="CodeGen\CodeGenBase.cs" />
     <Compile Remove="CodeGen\JsCodeGen.cs" />
     <Compile Remove="Table.cs" />
+    <Compile Remove="TableNew.cs" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Folder Include="CodeGen\" />
   </ItemGroup>
 
 </Project>

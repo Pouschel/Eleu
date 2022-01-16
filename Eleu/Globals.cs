@@ -1,14 +1,11 @@
 ﻿global using System;
+global using Eleu.Scanning;
+global using Eleu.Ast;
 global using static Eleu.FunctionType;
 global using static Eleu.EEleuResult;
-global using static Eleu.Vm.ValueStatics;
-global using Eleu.Debugger;
 global using static Eleu.Globals;
-global using Eleu.Ast;
-
-using Eleu.CodeGen;
+global using static Eleu.Scanning.TokenType;
 using Eleu.Interpret;
-using Eleu.Vm;
 
 namespace Eleu;
 
@@ -31,15 +28,15 @@ public enum EEleuResult
 class EleuResult
 {
 	public EEleuResult Result;
-	public Vm.ObjFunction? Function;
+	//public Vm.ObjFunction? Function;
 	public List<Stmt>? Expr;
-	public DebugInfo? DebugInfo;
+	//public DebugInfo? DebugInfo;
 }
 public interface IInterpreter
 {
 	EEleuResult Interpret();
 	void RuntimeError(string msg);
-	void DefineNative(string name, Vm.NativeFn function);
+	void DefineNative(string name, NativeFn function);
 
 	public int InstructionCount => 0;
 	EEleuResult InterpretWithDebug(CancellationToken token);
@@ -74,17 +71,17 @@ public class Globals
 			Expr = parseResult,
 		};
 		if (result.Result != Ok) return (result.Result, null);
-		if (options.UseInterpreter)
+		//if (options.UseInterpreter)
 		{
 			var interpreter = new Interpreter(options, result.Expr!);
 			return (result.Result, interpreter);
 		}
-		var codeGen = new ByteCodeGenerator(fileName, options, result);
-		result = codeGen.GenCode();
-		if (result.Result != Ok)
-			return (result.Result, null);
-		VM vm = new VM(options, result);
-		return (result.Result, vm);
+		//var codeGen = new ByteCodeGenerator(fileName, options, result);
+		//result = codeGen.GenCode();
+		//if (result.Result != Ok)
+		//	return (result.Result, null);
+		//VM vm = new VM(options, result);
+		//return (result.Result, vm);
 	}
 
 	internal static EEleuResult CompileAndRunAst(string source, string fileName, EleuOptions options)
@@ -94,24 +91,6 @@ public class Globals
 		return vm!.Interpret();
 	}
 
-	internal static EleuResult CompileAndRun(string fileName, EleuOptions options)
-	{
-		var source = File.ReadAllText(fileName);
-		return CompileAndRun(source, fileName, options);
-	}
-
-	internal static EleuResult CompileAndRun(string source, string fileName, EleuOptions options)
-	{
-		var compiler = new Compiler(source, fileName, options);
-		var cresult = compiler.Compile();
-		if (cresult.Result != Ok)
-			return cresult;
-
-		VM vm = new VM(options, cresult);
-		vm.Interpret();
-		return cresult;
-	}
-
 	public static bool RunFile(string path, TextWriter tw, bool debugPrintCode = false)
 	{
 		var opt = new EleuOptions()
@@ -119,8 +98,8 @@ public class Globals
 			Out = tw,
 			PrintByteCode = debugPrintCode
 		};
-		var result = CompileAndRun(path, opt);
-		return result.Result == Ok;
+		var result = CompileAndRunAst(path, opt);
+		return result == Ok;
 	}
 
 	public static bool RunTestCode(string source, TextWriter tw)

@@ -18,7 +18,7 @@ internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<In
 		var _ = new NativeFunctions(this);
 	}
 
-	public void DefineNative(string name, Vm.NativeFn function)
+	public void DefineNative(string name, NativeFn function)
 	{
 		var ofun = new LoxNative(function);
 		globals.Define(name, ofun);
@@ -270,7 +270,7 @@ internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<In
 			}
 			superclass = superclassV as LoxClass;
 		}
-		environment.Define(stmt.Name, NilValue);
+		environment.Define(stmt.Name, Nil);
 		if (superclass != null)
 		{
 			environment = new EleuEnvironment(environment);
