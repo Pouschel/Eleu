@@ -1,6 +1,4 @@
-﻿
-
-namespace Eleu.Scanning;
+﻿namespace Eleu.Scanning;
 
 public enum TokenType
 {

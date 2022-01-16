@@ -1,6 +1,5 @@
 ﻿namespace Eleu.Interpret;
 
-
 class OTable : Dictionary<string, object>
 {
 

@@ -20,16 +20,8 @@
 
 
   <ItemGroup>
-    <Compile Remove="CodeGen\ByteCodeGenerator.cs" />
-    <Compile Remove="CodeGen\CodeGenBase.cs" />
-    <Compile Remove="CodeGen\JsCodeGen.cs" />
     <Compile Remove="Table.cs" />
     <Compile Remove="TableNew.cs" />
-  </ItemGroup>
-
-
-  <ItemGroup>
-    <Folder Include="CodeGen\" />
   </ItemGroup>
 
 </Project>

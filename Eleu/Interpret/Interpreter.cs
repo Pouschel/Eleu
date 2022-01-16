@@ -18,6 +18,12 @@ internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<In
 		var _ = new NativeFunctions(this);
 	}
 
+	public int InstructionCount
+	{
+		get;
+		private set;
+	}
+
 	public void DefineNative(string name, NativeFn function)
 	{
 		var ofun = new LoxNative(function);
@@ -33,6 +39,7 @@ internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<In
 	public EEleuResult Interpret()
 	{
 		EEleuResult result = Ok;
+		InstructionCount = 0;
 		try
 		{
 			locals = new Dictionary<Expr, int>();
@@ -62,22 +69,15 @@ internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<In
 	}
 	private object Evaluate(Expr expr)
 	{
+		InstructionCount++;
 		var evaluated = expr.Accept(this);
 		return evaluated;
-		//return evaluated switch
-		//{
-		//	bool b => b ? BoolTrue : BoolFalse,
-		//	null => NilValue,
-		//	double d => CreateNumberVal(d),
-		//	string s => CreateStringVal(s),
-		//	object o when o == Nil => NilValue,
-		//	_ => throw Error($"Unsupported constant of type: {evaluated}"),
-		//};
 	}
 
 	private InterpretResult Execute(Stmt stmt)
 	{
 		ctoken.ThrowIfCancellationRequested();
+		InstructionCount++;
 		return stmt.Accept(this);
 	}
 

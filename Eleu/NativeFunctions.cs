@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 
 namespace Eleu;
-using Value = System.Object;
 
 public delegate object NativeFn(object[] args);
 
@@ -9,7 +8,6 @@ class NativeException : Exception
 {
 	public NativeException(string msg) : base(msg)
 	{
-
 	}
 }
 
@@ -26,18 +24,18 @@ class NativeFunctions
 		vm.DefineNative("len", Len);
 	}
 
-	Value RuntimeErrorWithNil(string msg)
+	object RuntimeErrorWithNil(string msg)
 	{
 		vm.RuntimeError(msg);
 		return Nil;
 	}
 
-	public Value Clock(Value[] _)
+	public object Clock(object[] _)
 	{
 		return DateTime.Now.Ticks / 10000000.0;
 	}
 
-	public Value Len(Value[] args)
+	public object Len(object[] args)
 	{
 		if (args.Length != 1) return RuntimeErrorWithNil("len must have 1 argument");
 		var arg = args[0];
@@ -76,7 +74,7 @@ class NativeFunctions
 		return false;
 	}
 
-	object? MatchParameter(Value value, Type? paraType)
+	object? MatchParameter(object value, Type? paraType)
 	{
 		if (paraType == null) return null;
 		if (value is double num)
@@ -92,7 +90,7 @@ class NativeFunctions
 		return null;
 	}
 
-	static Value ConvertResult(object? result)
+	static object ConvertResult(object? result)
 	{
 		if (result is null) return Nil;
 		var type = result.GetType();
@@ -103,10 +101,10 @@ class NativeFunctions
 		}
 		if (result is string str) 
 			return str;
-		throw new NativeException($"Value conversion error for type {type.Name}");
+		throw new NativeException($"object conversion error for type {type.Name}");
 	}
 
-	object[]? MatchParameter(Value[] args, int index, ParameterInfo[] paras)
+	object[]? MatchParameter(object[] args, int index, ParameterInfo[] paras)
 	{
 		object[] matchedParas = new object[paras.Length];
 		for (int i = 0; i < paras.Length; i++)
@@ -118,7 +116,7 @@ class NativeFunctions
 		return matchedParas;
 	}
 
-	(bool, Value) MatchAndInvoke(Type type, string methodName, Value[] args)
+	(bool, object) MatchAndInvoke(Type type, string methodName, object[] args)
 	{
 		foreach (var mthm in type.GetMethods(BindingFlags.Static| BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
 		{
@@ -149,7 +147,7 @@ class NativeFunctions
 		return (false, Nil);
 	}
 
-	public Value Invoke(Value[] args)
+	public object Invoke(object[] args)
 	{
 		var funcName = (string) args[0];
 		int idx = funcName.LastIndexOf('.');

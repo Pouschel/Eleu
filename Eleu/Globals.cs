@@ -37,20 +37,12 @@ public interface IInterpreter
 	EEleuResult Interpret();
 	void RuntimeError(string msg);
 	void DefineNative(string name, NativeFn function);
-
 	public int InstructionCount => 0;
 	EEleuResult InterpretWithDebug(CancellationToken token);
-
 }
-
 
 public class Globals
 {
-	internal const int UINT8_COUNT = 256;
-	internal static bool identifiersEqual(in Token a, in Token b)
-		=> a.StringValue == b.StringValue;
-	internal static bool identifiersEqual(in Token a, string b)
-	=> a.StringValue == b;
 
 	internal static EEleuResult CompileAndRunAst(string fileName, EleuOptions options)
 	{
@@ -114,15 +106,5 @@ public class Globals
 		};
 		var cres = CompileAndRunAst(source, "", opt);
 		return cres == Ok;
-	}
-
-	internal static int ExpandArray<T>(ref T[] array)
-	{
-		int len = array.Length;
-		int newLen = len * 3 / 2;
-		var newArray = new T[newLen];
-		Array.Copy(array, newArray, len);
-		array = newArray;
-		return newLen;
 	}
 }

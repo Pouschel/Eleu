@@ -4,7 +4,7 @@ fun fib(n) {
 }
 
 var start = clock();
-print fib(26);
+print fib(24);
 print clock() - start;
 
 // Python needs 2.804 s

@@ -4,7 +4,7 @@ namespace Eleu.Interpret;
 
 static class InterpreterStatics
 {
-	public static object Nil = new object();
+	public static object Nil = new();
 
 	public static bool ObjEquals(object a, object b)
 	{
