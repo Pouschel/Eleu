@@ -1,6 +1,6 @@
 ﻿namespace Eleu.Ast;
 
-public class ParseError : Exception { }
+
 
 internal class AstParser
 {
@@ -21,7 +21,7 @@ internal class AstParser
 		List<Stmt> statements = new();
 		while (!isAtEnd())
 		{
-			var decl = declaration();
+			var decl = Declaration();
 			if (decl != null) statements.Add(decl);
 		}
 		if (statements.Count == 0 && peek().type == TOKEN_ERROR)
@@ -46,7 +46,7 @@ internal class AstParser
 	}
 	private Stmt forStatement()
 	{
-		consume(TOKEN_LEFT_PAREN, "Expect '(' after 'for'.");
+		Consume(TOKEN_LEFT_PAREN, "Expect '(' after 'for'.");
 		Stmt? initializer;
 		if (match(TokenSemicolon))
 			initializer = null;
@@ -59,13 +59,13 @@ internal class AstParser
 		{
 			condition = expression();
 		}
-		consume(TokenSemicolon, "Expect ';' after loop condition.");
+		Consume(TokenSemicolon, "Expect ';' after loop condition.");
 		Expr? increment = null;
 		if (!check(TOKEN_RIGHT_PAREN))
 		{
 			increment = expression();
 		}
-		consume(TOKEN_RIGHT_PAREN, "Expect ')' after for clauses.");
+		Consume(TOKEN_RIGHT_PAREN, "Expect ')' after for clauses.");
 		Stmt body = statement();
 		if (increment != null)
 		{
@@ -85,9 +85,9 @@ internal class AstParser
 	}
 	private Stmt ifStatement()
 	{
-		consume(TOKEN_LEFT_PAREN, "Expect '(' after 'if'.");
+		Consume(TOKEN_LEFT_PAREN, "Expect '(' after 'if'.");
 		Expr condition = expression();
-		consume(TOKEN_RIGHT_PAREN, "Expect ')' after if condition.");
+		Consume(TOKEN_RIGHT_PAREN, "Expect ')' after if condition.");
 
 		Stmt thenBranch = statement();
 		Stmt? elseBranch = null;
@@ -100,7 +100,7 @@ internal class AstParser
 	private Stmt printStatement()
 	{
 		Expr value = expression();
-		consume(TokenSemicolon, "Expect ';' after value.");
+		Consume(TokenSemicolon, "Expect ';' after value.");
 		return new Stmt.Print(value);
 	}
 	private Stmt returnStatement()
@@ -111,19 +111,19 @@ internal class AstParser
 		{
 			value = expression();
 		}
-		consume(TokenSemicolon, "Expect ';' after return value.");
+		Consume(TokenSemicolon, "Expect ';' after return value.");
 		return new Stmt.Return(keyword, value);
 	}
 	private Stmt expressionStatement()
 	{
 		Expr expr = expression();
-		consume(TokenSemicolon, "Expect ';' after expression.");
+		Consume(TokenSemicolon, "Expect ';' after expression.");
 		return new Stmt.Expression(expr);
 	}
 	private Stmt.Function function(FunctionType kind)
 	{
-		Token name = consume(TOKEN_IDENTIFIER, "Expect " + kind + " name.");
-		consume(TOKEN_LEFT_PAREN, "Expect '(' after " + kind + " name.");
+		Token name = Consume(TOKEN_IDENTIFIER, "Expect " + kind + " name.");
+		Consume(TOKEN_LEFT_PAREN, "Expect '(' after " + kind + " name.");
 		List<Token> parameters = new();
 		if (!check(TOKEN_RIGHT_PAREN))
 		{
@@ -131,15 +131,15 @@ internal class AstParser
 			{
 				if (parameters.Count >= 255)
 				{
-					error(peek(), "Can't have more than 255 parameters.");
+					Error(peek(), "Can't have more than 255 parameters.");
 				}
 
-				parameters.Add(consume(TOKEN_IDENTIFIER, "Expect parameter name."));
+				parameters.Add(Consume(TOKEN_IDENTIFIER, "Expect parameter name."));
 			} while (match(TOKEN_COMMA));
 		}
-		consume(TOKEN_RIGHT_PAREN, "Expect ')' after parameters.");
+		Consume(TOKEN_RIGHT_PAREN, "Expect ')' after parameters.");
 		string tmsg = kind == FunctionType.FunTypeFunction ? "function" : "method";
-		consume(TOKEN_LEFT_BRACE, "Expect '{' before " + tmsg + " body.");
+		Consume(TOKEN_LEFT_BRACE, "Expect '{' before " + tmsg + " body.");
 		List<Stmt> body = block();
 		return new Stmt.Function(kind, name.StringValue, parameters, body);
 	}
@@ -148,10 +148,10 @@ internal class AstParser
 		List<Stmt> statements = new();
 		while (!check(TOKEN_RIGHT_BRACE) && !isAtEnd())
 		{
-			var decl = declaration();
+			var decl = Declaration();
 			if (decl != null) statements.Add(decl);
 		}
-		consume(TOKEN_RIGHT_BRACE, "Expect '}' after block.");
+		Consume(TOKEN_RIGHT_BRACE, "Expect '}' after block.");
 		return statements;
 	}
 	private Expr assignment()
@@ -170,7 +170,7 @@ internal class AstParser
 			{
 				return new Expr.Set(get.Obj, get.Name, value);
 			}
-			error(equals, "Invalid assignment target.");
+			Error(equals, "Invalid assignment target.");
 		}
 		return expr;
 	}
@@ -200,55 +200,55 @@ internal class AstParser
 	{
 		return assignment();
 	}
-	private Stmt? declaration()
+	private Stmt? Declaration()
 	{
 		try
 		{
 			if (match(TOKEN_FUN)) return function(FunTypeFunction);
-			if (match(TOKEN_CLASS)) return classDeclaration();
+			if (match(TOKEN_CLASS)) return ClassDeclaration();
 			if (match(TOKEN_VAR)) return varDeclaration();
 			return statement();
 		}
-		catch (ParseError)
+		catch (EleuParseError)
 		{
-			synchronize();
+			Synchronize();
 			return null;
 		}
 	}
-	private Stmt classDeclaration()
+	private Stmt ClassDeclaration()
 	{
-		Token name = consume(TOKEN_IDENTIFIER, "Expect class name.");
+		Token name = Consume(TOKEN_IDENTIFIER, "Expect class name.");
 		Expr.Variable? superclass = null;
 		if (match(TOKEN_LESS))
 		{
-			consume(TOKEN_IDENTIFIER, "Expect superclass name.");
+			Consume(TOKEN_IDENTIFIER, "Expect superclass name.");
 			superclass = new Expr.Variable(previous().StringValue);
 		}
-		consume(TOKEN_LEFT_BRACE, "Expect '{' before class body.");
+		Consume(TOKEN_LEFT_BRACE, "Expect '{' before class body.");
 		List<Stmt.Function> methods = new();
 		while (!check(TOKEN_RIGHT_BRACE) && !isAtEnd())
 		{
 			methods.Add(function(FunTypeMethod));
 		}
-		consume(TOKEN_RIGHT_BRACE, "Expect '}' after class body.");
+		Consume(TOKEN_RIGHT_BRACE, "Expect '}' after class body.");
 		return new Stmt.Class(name.StringValue, superclass, methods);
 	}
 	private Stmt varDeclaration()
 	{
-		Token name = consume(TOKEN_IDENTIFIER, "Expect variable name.");
+		Token name = Consume(TOKEN_IDENTIFIER, "Expect variable name.");
 		Expr? initializer = null;
 		if (match(TOKEN_EQUAL))
 		{
 			initializer = expression();
 		}
-		consume(TokenSemicolon, "Expect ';' after variable declaration.");
+		Consume(TokenSemicolon, "Expect ';' after variable declaration.");
 		return new Stmt.Var(name.StringValue, initializer);
 	}
 	private Stmt whileStatement()
 	{
-		consume(TOKEN_LEFT_PAREN, "Expect '(' after 'while'.");
+		Consume(TOKEN_LEFT_PAREN, "Expect '(' after 'while'.");
 		Expr condition = expression();
-		consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
+		Consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
 		Stmt body = statement();
 		return new Stmt.While(condition, body);
 	}
@@ -277,16 +277,16 @@ internal class AstParser
 	}
 	private Expr term()
 	{
-		Expr expr = factor();
+		Expr expr = Factor();
 		while (match(TokenMinus, TokenPlus))
 		{
 			Token _operator = previous();
-			Expr right = factor();
+			Expr right = Factor();
 			expr = new Expr.Binary(expr, _operator, right);
 		}
 		return expr;
 	}
-	private Expr factor()
+	private Expr Factor()
 	{
 		Expr expr = unary();
 
@@ -319,7 +319,7 @@ internal class AstParser
 			}
 			else if (match(TOKEN_DOT))
 			{
-				Token name = consume(TOKEN_IDENTIFIER, "Expect property name after '.'.");
+				Token name = Consume(TOKEN_IDENTIFIER, "Expect property name after '.'.");
 				//TODO for Byte code gen
 				//if (match(TOKEN_LEFT_PAREN))
 				//	expr = finishCall(expr, name.StringValue);
@@ -342,12 +342,12 @@ internal class AstParser
 			{
 				if (arguments.Count >= 255)
 				{
-					error(peek(), "Can't have more than 255 arguments.");
+					Error(peek(), "Can't have more than 255 arguments.");
 				}
 				arguments.Add(expression());
 			} while (match(TOKEN_COMMA));
 		}
-		Token paren = consume(TOKEN_RIGHT_PAREN, "Expect ')' after arguments.");
+		Token paren = Consume(TOKEN_RIGHT_PAREN, "Expect ')' after arguments.");
 		return new Expr.Call(callee, mthName, callee is Expr.Super, arguments);
 	}
 	private Expr primary()
@@ -364,8 +364,8 @@ internal class AstParser
 		{
 			//if (!check(TOKEN_DOT)) error(peek(), "Expect '.' after 'super'.");
 			Token keyword = previous();
-			consume(TOKEN_DOT, "Expect '.' after 'super'.");
-			Token method = consume(TOKEN_IDENTIFIER, "Expect superclass method name.");
+			Consume(TOKEN_DOT, "Expect '.' after 'super'.");
+			Token method = Consume(TOKEN_IDENTIFIER, "Expect superclass method name.");
 			return new Expr.Super(keyword.StringValue, method.StringValue);
 		}
 		if (match(TOKEN_THIS)) return new Expr.This(previous().StringValue);
@@ -376,10 +376,10 @@ internal class AstParser
 		if (match(TOKEN_LEFT_PAREN))
 		{
 			Expr expr = expression();
-			consume(TOKEN_RIGHT_PAREN, "Expect ')' after expression.");
+			Consume(TOKEN_RIGHT_PAREN, "Expect ')' after expression.");
 			return new Expr.Grouping(expr);
 		}
-		throw error(peek(), "Expect expression.");
+		throw Error(peek(), "Expect expression.");
 	}
 
 	private bool match(params TokenType[] types)
@@ -394,16 +394,16 @@ internal class AstParser
 		}
 		return false;
 	}
-	private Token consume(TokenType type, string message)
+	private Token Consume(TokenType type, string message)
 	{
 		if (check(type)) return advance();
 
-		throw error(peek(), message);
+		throw Error(peek(), message);
 	}
-	private ParseError error(Token token, string message)
+	private EleuParseError Error(Token token, string message)
 	{
 		errorAt(token, message);
-		return new ParseError();
+		return new EleuParseError();
 	}
 	void errorAt(in Token token, string message)
 	{
@@ -413,7 +413,7 @@ internal class AstParser
 		options.Err.WriteLine(msg);
 		System.Diagnostics.Trace.WriteLine(msg);
 	}
-	private void synchronize()
+	private void Synchronize()
 	{
 		advance();
 		while (!isAtEnd())
@@ -447,7 +447,7 @@ internal class AstParser
 			current++;
 			var tok = peek();
 			if (tok.type == TOKEN_ERROR)
-				throw error(tok, tok.StringValue);
+				throw Error(tok, tok.StringValue);
 		}
 		return previous();
 	}
