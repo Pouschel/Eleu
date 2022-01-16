@@ -1,2 +1,2 @@
-// expect: Unterminated string.
+//Cerr: Unterminated string.
 "this string has no close quote

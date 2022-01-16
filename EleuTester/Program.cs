@@ -18,7 +18,7 @@ class Program
 			Interlocked.Increment(ref nTests);
 			var source = File.ReadAllText(fileName);
 			var sw = new StringWriter();
-			Globals.RunTestCode(source, sw);
+			Globals.RunTestCode(fileName, source, sw);
 			var res = ProcessScriptOutput(sw.ToString()).ReplaceLineEndings().TrimEnd();
 			var expected = GetSourceOutput(source).ReplaceLineEndings().TrimEnd();
 			if (res == expected)
@@ -67,7 +67,7 @@ class Program
 		Interlocked.Increment(ref nTests);
 		var source = File.ReadAllText(fileName);
 		Stopwatch watch = Stopwatch.StartNew();
-		Globals.RunTestCode(source, TextWriter.Null);
+		Globals.RunTestCode(fileName, source, TextWriter.Null);
 		var elapsed = watch.Elapsed;
 		lock (benchMarkResults)
 		{
@@ -77,40 +77,48 @@ class Program
 
 	static string GetSourceOutput(string source)
 	{
-		const string search = "// expect: ";
-		const string searchRtErr = "// expect runtime error: ";
+		//const string search = "// expect: ";
+		//const string searchRtErr = "// expect runtime error: ";
+
+		string[] searches = new string[] { "// expect: ", "// expect runtime error: ", "//Cerr: " };
 
 		var sw = new StringWriter();
 		var lines = source.Split('\n');
 		foreach (var line in lines)
 		{
-			int idx = line.IndexOf(search);
-			if (idx >= 0)
+			for (int i = 0; i < searches.Length; i++)
 			{
-				var resString = line[(idx + search.Length)..].TrimEnd();
-				sw.WriteLine(resString);
-				continue;
+				string? search = searches[i];
+				int idx = line.IndexOf(search);
+				if (idx < 0) continue;
+				if (idx >= 0)
+				{
+					int start = idx+ (i<2 ? search.Length : 2);
+					var resString = line[start..].TrimEnd();
+					sw.WriteLine(resString);
+					break;
+				}
 			}
-			idx = line.IndexOf(searchRtErr);
-			if (idx >= 0)
-			{
-				var txt = line[(idx + searchRtErr.Length)..].TrimEnd();
-				sw.WriteLine(txt);
-				continue;
-			}
-			idx = line.IndexOf("//");
-			if (idx < 0) continue;
-			string afterComment = line[(idx + 2)..].Trim();
-			if (afterComment.StartsWith("Cerr: "))
-			{
-				sw.WriteLine(afterComment[5..].Trim());
-				continue;
-			}
-			idx = line.IndexOf("Error at", idx);
-			if (idx < 0) continue;
-			idx = line.IndexOf(": ", idx);
-			if (idx < 0) continue;
-			sw.WriteLine(line.Substring(idx + 2).TrimEnd());
+			//idx = line.IndexOf(searchRtErr);
+			//if (idx >= 0)
+			//{
+			//	var txt = line[(idx + searchRtErr.Length)..].TrimEnd();
+			//	sw.WriteLine(txt);
+			//	continue;
+			//}
+			//idx = line.IndexOf("//");
+			//if (idx < 0) continue;
+			//string afterComment = line[(idx + 2)..].Trim();
+			//if (afterComment.StartsWith("Cerr: "))
+			//{
+			//	sw.WriteLine(afterComment[5..].Trim());
+			//	continue;
+			//}
+			//idx = line.IndexOf("Error at", idx);
+			//if (idx < 0) continue;
+			//idx = line.IndexOf(": ", idx);
+			//if (idx < 0) continue;
+			//sw.WriteLine(line.Substring(idx + 2).TrimEnd());
 		}
 		return sw.ToString();
 	}

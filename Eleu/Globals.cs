@@ -94,7 +94,7 @@ public class Globals
 		return result == Ok;
 	}
 
-	public static bool RunTestCode(string source, TextWriter tw)
+	public static bool RunTestCode(string path, string source, TextWriter tw)
 	{
 		var opt = new EleuOptions()
 		{
@@ -104,7 +104,7 @@ public class Globals
 			DumpStackOnError = false,
 			UseInterpreter = true,
 		};
-		var cres = CompileAndRunAst(source, "", opt);
+		var cres = CompileAndRunAst(source, path, opt);
 		return cres == Ok;
 	}
 }

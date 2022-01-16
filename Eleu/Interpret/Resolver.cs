@@ -214,7 +214,7 @@ internal class Resolver : Expr.Visitor<object?>, Stmt.Visitor<object?>
 		}
 		return null;
 	}
-	void error(string msg) => interpreter.RuntimeError(msg);
+	void error(string msg) => interpreter.RuntimeError("Cerr: " + msg);
 
 	public object? VisitVarStmt(Stmt.Var stmt)
 	{

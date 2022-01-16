@@ -1,5 +1,5 @@
-
-assert true;
+       //Cerr: Expect expression.
+while (true) fun foo() {}
 
 
 
