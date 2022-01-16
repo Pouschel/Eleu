@@ -68,15 +68,8 @@ internal class Scanner
 		}
 		return result;
 	}
-
 	static bool IsDigit(char c) => c >= '0' && c <= '9';
-	static bool IsAlpha(char c)
-	{
-		return (c >= 'a' && c <= 'z') ||
-					 (c >= 'A' && c <= 'Z') ||
-						c == '_';
-	}
-
+	static bool IsAlpha(char c) => char.IsLetter(c) || c == '_';
 	Token Number()
 	{
 		while (IsDigit(Peek())) Advance();
@@ -89,7 +82,6 @@ internal class Scanner
 		}
 		return MakeToken(TOKEN_NUMBER);
 	}
-
 	Token Identifier()
 	{
 		while (IsAlpha(Peek()) || IsDigit(Peek())) Advance();
@@ -145,7 +137,6 @@ internal class Scanner
 		}
 		return type;
 	}
-
 	Token ScanString()
 	{
 		while (Peek() != '"' && !IsAtEnd())

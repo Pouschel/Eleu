@@ -1,4 +1,7 @@
- print 1.2;
+ var ä=3;
+ print ä;
+ 
+  
  
 
   

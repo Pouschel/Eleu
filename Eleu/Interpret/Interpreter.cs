@@ -1,8 +1,8 @@
-﻿namespace Eleu.Interpret;
-
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Globalization;
 using static Eleu.Interpret.InterpreterStatics;
+
+namespace Eleu.Interpret;
 
 internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
 {
@@ -91,7 +91,9 @@ internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<In
 	{
 		ctoken.ThrowIfCancellationRequested();
 		if (status.HasValue)
+		{
 			currentStatus = status.Value;
+		}
 	}
 	private InterpretResult ExecuteRelease(Stmt stmt)
 	{
