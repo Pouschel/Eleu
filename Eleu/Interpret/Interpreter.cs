@@ -258,7 +258,7 @@ internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<In
 		}
 		else
 		{
-			return globals.Get(name);
+			return globals.Lookup(name);
 		}
 	}
 
@@ -296,13 +296,18 @@ internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<In
 			}
 			superclass = superclassV as EleuClass;
 		}
-		environment.Define(stmt.Name, Nil);
+		if (environment.GetAtDistance0(stmt.Name) is not EleuClass klass)
+		{
+			environment.Define(stmt.Name, Nil);
+			klass = new EleuClass(stmt.Name, superclass);
+		}
 		if (superclass != null)
 		{
 			environment = new EleuEnvironment(environment);
 			environment.Define("super", superclass);
 		}
-		var klass = new EleuClass(stmt.Name, superclass);
+		
+		//klass = new EleuClass(stmt.Name, superclass);
 		foreach (Stmt.Function method in stmt.Methods)
 		{
 			EleuFunction function = new EleuFunction(method, environment, method.Name == "init");

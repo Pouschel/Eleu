@@ -24,6 +24,14 @@ class EleuEnvironment
 		this.enclosing = enclosing;
 	}
 	public void Define(string name, object value) => values.Set(name, value);
+
+	public object GetAtDistance0(string name)
+	{
+		if (values.Get(name, out var oldVal))
+			return oldVal;
+		return Nil;
+	}
+
 	public object GetAt(string name, int distance)
 	{
 		var tab = Ancestor(distance)?.values;
@@ -42,12 +50,12 @@ class EleuEnvironment
 		}
 		return environment;
 	}
-	public object Get(string name)
+	public object Lookup(string name)
 	{
 		if (values.Get(name, out var value))
 			return value;
 		if (enclosing != null)
-			return enclosing.Get(name);
+			return enclosing.Lookup(name);
 		throw new EleuRuntimeError("Undefined variable '" + name + "'.");
 	}
 	public void Assign(string name, object value)
