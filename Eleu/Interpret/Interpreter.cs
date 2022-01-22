@@ -296,17 +296,24 @@ internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<In
 			}
 			superclass = superclassV as EleuClass;
 		}
+
 		if (environment.GetAtDistance0(stmt.Name) is not EleuClass klass)
 		{
 			environment.Define(stmt.Name, Nil);
 			klass = new EleuClass(stmt.Name, superclass);
+		}
+		else
+		{
+			if (klass.Superclass != null && klass.Superclass != superclass)
+				throw new EleuRuntimeError(stmt.Status, 
+					$"Super class must be the same ({klass.Superclass.Name} vs. {superclass?.Name})");
 		}
 		if (superclass != null)
 		{
 			environment = new EleuEnvironment(environment);
 			environment.Define("super", superclass);
 		}
-		
+
 		//klass = new EleuClass(stmt.Name, superclass);
 		foreach (Stmt.Function method in stmt.Methods)
 		{

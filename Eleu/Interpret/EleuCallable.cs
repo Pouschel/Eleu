@@ -62,11 +62,11 @@ class EleuClass :  ICallable
 {
 	public readonly string Name;
 	public readonly OTable Methods;
-	private EleuClass? superclass;
+	public readonly EleuClass? Superclass;
 	public EleuClass(string name, EleuClass? superclass) 
 	{
 		this.Name = name;
-		this.superclass = superclass;
+		this.Superclass = superclass;
 		this.Methods = new OTable();
 	}
 	public int Arity
@@ -93,9 +93,9 @@ class EleuClass :  ICallable
 	{
 		if (Methods.Get(name, out var val))
 			return val;
-		if (superclass != null)
+		if (Superclass != null)
 		{
-			return superclass.FindMethod(name);
+			return Superclass.FindMethod(name);
 		}
 		return Nil;
 	}

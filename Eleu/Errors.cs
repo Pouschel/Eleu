@@ -1,23 +1,31 @@
 ﻿namespace Eleu;
 
-public class EleuException : Exception
+public abstract class EleuException : Exception
 {
-	public EleuException(string msg) : base(msg)
+	public InputStatus? Status;
+
+	public EleuException(InputStatus? status, string msg) : base(msg)
 	{
+		this.Status = status;
 	}
 }
 
 public class EleuParseError : EleuException
 {
-	public EleuParseError() : base("")
+	public EleuParseError() : base(null, "")
 	{
 	}
 }
 
 public class EleuRuntimeError : EleuException
 {
-	public EleuRuntimeError(string msg) : base(msg)
+	public EleuRuntimeError(string msg) : this(null, msg)
 	{
+	}
+
+	public EleuRuntimeError(InputStatus? status, string msg) : base(status, msg)
+	{
+
 	}
 }
 
