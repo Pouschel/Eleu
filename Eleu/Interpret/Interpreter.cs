@@ -20,7 +20,8 @@ internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<In
 		this.environment = globals;
 		this.statements = statements;
 		this.options = options;
-		var _ = new NativeFunctions(this);
+		NativeFuncs.DefineAll(this);
+		globals.Define("PI", Math.PI);
 		Execute = ExecuteRelease;
 	}
 
@@ -150,7 +151,7 @@ internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<In
 		{
 			throw new EleuRuntimeError("Can only call functions and classes.");
 		}
-		if (expr.Arguments.Count != function.Arity)
+		if (function is not NativeFunction && expr.Arguments.Count != function.Arity)
 			throw new EleuRuntimeError("Expected " + function.Arity + " arguments but got " + expr.Arguments.Count + ".");
 		var arguments = new object[expr.Arguments.Count];
 		for (int i = 0; i < expr.Arguments.Count; i++)

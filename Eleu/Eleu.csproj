@@ -20,6 +20,7 @@
 
 
   <ItemGroup>
+    <Compile Remove="Interpret\Value.cs" />
     <Compile Remove="Table.cs" />
     <Compile Remove="TableNew.cs" />
   </ItemGroup>

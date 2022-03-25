@@ -32,6 +32,13 @@ class EleuResult
 	public List<Stmt>? Expr;
 	//public DebugInfo? DebugInfo;
 }
+public delegate object NativeFn(object[] args);
+class NativeException : Exception
+{
+	public NativeException(string msg) : base(msg)
+	{
+	}
+}
 public interface IInterpreter
 {
 	EEleuResult Interpret();

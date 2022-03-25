@@ -2,14 +2,63 @@
 
 namespace Eleu;
 
-public delegate object NativeFn(object[] args);
-
-class NativeException : Exception
+class EleuNativeError : EleuRuntimeError
 {
-	public NativeException(string msg) : base(msg)
+	public EleuNativeError(string msg) : base(msg)
 	{
+
 	}
 }
+
+class NativeFuncs
+{
+
+
+	static void CheckArgLen(object[] args, int nExpected)
+	{
+		if (args.Length == nExpected) return;
+		throw new EleuNativeError($"{nExpected} Argumente erwartet. Funktion wurde aber mit {args.Length} aufgerufen.");
+	}
+
+	static T CheckArgType<T>(int nr, object arg)
+	{
+		var type = typeof(T);
+		if (arg.GetType() == type) return (T)arg;
+		string tn = "";
+		if (type == typeof(double)) tn = "Zahl";
+		if (type == typeof(string)) tn = "Zeichenkette";
+		if (type == typeof(bool)) tn = "Bool";
+		throw new EleuNativeError($"Argument {nr} muss vom Typ {tn} sein!");
+	}
+
+	static object MathFunc(Func<double, double> func, object[] args)
+	{
+		CheckArgLen(args, 1);
+		var arg = CheckArgType<double>(1, args[0]);
+		return func(arg);
+	}
+
+	static object clock(object[] _)
+	{
+		return DateTime.Now.Ticks / 10000000.0;
+	}
+
+	static object sqrt(object[] args) => MathFunc(Math.Sqrt, args);
+
+	public static void DefineAll(IInterpreter vm)
+	{
+		var type = typeof(NativeFuncs);
+		foreach (var mi in type.GetMethods(BindingFlags.Static | BindingFlags.NonPublic ))
+		{
+			if (mi.ReturnType != typeof(object)) continue;
+			var pars = mi.GetParameters();
+			if (pars.Length != 1) continue;
+			if (pars[0].ParameterType != typeof(object[])) continue;
+			vm.DefineNative(mi.Name, (NativeFn)Delegate.CreateDelegate(typeof(NativeFn), mi));
+		}
+	}
+}
+
 
 class NativeFunctions
 {
@@ -39,7 +88,7 @@ class NativeFunctions
 	{
 		if (args.Length != 1) return RuntimeErrorWithNil("len must have 1 argument");
 		var arg = args[0];
-		if (arg is string s) return (double) s.Length;
+		if (arg is string s) return (double)s.Length;
 		return RuntimeErrorWithNil($"{arg} has no length");
 	}
 
@@ -99,7 +148,7 @@ class NativeFunctions
 			double d = (double)Convert.ChangeType(result, TypeCode.Double);
 			return d;
 		}
-		if (result is string str) 
+		if (result is string str)
 			return str;
 		throw new NativeException($"object conversion error for type {type.Name}");
 	}
@@ -118,12 +167,12 @@ class NativeFunctions
 
 	(bool, object) MatchAndInvoke(Type type, string methodName, object[] args)
 	{
-		foreach (var mthm in type.GetMethods(BindingFlags.Static| BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
+		foreach (var mthm in type.GetMethods(BindingFlags.Static | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
 		{
 			if (mthm.Name != methodName) continue;
 			var paras = mthm.GetParameters();
 			bool isInstance = !mthm.IsStatic;
-			int index = isInstance ? 2: 1;
+			int index = isInstance ? 2 : 1;
 			if (paras.Length != args.Length - index)
 				continue;
 			object? _this = null;
@@ -149,7 +198,7 @@ class NativeFunctions
 
 	public object Invoke(object[] args)
 	{
-		var funcName = (string) args[0];
+		var funcName = (string)args[0];
 		int idx = funcName.LastIndexOf('.');
 		var clsName = funcName[..idx];
 		if (!typeDict.TryGetValue(clsName, out var type))

@@ -39,7 +39,8 @@ class EleuEnvironment
 		tab?.Get(name, out val);
 		return val;
 	}
-	public void AssignAt(int distance, string name, object value) => Ancestor(distance)?.values.Set(name, value);
+	public void AssignAt(int distance, string name, object value) 
+		=> Ancestor(distance)?.values.Set(name, value);
 
 	EleuEnvironment? Ancestor(int distance)
 	{

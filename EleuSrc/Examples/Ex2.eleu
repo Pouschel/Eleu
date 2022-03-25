@@ -1,6 +1,7 @@
-var y = sqrt(9);
+var x=3;
+var y = sqrt(-9);
 
-print "Puschel ist der Größte: "+x;
+print y;
 
    
    

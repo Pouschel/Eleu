@@ -1,0 +1,2 @@
+print sqrt(9); // expect: 3
+print PI; // expect: 3.141592653589793
