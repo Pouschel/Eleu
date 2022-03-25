@@ -21,7 +21,7 @@ internal class NativeFunction : ICallable
 	{
 		return function(arguments);
 	}
-	public override string ToString() => "<native fn>";
+	public override string ToString() => "<native function>";
 
 }
 class EleuFunction : ICallable
