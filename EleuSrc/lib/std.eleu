@@ -5,4 +5,3 @@ fun sqrt(x)
 {
   return invoke("System.Math.Sqrt",x);  
 }
-

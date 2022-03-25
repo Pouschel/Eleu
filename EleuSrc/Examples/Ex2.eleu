@@ -1,7 +1,4 @@
- var ä=3;
- print ä;
- 
-  
- 
 
-  
+var x = 1 + "1";
+print x;
+
