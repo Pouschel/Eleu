@@ -232,6 +232,7 @@ class Program
 			var arg = args[i];
 			switch (arg)
 			{
+				case "-notest": ++i; continue;
 				case "-test":
 					{
 						prog.RunTests(args[++i]);

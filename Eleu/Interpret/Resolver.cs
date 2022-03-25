@@ -66,7 +66,12 @@ internal class Resolver : Expr.Visitor<object?>, Stmt.Visitor<object?>
 		return stmt.Accept(this);
 	}
 
-	private object? Resolve(Expr? expr) => expr?.Accept(this);
+	private object? Resolve(Expr? expr)
+	{
+		interpreter.RegisterStatus(expr?.Status);
+		return expr?.Accept(this);
+	}
+
 	private void BeginScope() => Push(new());
 	private void EndScope() => Pop();
 

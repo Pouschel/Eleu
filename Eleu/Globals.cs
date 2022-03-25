@@ -90,6 +90,7 @@ public class Globals
 		{
 			Out = tw,
 			Err = tw,
+			UseDebugger =true,
 		};
 		var result = CompileAndRunAst(path, opt);
 		return result == Ok;

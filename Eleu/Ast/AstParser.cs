@@ -205,8 +205,10 @@ internal class AstParser
 	}
 	private Expr Expression()
 	{
-		
-		return Assignment();
+		var curStat = CurrentInputStatus;
+		var expr = Assignment();
+		expr.Status = curStat.Union(CurrentInputStatus);
+		return expr;
 	}
 	private Stmt? Declaration()
 	{
@@ -233,7 +235,7 @@ internal class AstParser
 			Consume(TOKEN_IDENTIFIER, "Expect superclass name.");
 			superclass = new Expr.Variable(Previous.StringValue);
 		}
-		curStat= Previous.status.Union(curStat);
+		curStat = Previous.status.Union(curStat);
 		Consume(TOKEN_LEFT_BRACE, "Expect '{' before class body.");
 		List<Stmt.Function> methods = new();
 		while (!Check(TOKEN_RIGHT_BRACE) && !IsAtEnd())

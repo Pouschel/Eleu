@@ -84,6 +84,7 @@ internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<In
 	private object Evaluate(Expr expr)
 	{
 		InstructionCount++;
+		RegisterStatus(expr.Status);
 		var evaluated = expr.Accept(this);
 		return evaluated;
 	}

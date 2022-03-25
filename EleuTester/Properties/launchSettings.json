@@ -6,7 +6,7 @@
     },
     "EleuTester": {
       "commandName": "Project",
-      "commandLineArgs": "-test C:\\Code\\Eleu\\EleuSrc\\Tests C:\\Code\\Eleu\\EleuSrc\\Examples\\Ex2.eleu"
+      "commandLineArgs": "-notest C:\\Code\\Eleu\\EleuSrc\\Tests C:\\Code\\Eleu\\EleuSrc\\Examples\\Ex2.eleu"
     }
   }
 }

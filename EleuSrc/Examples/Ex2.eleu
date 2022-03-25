@@ -1,10 +1,7 @@
+var y = sqrt(9);
 
-function f()
-{
-  print "In F";
-} 
+print "Puschel ist der Größte: "+x;
 
-f();
    
    
 
