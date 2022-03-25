@@ -102,7 +102,10 @@ internal class Scanner
 					{
 						case 'a': return CheckKeyword(2, "lse", TOKEN_FALSE);
 						case 'o': return CheckKeyword(2, "r", TOKEN_FOR);
-						case 'u': return CheckKeyword(2, "n", TOKEN_FUN);
+						case 'u':
+							if (CheckKeyword(2, "n", TOKEN_FUN) == TOKEN_FUN)
+								return TOKEN_FUN;
+							else return (CheckKeyword(2, "nction", TOKEN_FUN));
 					}
 				}
 				break;

@@ -89,6 +89,7 @@ public class Globals
 		var opt = new EleuOptions()
 		{
 			Out = tw,
+			Err = tw,
 		};
 		var result = CompileAndRunAst(path, opt);
 		return result == Ok;

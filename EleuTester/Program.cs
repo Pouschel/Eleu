@@ -68,7 +68,7 @@ class Program
 		var source = File.ReadAllText(fileName);
 		var opt = new EleuOptions();
 		Stopwatch watch = Stopwatch.StartNew();
-		Globals.CompileAndRunAst( source, fileName,opt);
+		Globals.CompileAndRunAst(source, fileName, opt);
 		var elapsed = watch.Elapsed;
 		lock (benchMarkResults)
 		{
@@ -107,7 +107,7 @@ class Program
 				if (idx < 0) continue;
 				if (idx >= 0)
 				{
-					int start = idx+ (i<2 ? search.Length : 2);
+					int start = idx + (i < 2 ? search.Length : 2);
 					var resString = line[start..].TrimEnd();
 					sw.WriteLine(resString);
 					break;
@@ -140,7 +140,7 @@ class Program
 	void RunActionInDir(string dir, Action<string> action)
 	{
 		string locDir = Path.GetFileName(dir);
-		if (locDir[0] == '-') 
+		if (locDir[0] == '-')
 			return;
 		var files = Directory.GetFiles(dir, "*.eleu");
 		foreach (var file in files)
@@ -208,12 +208,12 @@ class Program
 		Console.WriteLine($"Benchmarks: {nTests,4} in {watch.Elapsed.TotalSeconds:f2} s");
 		List<string> lines = new();
 		lines.Add($"--- {DateTime.Now} ---");
-		foreach (var kv in 		benchMarkResults.OrderBy(kv => Path.GetFileNameWithoutExtension(kv.Key)))
+		foreach (var kv in benchMarkResults.OrderBy(kv => Path.GetFileNameWithoutExtension(kv.Key)))
 		{
 			lines.Add($"{Path.GetFileNameWithoutExtension(kv.Key),-18}: {kv.Value.TotalMilliseconds,6:###,###} ms");
 		}
 		lines.Add($"            Total : {total,6:##,###.##} s");
-		File.AppendAllLines(Path.Combine(dir, "_Results.txt"),lines);
+		File.AppendAllLines(Path.Combine(dir, "_Results.txt"), lines);
 	}
 
 	public static void Main(string[] args)
@@ -226,24 +226,30 @@ class Program
 -benchmark BenchmarkDir");
 		if (args.Length < 2) return;
 		var prog = new Program();
-		switch (args[0])
+		string file = "";
+		for (int i = 0; i < args.Length; i++)
 		{
-			case "-test":
-				{
-					prog.RunTests(args[1]);
-					if (args.Length >= 3 && prog.nFail == 0)
+			var arg = args[i];
+			switch (arg)
+			{
+				case "-test":
 					{
-						Console.WriteLine($"Running file: {args[2]}");
-						Globals.RunFile(args[2], Console.Out);
+						prog.RunTests(args[++i]);
+						continue;
 					}
-					break;
-				}
-			case "-benchmark":
-				{
-					prog.RunBenchmarks(args[1]);
-					break;
-				}
+				case "-benchmark":
+					{
+						prog.RunBenchmarks(args[++i]);
+						continue;
+					}
+				default: file = arg; break;
 
+			}
+		}
+		if (!string.IsNullOrEmpty(file))
+		{
+			Console.WriteLine($"Running file: {file}");
+			Globals.RunFile(file, Console.Out);
 		}
 		if (Debugger.IsAttached) Console.ReadLine();
 	}
