@@ -1,7 +1,5 @@
-var x=3;
-var y = sqrt(-9);
-
-print y;
+x=3;
+  
 
    
    

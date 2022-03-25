@@ -20,7 +20,7 @@ internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<In
 		this.environment = globals;
 		this.statements = statements;
 		this.options = options;
-		NativeFuncs.DefineAll(this);
+		NativeFunctions.DefineAll(this);
 		globals.Define("PI", Math.PI);
 		Execute = ExecuteRelease;
 	}
