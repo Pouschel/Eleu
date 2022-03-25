@@ -57,7 +57,7 @@ class EleuEnvironment
 			return value;
 		if (enclosing != null)
 			return enclosing.Lookup(name);
-		throw new EleuRuntimeError("Undefined variable '" + name + "'.");
+		throw new EleuRuntimeError("Variable nicht definiert '" + name + "'.");
 	}
 	public void Assign(string name, object value)
 	{
@@ -71,6 +71,6 @@ class EleuEnvironment
 			enclosing.Assign(name, value);
 			return;
 		}
-		throw new EleuRuntimeError("Undefined variable '" + name + "'.");
+		throw new EleuRuntimeError("Variable nicht definiert '" + name + "'.");
 	}
 }

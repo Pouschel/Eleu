@@ -10,6 +10,6 @@
   var a=A();
   print a.f(); // expect: in A
 }
-// expect runtime error: Undefined variable 'A'.
+// expect runtime error: Variable nicht definiert 'A'.
 var b=A();
 
