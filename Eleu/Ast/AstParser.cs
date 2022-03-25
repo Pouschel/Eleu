@@ -118,13 +118,13 @@ internal class AstParser
 		{
 			value = Expression();
 		}
-		Consume(TokenSemicolon, "Expect ';' after return value.");
+		Consume(TokenSemicolon, "Nach dem Rückgabewert wird ein ';' erwartet.");
 		return new Stmt.Return(keyword, value);
 	}
 	private Stmt ExpressionStatement()
 	{
 		Expr expr = Expression();
-		Consume(TokenSemicolon, "Expect ';' after expression.");
+		Consume(TokenSemicolon, "Ein ';' wird hier erwartet.");
 		return new Stmt.Expression(expr);
 	}
 	private Stmt.Function Function(FunctionType kind)

@@ -1,6 +1,8 @@
-x=3;
-  
-
-   
+ 
+ fun f()
+ {
+   return  ;
+ } 
+ print f; 
    
 

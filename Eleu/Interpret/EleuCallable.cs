@@ -47,7 +47,7 @@ class EleuFunction : ICallable
 		if (isInitializer) return closure.GetAt("this", 0);
 		return retVal;
 	}
-	public override string ToString() => $"<fn {declaration.Name}>";
+	public override string ToString() => $"<function {declaration.Name}>";
 
 	public EleuFunction bind(EleuInstance instance)
 	{
