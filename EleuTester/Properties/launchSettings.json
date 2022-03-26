@@ -7,6 +7,10 @@
     "EleuTester": {
       "commandName": "Project",
       "commandLineArgs": "-test C:\\Code\\Eleu\\EleuSrc\\Tests C:\\Code\\Eleu\\EleuSrc\\Examples\\Ex2.eleu"
+    },
+    "SingleFile": {
+      "commandName": "Project",
+      "commandLineArgs": "C:\\Code\\Eleu\\EleuSrc\\Examples\\Ex2.eleu"
     }
   }
 }

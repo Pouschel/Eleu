@@ -107,7 +107,7 @@ internal class AstParser
 	private Stmt PrintStatement()
 	{
 		Expr value = Expression();
-		Consume(TokenSemicolon, "Expect ';' after value.");
+		Consume(TokenSemicolon, "Ein ';' wird nach einer print-Anweisung erwartet.");
 		return new Stmt.Print(value);
 	}
 	private Stmt ReturnStatement()
@@ -247,14 +247,16 @@ internal class AstParser
 	}
 	private Stmt VarDeclaration()
 	{
+		var cs = CurrentInputStatus;
 		Token name = Consume(TOKEN_IDENTIFIER, "Expect variable name.");
 		Expr? initializer = null;
 		if (Match(TOKEN_EQUAL))
 		{
 			initializer = Expression();
 		}
+		cs = cs.Union(CurrentInputStatus);
 		Consume(TokenSemicolon, "Expect ';' after variable declaration.");
-		return new Stmt.Var(name.StringValue, initializer);
+		return new Stmt.Var(name.StringValue, initializer) { Status = cs };
 	}
 	private Stmt WhileStatement()
 	{

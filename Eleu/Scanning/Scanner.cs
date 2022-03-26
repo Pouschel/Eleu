@@ -6,7 +6,7 @@ internal class Scanner
 	int current;
 	private string fileName;
 	private string source;
-	int line, col;
+	int line, col, startLine, startCol;
 
 	public Scanner(string source, string fileName = "")
 	{
@@ -20,6 +20,7 @@ internal class Scanner
 	{
 		SkipWhitespace();
 		start = current;
+		startLine = line; startCol = col;
 		if (IsAtEnd()) return MakeToken(TOKEN_EOF);
 		char c = Advance();
 		if (IsAlpha(c)) return Identifier();
@@ -144,11 +145,11 @@ internal class Scanner
 	{
 		while (Peek() != '"' && !IsAtEnd())
 		{
-			if (Peek() == '\n') line++;
+			if (Peek() == '\n') { line++; col = 0; }
 			Advance();
 		}
 
-		if (IsAtEnd()) return ErrorToken("Unterminated string.");
+		if (IsAtEnd()) return ErrorToken("Nicht abgeschlossene Zeichenkette.");
 
 		// The closing quote.
 		Advance();
@@ -216,9 +217,9 @@ internal class Scanner
 	{
 		return new InputStatus(fileName)
 		{
-			LineStart = line,
+			LineStart = startLine,
 			LineEnd = line,
-			ColStart = col - (current - start),
+			ColStart = startCol, // col - (current - start),
 			ColEnd = col
 		};
 	}

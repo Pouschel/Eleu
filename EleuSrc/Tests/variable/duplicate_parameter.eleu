@@ -1,4 +1,4 @@
 fun foo(arg,
-        arg) { //Cerr: Already a variable with this name in this scope.
+        arg) { //Cerr: Eine Variable mit dem Namen 'arg' existiert in diesem Geltungsbereich schon!
   "body";
 }

@@ -224,7 +224,7 @@ class Program
 @"Arguments: 
 -test TestDir [FileToExecute]
 -benchmark BenchmarkDir");
-		if (args.Length < 2) return;
+		if (args.Length < 1) return;
 		var prog = new Program();
 		string file = "";
 		for (int i = 0; i < args.Length; i++)

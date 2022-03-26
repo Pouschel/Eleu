@@ -32,6 +32,7 @@ class EleuEnvironment
 		return Nil;
 	}
 
+	public bool ContainsAtDistance0(string name) => values.ContainsKey(name);
 	public object GetAt(string name, int distance)
 	{
 		var tab = Ancestor(distance)?.values;

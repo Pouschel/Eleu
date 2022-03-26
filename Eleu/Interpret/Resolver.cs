@@ -241,7 +241,7 @@ internal class Resolver : Expr.Visitor<object?>, Stmt.Visitor<object?>
 		if (scope == null) return;
 		if (scope.ContainsKey(name))
 		{
-			Error("Already a variable with this name in this scope.");
+			Error($"Eine Variable mit dem Namen '{name}' existiert in diesem Geltungsbereich schon!");
 		}
 		scope[name] = false;
 	}

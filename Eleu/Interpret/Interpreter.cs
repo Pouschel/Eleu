@@ -377,6 +377,8 @@ internal class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<In
 		{
 			value = Evaluate(stmt.Initializer);
 		}
+		if (environment.ContainsAtDistance0(stmt.Name))
+			throw new EleuRuntimeError($"Mehrfache var-Anweisung: '{stmt.Name}' wurde bereits deklariert!");
 		environment.Define(stmt.Name, value);
 		return new(value);
 	}

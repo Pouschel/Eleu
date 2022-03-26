@@ -50,6 +50,7 @@ fileName           file to compile and run
 		}
 		//CompileAndRun(fileName, options);
 		CompileAndRunAst(fileName, options);
+		Console.WriteLine("Finished! Press key!");
 		if (waitAfterRun) Console.ReadLine();
 	}
 
