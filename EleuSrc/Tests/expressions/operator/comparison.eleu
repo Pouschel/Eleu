@@ -23,3 +23,11 @@ print 0 <= -0; // expect: true
 print -0 <= 0; // expect: true
 print 0 >= -0; // expect: true
 print -0 >= 0; // expect: true
+
+print "a" == "a"; // expect: true
+print "a" != "a"; // expect: false
+print "a" != "b"; // expect: true
+print "a" == "b"; // expect: false
+
+print "a" < "b"; // expect: true
+print "a" >= "b"; // expect: false

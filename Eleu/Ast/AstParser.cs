@@ -248,7 +248,7 @@ internal class AstParser
 	private Stmt VarDeclaration()
 	{
 		var cs = CurrentInputStatus;
-		Token name = Consume(TOKEN_IDENTIFIER, "Expect variable name.");
+		Token name = Consume(TOKEN_IDENTIFIER, "Der Name einer Variablen wird erwartet.");
 		Expr? initializer = null;
 		if (Match(TOKEN_EQUAL))
 		{

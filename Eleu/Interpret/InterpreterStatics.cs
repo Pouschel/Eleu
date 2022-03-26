@@ -17,15 +17,16 @@ static class InterpreterStatics
 	public static int InternalCompare(object a, object b)
 	{
 		if (ObjEquals(a, b)) return 0;
-		var cmp = NumberOp(a, b, (a, b) => a.CompareTo(b));
-		return cmp;
+		if (a is string sa && b is string sb) return sa.CompareTo(sb);
+		if (a is double na && b is double nb) return na.CompareTo(nb);
+		throw new EleuRuntimeError("Unterschiedliche Datentypen können nicht verglichen werden.");
 	}
 
 	internal static Res NumberOp<Res>(object va, object vb, Func<double, double, Res> func)
 	{
 		if (va is not double a || vb is not double b)
 		{
-			throw new EleuRuntimeError("Operands must be numbers.");
+			throw new EleuRuntimeError("Beide Operanden müssen Zahlen sein.");
 		}
 		return func(a, b);
 	}

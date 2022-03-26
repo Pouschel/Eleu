@@ -1,2 +1,2 @@
-//Cerr: Expect variable name.
+//Cerr: Der Name einer Variablen wird erwartet.
 var this = "value";

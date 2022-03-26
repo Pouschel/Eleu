@@ -1,3 +1,7 @@
-var x;
-var ;   //Mehrfache var-Anweisung: 'x' wurde bereits deklariert!
-  
+print "a" == "a"; // expect: true
+print "a" != "a"; // expect: false
+print "a" != "b"; // expect: true
+print "a" == "b"; // expect: false
+
+print "a" < "b"; // expect: true
+print "a" >= "b"; // expect: false
