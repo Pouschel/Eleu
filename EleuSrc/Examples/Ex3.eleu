@@ -1,5 +1,2 @@
-       //Cerr: Expect expression.
-while (true) fun foo() {}
-
-
-
+assert 0<1;
+assert "a" == "a", "String vergleich"; 
