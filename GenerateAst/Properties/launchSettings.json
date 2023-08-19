@@ -1,0 +1,16 @@
+{
+  "profiles": {
+    "Cs": {
+      "commandName": "Project",
+      "commandLineArgs": "cs C:\\Code\\OwnApps\\EleuStudio\\Eleu\\Ast"
+    },
+    "Ts": {
+      "commandName": "Project",
+      "commandLineArgs": "ts C:\\Code\\OwnApps\\EleuStudio\\EleuTs\\src\\Ast",
+    },
+    "Dart": {
+      "commandName": "Project",
+      "commandLineArgs": "dart C:\\Code\\FlutterApps\\Eleu\\eleu\\lib\\ast"
+    }
+  }
+}

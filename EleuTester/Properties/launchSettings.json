@@ -1,0 +1,20 @@
+{
+  "profiles": {
+    "Benchmark": {
+      "commandName": "Project",
+      "commandLineArgs": "-benchmark C:\\Code\\OwnApps\\EleuStudio\\EleuSrc\\Benchmarks"
+    },
+    "Tests": {
+      "commandName": "Project",
+      "commandLineArgs": "-test C:\\Code\\OwnApps\\EleuStudio\\EleuSrc\\Tests C:\\Code\\OwnApps\\EleuStudio\\EleuSrc\\Examples\\Ex1.eleu"
+    },
+    "10KlProgTests": {
+      "commandName": "Project",
+      "commandLineArgs": "-test c:\\Sync\\_Schule\\_Info\\10\\2-Programmieren C:\\Code\\OwnApps\\EleuStudio\\EleuSrc\\Examples\\Ex1.eleu"
+    },
+    "SingleFile": {
+      "commandName": "Project",
+      "commandLineArgs": "C:\\Code\\OwnApps\\EleuStudio\\EleuSrc\\Examples\\Ex1.eleu"
+    }
+  }
+}

@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyVersion>1.0.1.2</AssemblyVersion>
+		<Deterministic>False</Deterministic>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="CodeGen\**" />
+    <Compile Remove="Debugger\**" />
+    <Compile Remove="Vm\**" />
+    <EmbeddedResource Remove="CodeGen\**" />
+    <EmbeddedResource Remove="Debugger\**" />
+    <EmbeddedResource Remove="Vm\**" />
+    <None Remove="CodeGen\**" />
+    <None Remove="Debugger\**" />
+    <None Remove="Vm\**" />
+   
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Compile Remove="Interpret\Value.cs" />
+    <Compile Remove="Table.cs" />
+    <Compile Remove="TableNew.cs" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,579 @@
+﻿using System.Diagnostics;
+using Eleu.Puzzles;
+using Eleu.Types;
+
+namespace Eleu.Interpret;
+
+public class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<InterpretResult> 
+{
+	private List<Stmt> statements;
+	internal EleuEnvironment globals = new();
+	internal EleuEnvironment environment;
+	internal Func<Stmt, bool>? canContinueFunc;
+	private Func<Stmt, InterpretResult> Execute;
+	private Stack<CallStackInfo> callStack = new();
+	internal readonly List<Token> orgTokens;
+	public int MaxStackDepth = 200;
+	internal CallFrame? frame;
+	int frameDepth = 0;
+	List<EleuEnvironment> prevEnvs = new();
+	readonly List<object> valueStack = new();
+
+
+	public Interpreter(EleuOptions options, List<Stmt> statements, List<Token> tokens) :base(options)
+	{
+		this.orgTokens = tokens;
+		this.environment = globals;
+		this.statements = statements;
+		globals.Define("PI", new Number(Math.PI));
+		Execute = ExecuteRelease;
+	}
+
+	public int ProgramLength => orgTokens.Where(tok => tok.Type > TokenSemicolon).Count();
+
+	public int ExecutedInstructionCount
+	{
+		get;
+		private set;
+	}
+	public int PuzzleScore => this.Puzzle == null ? 0 :
+		 this.Puzzle.Complexity - this.Puzzle.EnergyUsed - ProgramLength - ExecutedInstructionCount / 3;
+	public override void DefineNative(string name, NativeFn function)
+	{
+		var ofun = new NativeFunction(name, function);
+		globals.Define(name, ofun);
+	}
+
+	public EEleuResult InterpretWithDebug(Func<Stmt, bool> canContinueFunc)
+	{
+		this.canContinueFunc = canContinueFunc;
+		Execute = ExecuteDebug;
+		return DoInterpret();
+	}
+	public override EEleuResult InterpretWithDebug(CancellationToken token)
+	{
+		return InterpretWithDebug(stmt => !token.IsCancellationRequested);
+	}
+
+
+	public override EEleuResult Interpret(bool useVm)
+	{
+		if (useVm)
+		{
+			var res = start();
+			while (res == EEleuResult.NextStep)
+			{
+				res = step();
+			}
+			return res;
+		}
+		Execute = ExecuteRelease;
+		return DoInterpret();
+	}
+
+	public EEleuResult DoInterpret()
+	{
+		EEleuResult result = Ok;
+		try
+		{
+			callStack = new();
+			Resolve();
+			ExecutedInstructionCount = 0;
+			foreach (var stmt in this.statements)
+			{
+				Execute(stmt);
+			}
+		}
+		catch (EleuRuntimeError ex)
+		{
+			if (options.ThrowOnAssert && ex is EleuAssertionFail) throw;
+			var stat = ex.Status ?? currentStatus;
+			var msg = $"{stat.Message}: {ex.Message}";
+			options.Err.WriteLine(msg);
+			Trace.WriteLine(msg);
+			result = EEleuResult.RuntimeError;
+		}
+		return result;
+	}
+	public EEleuResult start()
+	{
+		EEleuResult result = EEleuResult.RuntimeError;
+		try
+		{
+			callStack = new();
+			Resolve();
+			ExecutedInstructionCount = 0;
+			var chunk = new StmtCompiler().compile(this.statements);
+			
+			frame = new CallFrame(chunk);
+			return EEleuResult.NextStep;
+		} catch ( EleuRuntimeError ex) {
+			if (options.ThrowOnAssert && ex is EleuAssertionFail) throw;
+			var stat = ex.Status ?? currentStatus;
+			var msg = $"{stat.Message}: {ex.Message}";
+			options.Err.WriteLine(msg);
+			result = EEleuResult.RuntimeError;
+		}
+		return result;
+	}
+	public EEleuResult step()
+	{
+		var ins = frame!.nextInstruction();
+		if (ins == null)
+		{
+			if (frame.next == null) return EEleuResult.Ok;
+			// leave current chunk function
+			leaveFrame();
+			return EEleuResult.NextStep;
+		}
+
+		try
+		{
+			if (!ins.status.IsEmpty) currentStatus = ins.status;
+			ins.execute(this);
+			ExecutedInstructionCount++;
+		} catch (EleuRuntimeError ex) {
+			if (options.ThrowOnAssert && ex is EleuAssertionFail) throw;
+			var stat = ex.Status ?? currentStatus;
+			var msg = $"{stat.Message}: {ex.Message}";
+			options.Err.WriteLine(msg);
+			return EEleuResult.RuntimeError;
+		}
+		catch (Exception ex) {
+			var msg = $"{currentStatus.Message}: {ex.GetType()}";
+			options.Err.WriteLine(msg);
+			return EEleuResult.RuntimeError;
+		}
+		return EEleuResult.NextStep;
+	}
+	internal void enterFrame(CallFrame newFrame)
+	{
+		newFrame.next = frame;
+		frame = newFrame;
+		frameDepth++;
+		if (frameDepth >= MaxStackDepth)
+			throw new EleuRuntimeError(currentStatus, "Zu viele verschachtelte Funktionsaufrufe.");
+	}
+	internal void leaveFrame()
+	{
+		frame = frame!.next!;
+		environment = prevEnvs.RemoveLast();
+		frameDepth--;
+	}
+	internal object pop() => valueStack.RemoveLast();
+	internal object peek() => valueStack[^1];
+	internal void push(object o) => valueStack.Add(o);
+	internal void enterEnv(EleuEnvironment env)
+	{
+		prevEnvs.Add(environment);
+		environment = env;
+	}
+	internal void leaveEnv() => environment = prevEnvs.RemoveLast();
+	internal object assignAtDistance(String name, int distance, Object value)
+	{
+		if (distance >= 0)
+		{
+			environment.AssignAt(distance, name, value);
+		}
+		else
+		{
+			globals.Assign(name, value);
+		}
+		return value;
+	}
+	void Resolve()
+	{
+		var resolver = new Resolver(this);
+		resolver.Resolve(this.statements);
+	}
+	public EleuRuntimeError Error(string message)
+	{
+		//options.Err.WriteLine(message);
+		return new EleuRuntimeError(message);
+	}
+	private object Evaluate(Expr expr)
+	{
+		ExecutedInstructionCount++;
+		RegisterStatus(expr.Status);
+		var evaluated = expr.Accept(this);
+		return evaluated;
+	}
+	internal void RegisterStatus(in InputStatus? status)
+	{
+		if (status.HasValue)
+		{
+			currentStatus = status.Value;
+		}
+	}
+	private InterpretResult ExecuteRelease(Stmt stmt)
+	{
+		return stmt.Accept(this);
+	}
+
+	private InterpretResult ExecuteDebug(Stmt stmt)
+	{
+		RegisterStatus(stmt.Status);
+		while (!canContinueFunc!(stmt))
+			Thread.Sleep(10);
+		ExecutedInstructionCount++;
+		return stmt.Accept(this);
+	}
+
+	public object VisitAssignExpr(Expr.Assign expr)
+	{
+		var value = Evaluate(expr.Value);
+		var distance = expr.localDistance;
+		assignAtDistance(expr.Name, distance, value);
+		return value;
+	}
+
+	public object VisitBinaryExpr(Expr.Binary expr)
+	{
+		var lhs = Evaluate(expr.Left);
+		var rhs = Evaluate(expr.Right);
+		return expr.Op.Type switch
+		{
+			TokenBangEqual => !ObjEquals(lhs, rhs),
+			TokenEqualEqual => ObjEquals(lhs, rhs),
+			TokenGreater => InternalCompare(lhs, rhs) > 0,
+			TokenGreaterEqual => InternalCompare(lhs, rhs) >= 0,
+			TokenLess => InternalCompare(lhs, rhs) < 0,
+			TokenLessEqual => InternalCompare(lhs, rhs) <= 0,
+			TokenPlus => NumStrAdd(lhs, rhs),
+			TokenMinus => NumSubtract(lhs, rhs),
+			TokenStar => NumberOp("*", lhs, rhs, (a, b) => a * b),
+			TokenPercent => NumberOp("%", lhs, rhs, (a, b) => a % b),
+			TokenSlash => NumberOp("/", lhs, rhs, (a, b) => a / b),
+			_ => throw Error("Invalid op: " + expr.Op.Type),
+		};
+	}
+
+	public object VisitCallExpr(Expr.Call expr)
+	{
+		var callee = Evaluate(expr.Callee);
+		if (callee is not ICallable function)
+		{
+			RuntimeError("Can only call functions and classes."); return expr;
+		}
+		if (function is not NativeFunction && expr.Arguments.Count != function.Arity)
+			RuntimeError("Expected " + function.Arity + " arguments but got " + expr.Arguments.Count + ".");
+		if (callStack.Count >= MaxStackDepth)
+			RuntimeError("Zu viele verschachtelte Funktionsaufrufe.");
+		var arguments = new object[expr.Arguments.Count];
+		for (int i = 0; i < expr.Arguments.Count; i++)
+		{
+			var argument = expr.Arguments[i];
+			arguments[i] = Evaluate(argument);
+		}
+		try
+		{
+			var csi = new CallStackInfo(this, function, environment);
+			callStack.Push(csi);
+			//Trace.Write($"{callStack.Count} ");		if (callStack.Count % 100 == 0) Trace.WriteLine("");
+			return function.Call(this, arguments);
+		}
+		finally
+		{
+			callStack.Pop();
+		}
+	}
+	public object VisitGetExpr(Expr.Get expr)
+	{
+		var obj = Evaluate(expr.Obj);
+		if (obj is EleuInstance inst)
+		{
+			return inst.Get(expr.Name, false);
+		}
+		throw Error("Only instances have properties.");
+	}
+	public object VisitGroupingExpr(Expr.Grouping expr) => Evaluate(expr.Expression);
+	public object VisitLiteralExpr(Expr.Literal expr)
+	{
+		if (expr.Value == null) return NilValue;
+		return expr.Value;
+	}
+	public object VisitLogicalExpr(Expr.Logical expr)
+	{
+		var left = Evaluate(expr.Left);
+		if (left is not bool) throw Error($"Der Operator '{expr.Op.StringValue}' kann nicht auf '{left}' angewendet werden.");
+		var right = Evaluate(expr.Right);
+		if (right is not bool) throw Error($"Der Operator '{expr.Op.StringValue}' kann nicht auf '{right}' angewendet werden.");
+		if (expr.Op.Type == TokenOr)
+		{
+			if (IsTruthy(left)) return left;
+		}
+		else
+		{
+			if (IsFalsey(left)) return left;
+		}
+		return right;
+	}
+	public object VisitSetExpr(Expr.Set expr)
+	{
+		var obj = Evaluate(expr.Obj);
+		if (obj is not EleuInstance li)
+		{
+			throw Error("Only instances have fields.");
+		}
+		var value = Evaluate(expr.Value);
+		li.Set(expr.Name, value);
+		return value;
+	}
+	public object VisitSuperExpr(Expr.Super expr)
+	{
+		int distance = expr.localDistance;
+		EleuClass superclass = (EleuClass)environment.GetAt("super", distance);
+		EleuInstance obj = (EleuInstance)environment.GetAt("this", distance - 1);
+		EleuFunction? method = superclass.FindMethod(expr.Method) as EleuFunction;
+		if (method == null)
+		{
+			throw Error("Undefined property '" + expr.Method + "'.");
+		}
+		return method.bind(obj, false);
+	}
+	public object VisitThisExpr(Expr.This expr)
+	{
+		return LookUpVariable(expr.Keyword, expr.localDistance);
+	}
+	public object VisitUnaryExpr(Expr.Unary expr)
+	{
+		var right = Evaluate(expr.Right);
+		switch (expr.Op.Type)
+		{
+			case TokenBang:
+				if (right is not bool) throw Error("Operand muss vom Typ boolean sein.");
+				return !IsTruthy(right);
+			case TokenMinus:
+				{
+					if (right is not Number d) throw Error("Operand muss eine Zahl sein.");
+					return -d;
+				}
+			default: throw Error("Unknown op type: " + expr.Op.Type);// Unreachable.
+		};
+	}
+	internal void resolve(Expr expr, int depth)
+	{
+		//locals[expr] = depth;
+		expr.localDistance = depth;
+	}
+	public object VisitVariableExpr(Expr.Variable expr) => LookUpVariable(expr.Name, expr.localDistance);
+	internal object LookUpVariable(string name, int distance)
+	{
+		if (distance >= 0)
+		{
+			return environment.GetAt(name, distance);
+		}
+		else
+		{
+			return globals.Lookup(name);
+		}
+	}
+
+	public InterpretResult VisitBlockStmt(Stmt.Block stmt) => ExecuteBlock(stmt.Statements, new EleuEnvironment(environment));
+
+	internal InterpretResult ExecuteBlock(List<Stmt> statements, EleuEnvironment environment)
+	{
+		var previous = this.environment;
+		InterpretResult result = InterpretResult.NilResult;
+		try
+		{
+			this.environment = environment;
+			foreach (Stmt statement in statements)
+			{
+				result = Execute(statement);
+				if (result.Stat != InterpretResult.Status.Normal)
+					break;
+			}
+			return result;
+		}
+		finally
+		{
+			this.environment = previous;
+		}
+	}
+
+	public InterpretResult VisitClassStmt(Stmt.Class stmt)
+	{
+		EleuClass? superclass = null;
+		if (stmt.Superclass != null)
+		{
+			var superclassV = Evaluate(stmt.Superclass);
+			if (superclassV is not EleuClass)
+			{
+				throw new EleuRuntimeError("Superclass must be a class.");
+			}
+			superclass = superclassV as EleuClass;
+		}
+
+		if (environment.GetAtDistance0(stmt.Name) is not EleuClass klass)
+		{
+			environment.Define(stmt.Name, NilValue);
+			klass = new EleuClass(stmt.Name, superclass);
+		}
+		else
+		{
+			if (klass.Superclass != null && klass.Superclass != superclass)
+				throw new EleuRuntimeError(stmt.Status,
+					$"Super class must be the same ({klass.Superclass.Name} vs. {superclass?.Name})");
+		}
+		if (superclass != null)
+		{
+			environment = new EleuEnvironment(environment);
+			environment.Define("super", superclass);
+		}
+
+		//klass = new EleuClass(stmt.Name, superclass);
+		foreach (Stmt.Function method in stmt.Methods)
+		{
+			EleuFunction function = new EleuFunction(method, environment, method.Name == "init");
+			klass.Methods.Set(method.Name, function);
+		}
+		var kval = klass;
+		if (superclass != null)
+		{
+			environment = environment.enclosing!;
+		}
+		environment.Assign(stmt.Name, kval);
+		return new InterpretResult(kval);
+	}
+	public InterpretResult VisitExpressionStmt(Stmt.Expression stmt)
+	{
+		var evRes = Evaluate(stmt.expression);
+		if (evRes is ICallable call && stmt.expression.GetType() == typeof(Expr.Variable))
+			throw Error($"Die Funktion '{call.Name}' muss mit () aufgerufen werden");
+		return new(evRes);
+	}
+	public InterpretResult VisitFunctionStmt(Stmt.Function stmt)
+	{
+		EleuFunction function = new EleuFunction(stmt, environment, false);
+		environment.Define(stmt.Name, function);
+		return new(function);
+	}
+	public InterpretResult VisitIfStmt(Stmt.If stmt)
+	{
+		var cond = Evaluate(stmt.Condition);
+		if (cond is not bool b) throw Error($"Die if-Bedingung '{cond}' ist nicht vom Typ boolean");
+		if (IsTruthy(b))
+			return Execute(stmt.ThenBranch);
+		else if (stmt.ElseBranch != null)
+			return Execute(stmt.ElseBranch);
+		return InterpretResult.NilResult;
+	}
+	public InterpretResult VisitReturnStmt(Stmt.Return stmt)
+	{
+		var val = NilValue;
+		if (stmt.Value != null) val = Evaluate(stmt.Value);
+		return new InterpretResult(val, InterpretResult.Status.Return);
+	}
+
+	public InterpretResult VisitVarStmt(Stmt.Var stmt)
+	{
+		var value = NilValue;
+		if (stmt.Initializer != null)
+		{
+			value = Evaluate(stmt.Initializer);
+		}
+		if (environment.ContainsAtDistance0(stmt.Name))
+			throw new EleuRuntimeError($"Mehrfache var-Anweisung: '{stmt.Name}' wurde bereits deklariert!");
+		environment.Define(stmt.Name, value);
+		return new(value);
+	}
+	public InterpretResult VisitWhileStmt(Stmt.While stmt)
+	{
+		var result = InterpretResult.NilResult;
+		while (IsTruthy(Evaluate(stmt.Condition)))
+		{
+			result = Execute(stmt.Body);
+			if (result.Stat == InterpretResult.Status.Break)
+			{
+				result = InterpretResult.NilResult;
+				break;
+			}
+			if (result.Stat == InterpretResult.Status.Continue ||
+					result.Stat == InterpretResult.Status.Normal)
+			{
+				if (stmt.Increment != null) Evaluate(stmt.Increment!);
+				continue;
+			}
+
+			if (result.Stat != InterpretResult.Status.Normal) break;
+		}
+		return result;
+	}
+	public InterpretResult VisitAssertStmt(Stmt.Assert stmt)
+	{
+		bool fail = false;
+		try
+		{
+			var val = Evaluate(stmt.expression);
+			if (IsFalsey(val)) fail = true;
+		}
+		catch (EleuRuntimeError ex)
+		{
+			if (stmt.isErrorAssert)
+			{
+				if (stmt.message == null || stmt.message == ex.Message)
+					return new(NilValue);
+			}
+			throw;
+		}
+		var msg = stmt.message ?? "Eine Annahme ist fehlgeschlagen.";
+		if (stmt.isErrorAssert)
+		{
+			fail = true;
+			msg += " Es wurde eine RuntimeException erwartet!";
+		}
+		if (fail)
+			throw new EleuAssertionFail(stmt.expression.Status, msg);
+		return new(NilValue);
+	}
+	public InterpretResult VisitBreakContinueStmt(Stmt.BreakContinue stmt)
+	{
+		return stmt.IsBreak ? InterpretResult.BreakResult : InterpretResult.ContinueResult;
+	}
+	public override void RuntimeError(string msg) => throw new EleuRuntimeError(currentStatus, msg);
+	public IEnumerable<VariableInfo> GetGlobalVariablesAndValues()
+	{
+		return globals.GetVariableInfos(null);
+	}
+
+	public List<CallStackInfo> GetCallStack()
+	{
+		var l = callStack.ToList();
+		l.Reverse();
+		return l;
+	}
+
+	public InterpretResult VisitRepeatStmt(Stmt.Repeat stmt)
+	{
+		var result = InterpretResult.NilResult;
+		int? GetCount()
+		{
+			var count = Evaluate(stmt.Count);
+			if (count is not Number num) return null;
+			if (!num.IsInt) return null;
+			return num.IntValue;
+		}
+		var count = GetCount();
+		if (!count.HasValue) throw new EleuRuntimeError(stmt.Count.Status, "Es wird eine natürliche Zahl erwartet.");
+
+		for (int i = 0; i < count.Value; i++)
+		{
+			result = Execute(stmt.Body);
+			if (result.Stat == InterpretResult.Status.Continue)
+			{
+				continue;
+			}
+			if (result.Stat == InterpretResult.Status.Break)
+			{
+				result = InterpretResult.NilResult;
+				break;
+			}
+			if (result.Stat != InterpretResult.Status.Normal)
+				break;
+		}
+		return result;
+	}
+
+	
+}
