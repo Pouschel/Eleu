@@ -13,8 +13,14 @@ setModuleImports('main.js', {
         location: {
             href: () => globalThis.window.location.href
         }
-    }
+  },
+  cs: {
+    setProp: setProp,
+    addHtml: addHtml,
+  }
+  
 });
+
 
 const config = getConfig();
 const exports = await getAssemblyExports(config.mainAssemblyName);
@@ -25,5 +31,16 @@ const app = exports.App;
 
 app.Test();
 
-document.getElementById('out').innerHTML = text;
+function setProp(elId, propName, propValue)         
+{
+  var el = document.getElementById(elId);
+  el[propName] = propValue;
+}
+
+function addHtml(elId, position, html)
+{
+  var el = document.getElementById(elId);
+  el.insertAdjacentHTML(position, html);
+}
+
 await dotnet.run();

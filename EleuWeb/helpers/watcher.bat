@@ -1,0 +1,1 @@
+C:\Code\OwnApps\CopyWatcher\bin\Debug\net7.0\copyWatcher.exe 	C:\Code\Eleu\EleuWeb\helpers\watcher.txt
