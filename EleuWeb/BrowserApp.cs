@@ -31,6 +31,13 @@ public partial class BrowserApp
   [JSImport("cs.addHtml", "main.js")]
   public static partial void InsertAdjacentHTML(string elId, string position, string htmlText);
 
+
+  [JSImport("cs.localStorageSet", "main.js")]
+  public static partial void LocalStoragSet(string key, string value);
+
+  [JSImport("cs.localStorageGet", "main.js")]
+  public static partial string LocalStoragGet(string key);
+
   [JSImport("cs.addListener", "main.js")]
  
   public static partial void AddEventListener(string elId, string eventName,
@@ -53,5 +60,11 @@ public partial class EditorApp
   [JSImport("ed.editorGetText", "main.js")]
 
   public static partial string GetText();
+
+
+  [JSImport("ed.editorSetText", "main.js")]
+
+  public static partial void SetText(string text);
+
 
 }

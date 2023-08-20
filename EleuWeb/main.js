@@ -17,9 +17,12 @@ setModuleImports('main.js', {
     addListener: addListener,
     callMethod: callMethod,
     callTimeout: callTimeout,
+    localStorageGet: localStorageGet,
+    localStorageSet: localStorageSet,
   },
   ed: {
     editorGetText: editorGetText,
+    editorSetText: editorSetText,
   }
   
 });
@@ -63,6 +66,15 @@ function callTimeout(func, delay)
   setTimeout(func, delay);
 }
 
+function localStorageSet(key, value)
+{
+  window.localStorage.setItem(key, value);
+}
+function localStorageGet(key)
+{
+  return window.localStorage.getItem(key);
+}
+
 
 editor.setTheme("ace/theme/textmate");
 editor.session.setMode("ace/mode/javascript");
@@ -76,6 +88,10 @@ function editorGetText()
   return editor.getValue();
 }
 
+function editorSetText(text)
+{
+  return editor.setValue(text);
+}
 
 await dotnet.run();
 

@@ -16,6 +16,9 @@ class App
     eleuEngine.Restart();
     eleuEngine.SendPing();
 
+    var code = LocalStoragGet("code") ?? "";
+    EditorApp.SetText(code);
+
     //EleuLanguageServer proc=new(null,true);
     BrowserApp.AddEventListener(RunButtonId, "click", RunClicked);
     BrowserApp.AddEventListener(StopButtonId, "click", StopClicked);
@@ -25,6 +28,7 @@ class App
   static void RunClicked()
   {
     var code = EditorApp.GetText();
+    LocalStoragSet("code", code);
     eleuEngine.Start(code);
     UIEnable();
   }
