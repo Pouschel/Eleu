@@ -21,26 +21,21 @@
     </div>
   </div>
   <div id="mainDiv" style="display:none">
-    
-    <!--Menue bar-->
-    <div style="height:4vh; background-color:#CCD5F0;">
-      <button id="btnRun">  <img class="tbbImage" src="assets/Run.png" /></button>
-      <button disabled id="btnStop"> <img class="tbbImage" src="assets/Stop.png" /></button>
-    </div>
-
     <!--Main view-->
-    <table style="height:90vh;width:98vw">
-      <tr style="height:70%">
+    <table style="height:98vh;width:98vw">
+      <tr style="height:6%">
+        <td colspan="2" >
+          <!--Menue bar-->
+          <div id="menuBar">
+            <button id="btnRun" title="Programm ausführen">  <img class="tbbImage" src="assets/Run.png" /></button>
+            <button disabled id="btnStop" title="Laufendes Programm beenden"> <img class="tbbImage" src="assets/Stop.png" /></button>
+          </div>
+
+        </td>
+      </tr>
+      <tr style="height:60%">
         <td style="width:60vw; vertical-align:top;">
           <div id="editor"></div>
-          <!--<textarea style="height:100%" id="mainEditor" spellcheck="false">
-        repeat(3)
-        {
-          print("Hallo Puschel!");
-        }
-
-                    </textarea>-->
-
         </td>
         <td style="width:40vw; vertical-align:top; padding:8px">
           <div style="height:100%; background-color:white">
@@ -48,8 +43,8 @@
           </div>
         </td>
       </tr>
-      <tr>
-        <td style="height:30%" colspan="2">
+      <tr style="height:30%">
+        <td  colspan="2">
           <!--Logger-->
           <div style="height:100%">
             <div class="blueDarkerBackground ausgabe">Ausgabe</div>
