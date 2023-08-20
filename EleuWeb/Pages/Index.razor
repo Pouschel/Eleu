@@ -4,10 +4,10 @@
 <div>Menu bar</div>
 
 
-<table style="height:100%;width:100%">
+<table style="height:90vh;width:98vw">
     <tr style="height:80%">
-        <td style="width:60%">
-            <textarea id="mainEditor" spellcheck="false" >
+        <td style="width:60vw; vertical-align:top;">
+            <textarea style="height:100%" id="mainEditor" spellcheck="false" >
               repeat(3)
 {
   print("Hallo Puschel");
@@ -16,10 +16,10 @@
             </textarea>
 
         </td>
-        <td width="40%" style="vertical-align:top; padding:8px" ><PuzzleView></PuzzleView> </td>
+        <td style="width:40vw; vertical-align:top; padding:8px" ><PuzzleView></PuzzleView> </td>
     </tr>
-    <tr style="height:20%">
-        <td colspan="2"><LoggerView></LoggerView></td>
+    <tr>
+        <td style="height:20%" colspan="2"><LoggerView></LoggerView></td>
     </tr>
 </table>
 
@@ -28,7 +28,3 @@
 
 </script>
 
-@code
-{
-
-}

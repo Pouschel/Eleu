@@ -31,10 +31,17 @@ h1:focus {
 		content: "An error has occurred."
 	}
 
-body {
-	background-color: #40568d;
-	font-family: sans-serif;
+.blueDarkerBackground {
+	background-color: #40568D;
+}
+.blueDarkBackground {
+	background-color: #5D6B99;
+	
+}
 
+body {
+	background-color: #5D6B99;
+	font-family: sans-serif;
 }
 
 td {
