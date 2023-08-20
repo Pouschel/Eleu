@@ -47,3 +47,11 @@ public partial class BrowserApp
     Console.WriteLine("in test");
   }
 }
+
+public partial class EditorApp
+{
+  [JSImport("ed.editorGetText", "main.js")]
+
+  public static partial string GetText();
+
+}

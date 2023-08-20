@@ -129,9 +129,9 @@ public class WasmExecuter
 
   public void Start(string code)
   {
-    Stop();
+    if (IsAScriptRunning) Stop();
     stopRequested = false;
-    CallServerArray("code", "", code);
+    CallServerArray("code", "[textfeld]", code);
   }
 
   public void SendPuzzleText(string text, int selIndex)

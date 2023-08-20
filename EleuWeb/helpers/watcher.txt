@@ -1,5 +1,7 @@
 ﻿C:\Code\Eleu\EleuWeb\assets
 C:\Code\Eleu\EleuWeb\bin\debug\net7.0\browser-wasm\AppBundle\assets
+C:\Code\Eleu\EleuWeb\ace
+C:\Code\Eleu\EleuWeb\bin\debug\net7.0\browser-wasm\AppBundle\ace
 C:\Code\Eleu\EleuWeb\index.html 
 C:\Code\Eleu\EleuWeb\bin\debug\net7.0\browser-wasm\AppBundle\index.html 
 C:\Code\Eleu\EleuWeb\main.js

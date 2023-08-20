@@ -18,16 +18,23 @@ class App
 
     //EleuLanguageServer proc=new(null,true);
     BrowserApp.AddEventListener(RunButtonId, "click", RunClicked);
+    BrowserApp.AddEventListener(StopButtonId, "click", StopClicked);
     //UIEnable();
   }
 
   static void RunClicked()
   {
-    //Log.AddLine($"Run button clicked! + {DateTime.Now}", "magenta");
-    var code = GetProperty(EditorId, "value");
+    var code = EditorApp.GetText();
     eleuEngine.Start(code);
     UIEnable();
   }
+
+  static void StopClicked()
+  {
+    eleuEngine.Stop();
+    UIEnable();
+  }
+
 
   public static void UIEnable()
   {

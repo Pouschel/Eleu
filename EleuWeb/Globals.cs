@@ -10,7 +10,7 @@ static class ElementIds
   public const string LoggerId = "log",
     RunButtonId = "btnRun",
     StopButtonId = "btnStop",
-    EditorId = "mainEditor";
+    EditorId = "editor";
 
 }
 

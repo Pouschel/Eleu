@@ -17,6 +17,9 @@ setModuleImports('main.js', {
     addListener: addListener,
     callMethod: callMethod,
     callTimeout: callTimeout,
+  },
+  ed: {
+    editorGetText: editorGetText,
   }
   
 });
@@ -61,4 +64,18 @@ function callTimeout(func, delay)
 }
 
 
+editor.setTheme("ace/theme/textmate");
+editor.session.setMode("ace/mode/javascript");
+editor.setHighlightActiveLine(false);
+editor.setShowPrintMargin(false);
+editor.setKeyboardHandler("ace/keyboard/vscode");
+editor.session.setTabSize(2);
+
+function editorGetText()
+{
+  return editor.getValue();
+}
+
+
 await dotnet.run();
+

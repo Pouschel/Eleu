@@ -131,7 +131,7 @@ public class EleuLanguageServer : IDisposable
           var puzIndex = ArgAtIndex<int>(1);
           _endPuzzleHandler(puzCode, puzIndex);
           break;
-        case "stop": _stop(); break;
+        case "stop": Stop(); break;
         default: _sendInternalError($"Invalid cmd: {cmd}"); break;
       }
     }
@@ -151,12 +151,13 @@ public class EleuLanguageServer : IDisposable
       if (!HandleCmd(cmd)) break;
     }
   }
-  void _stop()
+  void Stop()
   {
     _interpreter = null;
     _lastResult = EEleuResult.CompileError;
     _outStateChanged = false;
     _sendRunState(false);
+    _sendError("Programm abgebrochen!");
   }
   void _endPuzzleHandler(string code, int puzIndex)
   {
