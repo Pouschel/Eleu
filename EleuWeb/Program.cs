@@ -1,11 +1,37 @@
-using EleuWeb;
-using Microsoft.AspNetCore.Components.Web;
-using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+//https://learn.microsoft.com/en-us/aspnet/core/client-side/dotnet-interop?view=aspnetcore-7.0
 
-var builder = WebAssemblyHostBuilder.CreateDefault(args);
-builder.RootComponents.Add<App>("#app");
-builder.RootComponents.Add<HeadOutlet>("head::after");
+using System;
+using System.Runtime.InteropServices.JavaScript;
 
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
-await builder.Build().RunAsync();
+class Program
+{
+  public static void Main()
+  {
+
+  }
+}
+
+                                  
+public partial class MyClass        
+{
+    [JSExport]
+    internal static string Greeting()
+    {
+        var text = $"Hello, World! Greetings from {GetHRef()}";
+        Console.WriteLine(text);
+        return text;
+    }                                
+                                
+    [JSImport("window.location.href", "main.js")]          
+    internal static partial string GetHRef();
+}
+
+public partial class App
+{
+  [JSExport]
+  internal static void Test()
+  {
+    Console.WriteLine("in test");
+  }
+}

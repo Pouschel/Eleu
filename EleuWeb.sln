@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Eleu", "Eleu\Eleu.csproj", "{A6342523-C716-421D-B6D0-94B4B6BF2AFA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EleuWeb", "EleuWeb\EleuWeb.csproj", "{7B1CC23F-3328-48B7-B779-2D370C81CE74}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EleuWeb", "EleuWeb\EleuWeb.csproj", "{7B1CC23F-3328-48B7-B779-2D370C81CE74}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

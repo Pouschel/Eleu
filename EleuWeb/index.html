@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<!--  Licensed to the .NET Foundation under one or more agreements. -->
+<!-- The .NET Foundation licenses this file to you under the MIT license. -->
+<html>
+
+<head>
+  <title>EleuWeb</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon"  href="assets/EleuStudio.png" />
+  <link rel="stylesheet" href="/assets/app.css" />
+  <link rel="modulepreload" href="./main.js" />
+  <link rel="modulepreload" href="./dotnet.js" />
+</head>
+
+<body>
+  <!--Menue bar-->
+  <div style="height:4vh; background-color:#CCD5F0;">
+    <button>  <img src="assets/Run.png" style="height:30px" /></button>
+  </div>
+
+  <!--Main view-->
+  <table style="height:90vh;width:98vw">
+    <tr style="height:80%">
+      <td style="width:60vw; vertical-align:top;">
+        
+        <textarea style="height:100%" id="mainEditor" spellcheck="false">
+              repeat(3)
+{
+  print("Hallo Puschel");
+}
+
+            </textarea>
+
+      </td>
+      <td style="width:40vw; vertical-align:top; padding:8px">
+        <div style="height:100%; background-color:white">
+          Puzzle
+        </div></td>
+    </tr>
+    <tr>
+      <td style="height:20%" colspan="2">
+        <!--Logger-->
+        <div style="height:100%">
+          <div class="blueDarkerBackground ausgabe">Ausgabe</div>
+          <div class="talog" >1. Zeile</div>
+        </div>
+
+      </td>
+    </tr>
+  </table>
+
+  <script type='module' src="./main.js"></script>
+</body>
+
+</html>
