@@ -1,48 +1,17 @@
 //https://learn.microsoft.com/en-us/aspnet/core/client-side/dotnet-interop?view=aspnetcore-7.0
 
 global using static BrowserApp;
+global using static ElementIds;
 global using System;
 
-using System.Text.Json.Serialization;
-using System.Drawing;
-using Eleu.LangServer;
 
-public class OptionsModel
+static class ElementIds
 {
-  public class PuzzleOptions
-  {
-    public string Text { get; set; } = "";
+  public const string LoggerId = "log",
+    RunButtonId = "btnRun",
+    StopButtonId = "btnStop",
+    EditorId = "mainEditor";
 
-    public int TestIndex { get; set; }
-    public double Speed { get; set; } = 20;
-    public int FrameTime
-    {
-      get
-      {
-        var delta = 35 - Speed;
-        return (int)(delta * delta);
-      }
-    }
-  }
-  public PuzzleOptions Puzzle = new();
-
-  public class ViewOptions
-  {
-
-    [JsonIgnore]
-    public string LogInfoColor = "Blue";
-    [JsonIgnore]
-    public string LogErrorColor = "Red";
-    [JsonIgnore]
-    public string LogPuzzleColor = "#CA2FBA";
-    [JsonIgnore]
-    public string LogTeacherColor = "#CD5C5C";
-
-    public bool ClearOutputBeforeRun { get; set; } = true;
-
-  }
-
-  public ViewOptions View { get; set; } = new ViewOptions();
 }
 
 class HtmlLogger

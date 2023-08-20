@@ -26,7 +26,7 @@ public class WasmExecuter
 
   public WasmExecuter()
   {
-    hasLogConsole = true;
+    hasLogConsole = false;
 
     proc = new(ProcResponseDelayed, true);
   }
@@ -91,8 +91,8 @@ public class WasmExecuter
       case "state":
         bool running = IsAScriptRunning;
         IsAScriptRunning = (bool)arg;
-        //TODO if (running != IsAScriptRunning)
-        //TODO App.Mvu.EnqueueMessage(Msg.EngineStateChanged);
+        if (running != IsAScriptRunning)
+          App.UIEnable();
         if (IsAScriptRunning && puzzleDelay > 0)
         {
           Thread.Sleep(puzzleDelay); puzzleDelay = 0;

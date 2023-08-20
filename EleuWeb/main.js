@@ -11,6 +11,7 @@ const { setModuleImports, getAssemblyExports, getConfig } = await dotnet
 setModuleImports('main.js', {
   cs: {
     setProp: setProp,
+    setPropBool: setProp,
     getProp: getProp,
     addHtml: addHtml,
     addListener: addListener,
@@ -24,17 +25,16 @@ setModuleImports('main.js', {
 const config = getConfig();
 const exports = await getAssemblyExports(config.mainAssemblyName);
 const app = exports.BrowserApp;
-app.Test();
 
-function setProp(elId, propName, propValue)         
-{
-  var el = document.getElementById(elId);
-  el[propName] = propValue;
-}
 function getProp(elId, propName)
 {
   var el = document.getElementById(elId);
   return el[propName];
+}
+function setProp(elId, propName, propValue)         
+{
+  var el = document.getElementById(elId);
+  el[propName] = propValue;
 }
 function callMethod(elId, methName)
 {

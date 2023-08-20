@@ -29,12 +29,18 @@ td {
 button {
 	background-color: transparent;
 	border: none;
+	height: 100%;
+	margin: 0px;
 }
 
 	button:active {
 		background-color: dodgerblue;
 	}
-				 
+
+	button:disabled {
+		background-color: dimgrey;
+	}
+
 .ausgabe {
 	margin: 2px;
 	padding: 4px;
@@ -50,4 +56,11 @@ button {
 	height: 25vh;
 	overflow:scroll;
 }
+
+.tbbImage {
+	/*height:30px;*/
+	height: 100%;
+	width: 100%;
+}
+
 

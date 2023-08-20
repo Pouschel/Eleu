@@ -10,22 +10,31 @@ class App
   public static WasmExecuter eleuEngine;
   public static void Main()
   {
-    Log = new("log");
+    Log = new(LoggerId);
     Log.AddLine("Eleu Studio (Web) gestartet.", Options.View.LogInfoColor);
     eleuEngine = new();
     eleuEngine.Restart();
     eleuEngine.SendPing();
 
     //EleuLanguageServer proc=new(null,true);
-    BrowserApp.AddEventListener("btnRun", "click", RunClicked);
-
+    BrowserApp.AddEventListener(RunButtonId, "click", RunClicked);
+    //UIEnable();
   }
 
   static void RunClicked()
   {
     //Log.AddLine($"Run button clicked! + {DateTime.Now}", "magenta");
-    var code = GetProperty("mainEditor", "value");
+    var code = GetProperty(EditorId, "value");
     eleuEngine.Start(code);
+    UIEnable();
+  }
+
+  public static void UIEnable()
+  {
+    var scriptRunning = eleuEngine.IsAScriptRunning;
+    SetDisabled(RunButtonId, scriptRunning);
+    SetDisabled(StopButtonId, !scriptRunning);
+
   }
 
 }
