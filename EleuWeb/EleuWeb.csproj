@@ -11,8 +11,4 @@
     <WasmExtraFilesToDeploy Include="index.html" />
     <WasmExtraFilesToDeploy Include="main.js" />
   </ItemGroup>
-	<Target Name="xyz" AfterTargets="WasmBuildApp">
-		<Exec Command="echo From: $(ProjectDir)assets&#xD;&#xA;echo To: $(ProjectDir)$(OutputPath)AppBundle\assets&#xD;&#xA;xcopy $(ProjectDir)assets $(ProjectDir)$(OutputPath)AppBundle\assets /S /D /I" />
-	</Target>
-
 </Project>

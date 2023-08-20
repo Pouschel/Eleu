@@ -1,12 +1,53 @@
 //https://learn.microsoft.com/en-us/aspnet/core/client-side/dotnet-interop?view=aspnetcore-7.0
 
+global using static BrowserApp;
+
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices.JavaScript;
+using System.Text.Json.Serialization;
+
+public class OptionsModel
+{
+  public class PuzzleOptions
+  {
+    public string Text { get; set; } = "";
+
+    public int TestIndex { get; set; }
+    public double Speed { get; set; } = 20;
+    public int FrameTime
+    {
+      get
+      {
+        var delta = 35 - Speed;
+        return (int)(delta * delta);
+      }
+    }
+  }
+  public PuzzleOptions Puzzle = new();
+
+  public class ViewOptions
+  {
+
+    [JsonIgnore]
+    public string LogInfoColor = "Blue";
+    [JsonIgnore]
+    public string LogErrorColor = "Red";
+    [JsonIgnore]
+    public string LogPuzzleColor = "#CA2FBA";
+    [JsonIgnore]
+    public string LogTeacherColor = "#CD5C5C";
+
+    public bool ClearOutputBeforeRun { get; set; } = true;
+
+  }
+
+  public ViewOptions View { get; set; } = new ViewOptions();
+}
 
 class HtmlLogger
 {
   string elId;
+  int curId;
 
   public HtmlLogger(string elId)
   {
@@ -14,51 +55,29 @@ class HtmlLogger
   }
   public void AddLine(string text, string color = "black")
   {
-    var line = $@"<div style=""color:{color}"">{text}</div>";
-    App.InsertAdjacentHTML(elId, "beforeend", line);
+    var fullId = $"{elId}_{curId}";
+    var line = $@"<div id=""{fullId}"" style=""color:{color}"">{text}</div>";
+    InsertAdjacentHTML(elId, "beforeend", line);
+    ScrollIntoView(fullId);
+    curId++;
   }
 }
 
 class Program
 {
   public static HtmlLogger Log;
-  
+  public static OptionsModel Options = new();
+
   public static void Main()
   {
     Log = new("log");
-    Log.AddLine("Eleu Studio (Web) gestartet.");
+    Log.AddLine("Eleu Studio (Web) gestartet.", Options.View.LogInfoColor);
+    BrowserApp.AddEventListener("btnRun", "click", RunClicked);
   }
 
-
-}
-
-
-public partial class MyClass
-{
-  [JSExport]
-  internal static string Greeting()
+  static void RunClicked()
   {
-    var text = $"Hello, World! Greetings from {GetHRef()}";
-    Console.WriteLine(text);
-    return text;
+    Log.AddLine($"Run button clicked! + {DateTime.Now}", "magenta");
   }
 
-  [JSImport("window.location.href", "main.js")]
-  internal static partial string GetHRef();
-}
-
-public partial class App
-{
-  [JSImport("cs.setProp", "main.js")]
-
-  public static partial void SetProperty(string elName, string propName, string propValue);
-
-  [JSImport("cs.addHtml", "main.js")]
-  public static partial void InsertAdjacentHTML(string elId, string position, string htmlText);
-
-  [JSExport]
-  internal static void Test()
-  {
-    Console.WriteLine("in test");
-  }
 }
