@@ -19,6 +19,7 @@ setModuleImports('main.js', {
     callTimeout: callTimeout,
     localStorageGet: localStorageGet,
     localStorageSet: localStorageSet,
+    setStyle: setStyle
   },
   ed: {
     editorGetText: editorGetText,
@@ -42,6 +43,13 @@ function setProp(elId, propName, propValue)
   var el = document.getElementById(elId);
   el[propName] = propValue;
 }
+
+function setStyle(elId, propName, propValue)
+{
+  var el = document.getElementById(elId);
+  el.style[propName] = propValue;
+}
+
 function callMethod(elId, methName)
 {
   var el = document.getElementById(elId);
@@ -74,6 +82,7 @@ function localStorageGet(key)
 {
   return window.localStorage.getItem(key);
 }
+
 
 
 editor.setTheme("ace/theme/textmate");

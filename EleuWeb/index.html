@@ -1,34 +1,39 @@
 <!DOCTYPE html>
-<!--  Licensed to the .NET Foundation under one or more agreements. -->
-<!-- The .NET Foundation licenses this file to you under the MIT license. -->
-<html>
+<html lang="de">
 
 <head>
-  <title>EleuWeb</title>
+  <title>EleuStudio</title>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="assets/EleuStudio.png" />
   <link rel="stylesheet" href="/assets/app.css" />
   <link rel="modulepreload" href="./main.js" />
   <link rel="modulepreload" href="./dotnet.js" />
-
   <script src="/ace/ace.js" type="text/javascript" charset="utf-8"></script>
-
 </head>
 
 <body>
-  <!--Menue bar-->
-  <div style="height:4vh; background-color:#CCD5F0;">
-    <button id="btnRun">  <img class="tbbImage" src="assets/Run.png" /></button>
-    <button disabled id="btnStop"> <img class="tbbImage" src="assets/Stop.png" /></button>
+  <div id="waitDiv">
+    <div >
+      Bitte Warten!<br />
+      EleuStudio wird geladen. <br />
+      Da die App sehr groß ist, kann es etwas dauern.
+    </div>
   </div>
+  <div id="mainDiv" style="display:none">
+    
+    <!--Menue bar-->
+    <div style="height:4vh; background-color:#CCD5F0;">
+      <button id="btnRun">  <img class="tbbImage" src="assets/Run.png" /></button>
+      <button disabled id="btnStop"> <img class="tbbImage" src="assets/Stop.png" /></button>
+    </div>
 
-  <!--Main view-->
-  <table style="height:90vh;width:98vw">
-    <tr style="height:70%">
-      <td style="width:60vw; vertical-align:top;">
-        <div id="editor"></div>
-        <!--<textarea style="height:100%" id="mainEditor" spellcheck="false">
+    <!--Main view-->
+    <table style="height:90vh;width:98vw">
+      <tr style="height:70%">
+        <td style="width:60vw; vertical-align:top;">
+          <div id="editor"></div>
+          <!--<textarea style="height:100%" id="mainEditor" spellcheck="false">
         repeat(3)
         {
           print("Hallo Puschel!");
@@ -36,34 +41,32 @@
 
                     </textarea>-->
 
-      </td>
-      <td style="width:40vw; vertical-align:top; padding:8px">
-        <div style="height:100%; background-color:white">
-          Puzzle (muss noch implementiert werden)
-        </div>
-      </td>
-    </tr>
-    <tr>
-      <td style="height:30%" colspan="2">
-        <!--Logger-->
-        <div style="height:100%">
-          <div class="blueDarkerBackground ausgabe">Ausgabe</div>
-          <div class="talog" id="log"></div>
-        </div>
+        </td>
+        <td style="width:40vw; vertical-align:top; padding:8px">
+          <div style="height:100%; background-color:white">
+            Puzzle (muss noch implementiert werden)
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td style="height:30%" colspan="2">
+          <!--Logger-->
+          <div style="height:100%">
+            <div class="blueDarkerBackground ausgabe">Ausgabe</div>
+            <div class="talog" id="log"></div>
+          </div>
 
-      </td>
-    </tr>
-  </table>
+        </td>
+      </tr>
+    </table>
 
-
+  </div>
 
   <script>
-
 		var editor = ace.edit("editor");
-
   </script>
-
   <script type='module' src="./main.js"></script>
+
 </body>
 
 </html>

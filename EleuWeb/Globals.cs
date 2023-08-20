@@ -10,7 +10,11 @@ static class ElementIds
   public const string LoggerId = "log",
     RunButtonId = "btnRun",
     StopButtonId = "btnStop",
+    MainDivId= "mainDiv",
+    WaitDivId ="waitDiv",
+
     EditorId = "editor";
+
 
 }
 
@@ -30,5 +34,10 @@ class HtmlLogger
     InsertAdjacentHTML(elId, "beforeend", line);
     ScrollIntoView(fullId);
     curId++;
+  }
+
+  public void Clear()
+  {
+    SetProperty(elId, "innerText", "");
   }
 }

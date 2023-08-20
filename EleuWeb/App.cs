@@ -22,13 +22,17 @@ class App
     //EleuLanguageServer proc=new(null,true);
     BrowserApp.AddEventListener(RunButtonId, "click", RunClicked);
     BrowserApp.AddEventListener(StopButtonId, "click", StopClicked);
-    //UIEnable();
+    UIEnable();
+
+    SetStyle(WaitDivId, "display", "none");
+    SetStyle(MainDivId,"display","block");
   }
 
   internal static void RunClicked()
   {
     var code = EditorApp.GetText();
     LocalStoragSet("code", code);
+    Log.Clear();
     eleuEngine.Start(code);
     UIEnable();
   }

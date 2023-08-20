@@ -17,8 +17,14 @@ public partial class BrowserApp
 
   public static partial string GetProperty(string elName, string propName);
 
+  [JSImport("cs.setStyle", "main.js")]
+
+  public static partial void SetStyle(string elName, string propName, string propValue);
+
+
   [JSImport("cs.callMethod", "main.js")]
 
+  
   public static partial void CallMethod(string elName, string methodName);
 
 
