@@ -8,6 +8,9 @@ public partial class BrowserApp
   [JSImport("cs.setProp", "main.js")]
 
   public static partial void SetProperty(string elName, string propName, string propValue);
+  [JSImport("cs.getProp", "main.js")]
+
+  public static partial string GetProperty(string elName, string propName);
 
   [JSImport("cs.callMethod", "main.js")]
 

@@ -11,6 +11,7 @@ const { setModuleImports, getAssemblyExports, getConfig } = await dotnet
 setModuleImports('main.js', {
   cs: {
     setProp: setProp,
+    getProp: getProp,
     addHtml: addHtml,
     addListener: addListener,
     callMethod: callMethod,
@@ -30,7 +31,11 @@ function setProp(elId, propName, propValue)
   var el = document.getElementById(elId);
   el[propName] = propValue;
 }
-
+function getProp(elId, propName)
+{
+  var el = document.getElementById(elId);
+  return el[propName];
+}
 function callMethod(elId, methName)
 {
   var el = document.getElementById(elId);

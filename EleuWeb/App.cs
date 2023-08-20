@@ -23,7 +23,9 @@ class App
 
   static void RunClicked()
   {
-    Log.AddLine($"Run button clicked! + {DateTime.Now}", "magenta");
+    //Log.AddLine($"Run button clicked! + {DateTime.Now}", "magenta");
+    var code = GetProperty("mainEditor", "value");
+    eleuEngine.Start(code);
   }
 
 }
