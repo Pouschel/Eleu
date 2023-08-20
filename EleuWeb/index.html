@@ -58,28 +58,7 @@
 
 
   <script>
-    document.onkeydown = fkey;
-    document.onkeypress = fkey
-    document.onkeyup = fkey;
 
-    var wasPressed = false;
-    function fkey(e)
-    {
-      e = e || window.event;
-      if (wasPressed) return;
-
-      if (e.code == 'F5')
-      {
-        var code = inpCode.value;
-        window.localStorage.setItem("code", code);
-        alert("F5 pressed");
-        e.handled = true;
-        wasPressed = true;
-      } else
-      {
-        //alert("Window closed");
-      }
-    }
 		var editor = ace.edit("editor");
 
   </script>

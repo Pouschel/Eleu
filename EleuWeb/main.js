@@ -77,11 +77,13 @@ function localStorageGet(key)
 
 
 editor.setTheme("ace/theme/textmate");
-editor.session.setMode("ace/mode/javascript");
+editor.session.setMode("ace/mode/eleu");
 editor.setHighlightActiveLine(false);
 editor.setShowPrintMargin(false);
 editor.setKeyboardHandler("ace/keyboard/vscode");
+editor.getSession().setUseWorker(false);
 editor.session.setTabSize(2);
+editor.focus();
 
 function editorGetText()
 {
@@ -91,6 +93,23 @@ function editorGetText()
 function editorSetText(text)
 {
   return editor.setValue(text);
+}
+
+
+document.onkeydown = fkey;
+//document.onkeypress = fkey
+//document.onkeyup = fkey;
+
+function fkey(e)
+{
+  e = e || window.event;
+  if (e.code == 'F5')
+  {
+    app.RunCode();
+    //alert("F5 pressed");
+    e.handled = true;
+    e.preventDefault();
+  }
 }
 
 await dotnet.run();

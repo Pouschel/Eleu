@@ -25,7 +25,7 @@ class App
     //UIEnable();
   }
 
-  static void RunClicked()
+  internal static void RunClicked()
   {
     var code = EditorApp.GetText();
     LocalStoragSet("code", code);

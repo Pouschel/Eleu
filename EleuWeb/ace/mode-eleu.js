@@ -66,21 +66,20 @@ var JavaScriptHighlightRules = function(options) {
             "Error|EvalError|InternalError|RangeError|ReferenceError|StopIteration|"   + // Errors
             "SyntaxError|TypeError|URIError|"                                          +
             "decodeURI|decodeURIComponent|encodeURI|encodeURIComponent|eval|isFinite|" + // Non-constructor functions
-            "isNaN|parseFloat|parseInt|"                                               +
+            "isNaN|parseNum|parseInt|"                                               +
             "JSON|Math|"                                                               + // Other
             "this|arguments|prototype|window|document"                                 , // Pseudo
         "keyword":
-            "const|yield|import|get|set|async|await|" +
-            "break|case|catch|continue|default|delete|do|else|finally|for|function|" +
-            "if|in|of|instanceof|new|return|switch|throw|try|typeof|let|var|while|with|debugger|" +
-            "__parent__|__count__|escape|unescape|with|__proto__|" +
-            "class|enum|extends|super|export|implements|private|public|interface|package|protected|static",
+            "and|break|class|continue|else|" +
+            "for|fun|function|if|or|" +
+            "assert|return|super|this|" +
+            "var|while|repeat",
         "storage.type":
-            "const|let|var|function",
+            "var|function|fun",
         "constant.language":
-            "null|Infinity|NaN|undefined",
+            "nil",
         "support.function":
-            "alert",
+            "print",
         "constant.language.boolean": "true|false"
     }, "identifier");
     var kwBeforeRe = "case|do|else|finally|in|instanceof|return|throw|try|typeof|yield|void";
