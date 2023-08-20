@@ -1,10 +1,11 @@
 //https://learn.microsoft.com/en-us/aspnet/core/client-side/dotnet-interop?view=aspnetcore-7.0
 
 global using static BrowserApp;
+global using System;
 
-using System;
-using System.Collections.Generic;
 using System.Text.Json.Serialization;
+using System.Drawing;
+using Eleu.LangServer;
 
 public class OptionsModel
 {
@@ -61,23 +62,4 @@ class HtmlLogger
     ScrollIntoView(fullId);
     curId++;
   }
-}
-
-class Program
-{
-  public static HtmlLogger Log;
-  public static OptionsModel Options = new();
-
-  public static void Main()
-  {
-    Log = new("log");
-    Log.AddLine("Eleu Studio (Web) gestartet.", Options.View.LogInfoColor);
-    BrowserApp.AddEventListener("btnRun", "click", RunClicked);
-  }
-
-  static void RunClicked()
-  {
-    Log.AddLine($"Run button clicked! + {DateTime.Now}", "magenta");
-  }
-
 }

@@ -14,6 +14,7 @@ setModuleImports('main.js', {
     addHtml: addHtml,
     addListener: addListener,
     callMethod: callMethod,
+    callTimeout: callTimeout,
   }
   
 });
@@ -49,6 +50,10 @@ function addListener(elId, eventName, callback)
   el.addEventListener(eventName, callback);
 }
 
+function callTimeout(func, delay)
+{
+  setTimeout(func, delay);
+}
 
 
 await dotnet.run();

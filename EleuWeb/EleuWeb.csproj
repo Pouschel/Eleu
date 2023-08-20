@@ -6,6 +6,9 @@
     <OutputType>Exe</OutputType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Eleu\Eleu.csproj" />
+  </ItemGroup>
 
   <ItemGroup>
     <WasmExtraFilesToDeploy Include="index.html" />

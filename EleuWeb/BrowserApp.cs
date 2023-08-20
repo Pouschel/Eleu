@@ -14,6 +14,10 @@ public partial class BrowserApp
   public static partial void CallMethod(string elName, string methodName);
 
 
+  [JSImport("cs.callTimeout", "main.js")]
+
+  public static partial void SetTimeout([JSMarshalAs<JSType.Function>] Action action, int delay=0);
+
   public static void ScrollIntoView(string elId) => CallMethod(elId, "scrollIntoView");
 
   [JSImport("cs.addHtml", "main.js")]
