@@ -13,19 +13,10 @@ setModuleImports('main.js', {
     setProp: setProp,
     setPropBool: setProp,
     getProp: getProp,
-    addHtml: addHtml,
     addListener: addListener,
-    callMethod: callMethod,
     callTimeout: callTimeout,
-    localStorageGet: localStorageGet,
-    localStorageSet: localStorageSet,
-    setStyle: setStyle
-  },
-  ed: {
-    editorGetText: editorGetText,
-    editorSetText: editorSetText,
-  }
-  
+    evalCode: evalCode
+  } 
 });
 
 
@@ -33,6 +24,10 @@ const config = getConfig();
 const exports = await getAssemblyExports(config.mainAssemblyName);
 const app = exports.BrowserApp;
 
+function evalCode(code)
+{
+  return eval(code);
+}
 function getProp(elId, propName)
 {
   var el = document.getElementById(elId);
@@ -42,25 +37,6 @@ function setProp(elId, propName, propValue)
 {
   var el = document.getElementById(elId);
   el[propName] = propValue;
-}
-
-function setStyle(elId, propName, propValue)
-{
-  var el = document.getElementById(elId);
-  el.style[propName] = propValue;
-}
-
-function callMethod(elId, methName)
-{
-  var el = document.getElementById(elId);
-  el[methName]();
-//  mth.prototype.call(el);
-}
-
-function addHtml(elId, position, html)
-{
-  var el = document.getElementById(elId);
-  el.insertAdjacentHTML(position, html);
 }
 
 function addListener(elId, eventName, callback)
@@ -74,17 +50,6 @@ function callTimeout(func, delay)
   setTimeout(func, delay);
 }
 
-function localStorageSet(key, value)
-{
-  window.localStorage.setItem(key, value);
-}
-function localStorageGet(key)
-{
-  return window.localStorage.getItem(key);
-}
-
-
-
 editor.setTheme("ace/theme/textmate");
 editor.session.setMode("ace/mode/eleu");
 editor.setHighlightActiveLine(false);
@@ -93,17 +58,6 @@ editor.setKeyboardHandler("ace/keyboard/vscode");
 editor.getSession().setUseWorker(false);
 editor.session.setTabSize(2);
 editor.focus();
-
-function editorGetText()
-{
-  return editor.getValue();
-}
-
-function editorSetText(text)
-{
-  return editor.setValue(text);
-}
-
 
 document.onkeydown = fkey;
 //document.onkeypress = fkey

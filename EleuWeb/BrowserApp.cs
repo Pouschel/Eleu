@@ -2,9 +2,14 @@
 
 using System;
 using System.Runtime.InteropServices.JavaScript;
+using static System.Net.Mime.MediaTypeNames;
 
 public partial class BrowserApp
 {
+  [JSImport("cs.evalCode", "main.js")]
+
+  public static partial string JsEval(string jsCode);
+
   [JSImport("cs.setProp", "main.js")]
 
   public static partial void SetProperty(string elName, string propName, string propValue);
@@ -17,16 +22,16 @@ public partial class BrowserApp
 
   public static partial string GetProperty(string elName, string propName);
 
-  [JSImport("cs.setStyle", "main.js")]
 
-  public static partial void SetStyle(string elName, string propName, string propValue);
-
-
-  [JSImport("cs.callMethod", "main.js")]
-
+  public static void SetStyle(string elId, string propName, string propValue)
+  {
+    JsEval($"document.getElementById('{elId}').style.{propName} = '{propValue}';");
+  }
   
-  public static partial void CallMethod(string elName, string methodName);
-
+  public static void CallMethod(string elId, string methodName)
+  {
+    JsEval($"document.getElementById('{elId}').{methodName}();");
+  }
 
   [JSImport("cs.callTimeout", "main.js")]
 
@@ -34,15 +39,19 @@ public partial class BrowserApp
 
   public static void ScrollIntoView(string elId) => CallMethod(elId, "scrollIntoView");
 
-  [JSImport("cs.addHtml", "main.js")]
-  public static partial void InsertAdjacentHTML(string elId, string position, string htmlText);
-
-
-  [JSImport("cs.localStorageSet", "main.js")]
-  public static partial void LocalStoragSet(string key, string value);
-
-  [JSImport("cs.localStorageGet", "main.js")]
-  public static partial string LocalStoragGet(string key);
+  //[JSImport("cs.addHtml", "main.js")]
+  public static void InsertAdjacentHTML(string elId, string position, string htmlText)
+  {
+    JsEval($"document.getElementById('{elId}').insertAdjacentHTML('{position}', `{htmlText}`);");
+  }
+  public static void LocalStoragSet(string key, string value)
+  {
+    JsEval($"window.localStorage.setItem('{key}',`{value}`);");
+  }
+  public static string LocalStoragGet(string key)
+  {
+    return JsEval($"window.localStorage.getItem('{key}');");
+  }
 
   [JSImport("cs.addListener", "main.js")]
  
@@ -66,14 +75,16 @@ public partial class BrowserApp
 
 public partial class EditorApp
 {
-  [JSImport("ed.editorGetText", "main.js")]
 
-  public static partial string GetText();
+  public static string GetText()
+  { 
+    return JsEval($"editor.getValue();");
+  }
 
-
-  [JSImport("ed.editorSetText", "main.js")]
-
-  public static partial void SetText(string text);
+  public static void SetText(string text)
+  {
+    JsEval($"editor.setValue(`{text}`);");
+  }
 
 
 }
