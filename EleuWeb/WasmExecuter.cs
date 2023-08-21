@@ -79,7 +79,7 @@ public class WasmExecuter
         PuzzleFuncNames = (string[])arg;
         break;
       case "info":
-        App.Println(arg.ToString(), viewOptions.LogInfoColor);
+        App.Println(text(), viewOptions.LogInfoColor);
         break;
       case "err":
       case "i_err":
@@ -103,7 +103,7 @@ public class WasmExecuter
         }
         break;
       case "puzzle":
-        //TODO  App.Mvu.EnqueueMessage(new SetPuzzleResponseMsg(arg as Puzzle));
+        App.Ui.SetPuzzle(arg as Puzzle);
         puzzleDelay = App.Options.Puzzle.FrameTime;
         break;
       //TODO case "_pcall": App.Mvu.EnqueueMessage(new HandlePCallMsg(text())); break;
@@ -118,8 +118,7 @@ public class WasmExecuter
 
 
   internal void ClearInputStatus(string fileName)
-  {
-  }
+  {  }
 
   internal void Stop()
   {

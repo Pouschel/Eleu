@@ -1,71 +1,27 @@
 ﻿//https://learn.microsoft.com/en-us/aspnet/core/client-side/dotnet-interop?view=aspnetcore-7.0
 
-using System.Security;
+using Eleu.Puzzles;
 using EleuStudio;
-using EleuWeb.Html;
-
-class HUI
-{
-  WasmExecuter eleuEngine => App.eleuEngine;
-  readonly HElement mainDiv, waitDiv;
-  readonly HButton runBtn, stopBtn;
-  public HUI()
-  {
-    mainDiv = new("mainDiv");
-    waitDiv = new("waitDiv");
-    runBtn = new("btnRun");
-    runBtn.Click += RunClicked;
-    stopBtn = new("btnStop");
-    stopBtn.Click += StopClicked;
-  }
-
-  public void SetModeLoaded()
-  {
-    waitDiv.Style.Display = "none";
-    mainDiv.Style.Display = "block";
-  }
-
-  public void EnableButtons()
-  {
-    var scriptRunning = App.eleuEngine.IsAScriptRunning;
-    runBtn.Disabled = scriptRunning;
-    stopBtn.Disabled = !scriptRunning;
-  }
-
-  internal void RunClicked()
-  {
-    var code = EditorApp.GetText();
-    LocalStoragSet("code", code);
-    App.Log.Clear();
-    eleuEngine.Start(code);
-    EnableButtons();
-  }
-
-  void StopClicked()
-  {
-    eleuEngine.Stop();
-    EnableButtons();
-  }
-}
 
 class App
 {
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
   public static HtmlLogger Log;
-  public static OptionsModel Options = new();
-  public static void Println(string text, string color = "black") => App.Log?.AddLine(text, color);
   public static WasmExecuter eleuEngine;
   public static HUI Ui;
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
+  public static OptionsModel Options = new();
+  public static void Println(string text, string color = "black") => App.Log?.AddLine(text, color);
 
   public App()
-  {
-
-  }
+  { }
 
   public static void Main()
   {
     Log = new("log");
     Log.AddLine("Eleu Studio (Web) gestartet.", Options.View.LogInfoColor);
+    LoadOptions();
     eleuEngine = new();
     eleuEngine.Restart();
     eleuEngine.SendPing();
@@ -74,16 +30,51 @@ class App
     Ui = new();
 
     EditorApp.SetText(code);
+    Ui.SetPuzzleText(Options.Puzzle.Text);
 
     Ui.EnableButtons();
-
     Ui.SetModeLoaded();
+    SetTimeout(AutoSave, 10_000);
+  }
+
+  static void LoadOptions()
+  {
+    try
+    {
+      var otext = LocalStoragGet("options");
+      Options = Statics.JsonLoadString<OptionsModel>(otext);
+      Options.Puzzle.Text = LocalStoragGet("puzzle");
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine(ex.ToString());
+      Console.WriteLine("Failed to load options");
+      Options = new();
+    }
+  }
+
+  public static void SaveOptions()
+  {
+    LocalStoragSet("puzzle", Options.Puzzle.Text);
+    LocalStoragSet("options", Statics.JsonSaveString(Options));
+  }
+  static void AutoSave()
+  {
+    GetSaveCode();
+    SaveOptions();
+    //Console.WriteLine("autosave!");
+    SetTimeout(AutoSave, 10_000);
+  }
+  internal static string GetSaveCode()
+  {
+    var code = EditorApp.GetText();
+    LocalStoragSet("code", code);
+    return code;
   }
 
   internal static void RunClicked()
   {
-    var code = EditorApp.GetText();
-    LocalStoragSet("code", code);
+    var code = GetSaveCode();
     Log.Clear();
     eleuEngine.Start(code);
     Ui.EnableButtons();
@@ -94,8 +85,4 @@ class App
     eleuEngine.Stop();
     Ui.EnableButtons();
   }
-
-
-
-
 }

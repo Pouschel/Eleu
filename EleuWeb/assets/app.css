@@ -112,3 +112,28 @@ button {
 	animation-duration: 6s;
 	animation-iteration-count: infinite;
 }
+
+.puzzTitle
+{
+	font-size:130%;
+}
+
+.puzzText
+{
+
+}
+
+#puzzInputDiv
+{
+	width:60vw;
+	height:60vh;
+	margin:auto;
+	background-color:lightgray;
+	padding:10px;
+}
+
+#puzzleInputText {
+	width: 100%;
+	height: 400px;
+	font-size: 12pt;
+}

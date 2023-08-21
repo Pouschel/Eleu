@@ -6,6 +6,7 @@ public class OptionsModel
 {
   public class PuzzleOptions
   {
+    [JsonIgnore]
     public string Text { get; set; } = "";
 
     public int TestIndex { get; set; }

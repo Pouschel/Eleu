@@ -2,65 +2,74 @@
 <html lang="de">
 
 <head>
-  <title>EleuStudio</title>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" href="assets/EleuStudio.png" />
-  <link rel="stylesheet" href="/assets/app.css" />
-  <link rel="modulepreload" href="./main.js" />
-  <link rel="modulepreload" href="./dotnet.js" />
-  <script src="/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+	<title>EleuStudio</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="icon" href="assets/EleuStudio.png" />
+	<link rel="stylesheet" href="/assets/app.css" />
+	<link rel="modulepreload" href="./main.js" />
+	<link rel="modulepreload" href="./dotnet.js" />
+	<script src="/ace/ace.js" type="text/javascript" charset="utf-8"></script>
 </head>
 
 <body>
-  <div id="waitDiv">
-    <div >
-      Bitte Warten!<br />
-      EleuStudio wird geladen. <br />
-      Da die App sehr groß ist, kann es etwas dauern.
-    </div>
-  </div>
-  <div id="mainDiv" style="display:none">
-    <!--Main view-->
-    <table style="height:98vh;width:98vw">
-      <tr style="height:6%">
-        <td colspan="2" >
-          <!--Menue bar-->
-          <div id="menuBar">
-            <button id="btnRun" title="Programm ausführen">  <img class="tbbImage" src="assets/Run.png" /></button>
-            <button disabled id="btnStop" title="Laufendes Programm beenden"> <img class="tbbImage" src="assets/Stop.png" /></button>
-          </div>
+	<div id="waitDiv">
+		<div>
+			Bitte Warten!<br />
+			EleuStudio wird geladen. <br />
+			Da die App sehr groß ist, kann es etwas dauern.
+		</div>
+	</div>
+	<div id="mainDiv" style="display:none">
+		<!--Main view-->
+		<table style="height:98vh;width:98vw">
+			<tr style="height:6%">
+				<td colspan="2">
+					<!--Menue bar-->
+					<div id="menuBar">
+						<button id="btnRun" title="Programm ausführen">  <img class="tbbImage" src="assets/Run.png" /></button>
+						<button disabled id="btnStop" title="Laufendes Programm beenden"> <img class="tbbImage" src="assets/Stop.png" /></button>
+						<button id="btnPuzzle" title="Programm ausführen">  <img class="tbbImage" src="assets/InputPuzzle.png" /></button>
 
-        </td>
-      </tr>
-      <tr style="height:60%">
-        <td style="width:60vw; vertical-align:top;">
-          <div id="editor"></div>
-        </td>
-        <td style="width:40vw; vertical-align:top;">
-          <div style="height:100%; background-color:white">
-            Puzzle (muss noch implementiert werden)
-          </div>
-        </td>
-      </tr>
-      <tr style="height:30%">
-        <td  colspan="2">
-          <!--Logger-->
-          <div style="height:100%">
-            <div class="blueDarkerBackground ausgabe">Ausgabe</div>
-            <div class="talog" id="log"></div>
-          </div>
+					</div>
 
-        </td>
-      </tr>
-    </table>
+				</td>
+			</tr>
+			<tr style="height:60%">
+				<td style="width:60vw; vertical-align:top;">
+					<div id="editor"></div>
+				</td>
+				<td style="width:40vw; vertical-align:top;">
+					<div id="puzzDiv" style="height:100%; background-color:white">
+						Puzzle (muss noch implementiert werden)
+					</div>
+				</td>
+			</tr>
+			<tr style="height:30%">
+				<td colspan="2">
+					<!--Logger-->
+					<div style="height:100%">
+						<div class="blueDarkerBackground ausgabe">Ausgabe</div>
+						<div class="talog" id="log"></div>
+					</div>
 
-  </div>
-
-  <script>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div id="puzzInputDiv" style="display:none">
+		<h2>Gib den Puzzle-Code in das Textfeld ein:</h2>
+		<div>
+			<textarea id="puzzleInputText" spellcheck="false">
+      </textarea>
+		</div>
+		<div><button id="puzzInput_btnOk">OK</button></div>
+		
+	</div>
+	<script>
 		var editor = ace.edit("editor");
-  </script>
-  <script type='module' src="./main.js"></script>
+	</script>
+	<script type='module' src="./main.js"></script>
 
 </body>
 

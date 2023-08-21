@@ -26,8 +26,28 @@ public class HElement
   {
     set => SetProperty(Id, "disabled", value);
   }
+  public string InnerHTML
+  {
+    get => GetProperty(Id, "innerHTML");
+    set => SetProperty(Id, "innerHTML", value);
+  }
+  public string InnerText
+  {
+    get => GetProperty(Id, "innerText");
+    set => SetProperty(Id, "innerText", value);
+  }
+  public string Value
+  {
+    get => GetProperty(Id, "value");
+    set => SetProperty(Id, "value", value);
+  }
+
 
   public void AddEventListener(string evName, Action callback) => BrowserApp.AddEventListener(Id, evName, callback);
+
+  public void Focus() => CallMethod(Id, "focus");
+
+
 }
 
 public class HButton : HElement

@@ -2,7 +2,34 @@
 
 global using static BrowserApp;
 global using System;
+using System.Text.Json;
+using System.Diagnostics.CodeAnalysis;
+using System.Text.Encodings.Web;
 
+class Statics
+{
+  static readonly JsonSerializerOptions jsonOptions = new()
+  { IgnoreReadOnlyFields = true, IncludeFields = true, WriteIndented = true,
+  Encoder=JavaScriptEncoder.Default
+  };
+#pragma warning disable CS8603 // Possible null reference return.
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+#pragma warning disable IL2026 // Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code
+
+  public static T JsonLoadString<T>(string text)
+  {
+    return (T)JsonSerializer.Deserialize(text, typeof(T), jsonOptions);
+
+  }
+
+  public static string JsonSaveString<T>( T data)
+  {
+    return JsonSerializer.Serialize(data, jsonOptions);
+  }
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+#pragma warning restore CS8603 // Possible null reference return.
+#pragma warning restore IL2026 // Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code
+}
 
 class HtmlLogger
 {
