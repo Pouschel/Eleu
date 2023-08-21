@@ -22,6 +22,9 @@ public partial class BrowserApp
 
   public static partial string GetProperty(string elName, string propName);
 
+  [JSImport("cs.getPropDouble", "main.js")]
+
+  public static partial double GetDoubleProperty(string elName, string propName);
 
   public static void SetStyle(string elId, string propName, string propValue)
   {

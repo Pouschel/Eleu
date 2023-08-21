@@ -2,11 +2,12 @@
 
 global using static BrowserApp;
 global using System;
+global using static Statics;
 using System.Text.Json;
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Encodings.Web;
+using System.Globalization;
 
-class Statics
+static class Statics
 {
   static readonly JsonSerializerOptions jsonOptions = new()
   { IgnoreReadOnlyFields = true, IncludeFields = true, WriteIndented = true,
@@ -29,6 +30,9 @@ class Statics
 #pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
 #pragma warning restore CS8603 // Possible null reference return.
 #pragma warning restore IL2026 // Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code
+
+  public static string F(this float x) => x.ToString("f2", CultureInfo.InvariantCulture);
+
 }
 
 class HtmlLogger

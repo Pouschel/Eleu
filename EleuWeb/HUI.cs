@@ -1,7 +1,6 @@
-﻿
-
-using System.IO;
-using System.Reflection;
+﻿using System.Reflection;
+using System.Reflection.Metadata;
+using System.Runtime.CompilerServices;
 using System.Xml.Linq;
 using Eleu.Puzzles;
 using EleuStudio;
@@ -11,13 +10,13 @@ using static System.Net.Mime.MediaTypeNames;
 class HUI
 {
   WasmExecuter eleuEngine => App.eleuEngine;
-  readonly HElement mainDiv, waitDiv, puzzDisplayDiv, puzzInputDiv;
+  readonly HElement mainDiv, waitDiv,  puzzInputDiv;
   readonly HElement puzzleInputText;
   readonly HButton runBtn, stopBtn, inputPuzzleBtn, puzzInput_btnOk;
   public HUI()
   {
     mainDiv = new("mainDiv"); waitDiv = new("waitDiv");
-    puzzDisplayDiv = new("puzzDiv");
+   
     puzzInputDiv = new("puzzInputDiv");
     runBtn = new("btnRun");
     runBtn.Click += RunClicked;
@@ -83,51 +82,12 @@ class HUI
     var popt = App.Options.Puzzle;
     popt.Text = text;
     popt.TestIndex = 0;
-    if (string.IsNullOrEmpty(text))
-    {
-      SetPuzzle(null);
-      return;
-    }
+    SetPuzzle(null);
     eleuEngine.SendPuzzleText(text, popt.TestIndex);
   }
   public void SetPuzzle(Puzzle? puzzle)
   {
-    if (puzzle == null)
-    {
-      puzzDisplayDiv.InnerText = "";
-      return;
-    }
     var hcreator = new PuzzleHtmlCreator(puzzle);
-    puzzDisplayDiv.InnerHTML = hcreator.Render();
-  }
-}
-
-class PuzzleHtmlCreator
-{
-  StringWriter sw = new();
-  Puzzle puzzle;
-  public PuzzleHtmlCreator(Puzzle puz)
-  {
-    this.puzzle = puz;
-  }
-
-  void WriteTag(string tag, string content, params string[] attributes)
-  {
-    sw.Write($"<{tag}");
-    for (int i = 0; i < attributes.Length; i += 2)
-    {
-      sw.Write($" {attributes[i]}=\"{attributes[i + 1]}\"");
-    }
-    sw.Write(">");
-    sw.Write(content);
-    sw.WriteLine($"</{tag}>");
-  }
-  public string Render()
-  {
-    WriteTag("div", puzzle.Name, "class", "puzzTitle");
-    WriteTag("div", puzzle.Description, "class", "puzzText");
-    WriteTag("div", "Erlaubte Funktionen: " + puzzle.GetAllowedFuncString(","), "class", "puzzText");
-
-    return sw.ToString();
+    hcreator.Render();
   }
 }

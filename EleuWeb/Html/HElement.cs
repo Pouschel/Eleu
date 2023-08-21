@@ -24,29 +24,32 @@ public class HElement
 
   public bool Disabled
   {
-    set => SetProperty(Id, "disabled", value);
+    set => BrowserApp.SetProperty(Id, "disabled", value);
   }
   public string InnerHTML
   {
     get => GetProperty(Id, "innerHTML");
-    set => SetProperty(Id, "innerHTML", value);
+    set => SetProperty("innerHTML", value);
   }
   public string InnerText
   {
     get => GetProperty(Id, "innerText");
-    set => SetProperty(Id, "innerText", value);
+    set => SetProperty( "innerText", value);
   }
   public string Value
   {
     get => GetProperty(Id, "value");
-    set => SetProperty(Id, "value", value);
+    set => SetProperty( "value", value);
   }
+  public int ClientWidth => int.Parse(JsEval($"document.getElementById('{Id}').clientWidth.toString();"));
+  public int ClientHeight => int.Parse(JsEval($"document.getElementById('{Id}').clientHeight.toString();"));
 
 
   public void AddEventListener(string evName, Action callback) => BrowserApp.AddEventListener(Id, evName, callback);
 
   public void Focus() => CallMethod(Id, "focus");
 
+  public void SetProperty(string name, string value) => BrowserApp.SetProperty(Id, name, value);
 
 }
 

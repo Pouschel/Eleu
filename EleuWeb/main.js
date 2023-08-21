@@ -13,6 +13,7 @@ setModuleImports('main.js', {
     setProp: setProp,
     setPropBool: setProp,
     getProp: getProp,
+    getPropDouble: getProp,
     addListener: addListener,
     callTimeout: callTimeout,
     evalCode: evalCode
