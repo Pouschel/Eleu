@@ -1,22 +1,8 @@
 //https://learn.microsoft.com/en-us/aspnet/core/client-side/dotnet-interop?view=aspnetcore-7.0
 
 global using static BrowserApp;
-global using static ElementIds;
 global using System;
 
-
-static class ElementIds
-{
-  public const string LoggerId = "log",
-    RunButtonId = "btnRun",
-    StopButtonId = "btnStop",
-    MainDivId= "mainDiv",
-    WaitDivId ="waitDiv",
-
-    EditorId = "editor";
-
-
-}
 
 class HtmlLogger
 {

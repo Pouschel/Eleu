@@ -28,6 +28,9 @@ public partial class BrowserApp
     JsEval($"document.getElementById('{elId}').style.{propName} = '{propValue}';");
   }
   
+  public static string GetStyle(string elId, string propName)=>
+    JsEval($"document.getElementById('{elId}').style.{propName};");
+
   public static void CallMethod(string elId, string methodName)
   {
     JsEval($"document.getElementById('{elId}').{methodName}();");
@@ -58,10 +61,6 @@ public partial class BrowserApp
   public static partial void AddEventListener(string elId, string eventName,
     [JSMarshalAs<JSType.Function>]  Action action);
 
-  public static void SetDisabled(string elId, bool value)
-  {
-    SetProperty(elId, "disabled", value );
-  }
 
   [JSExport]
   internal static void Test()

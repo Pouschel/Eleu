@@ -92,7 +92,7 @@ public class WasmExecuter
         bool running = IsAScriptRunning;
         IsAScriptRunning = (bool)arg;
         if (running != IsAScriptRunning)
-          App.UIEnable();
+          App.Ui.EnableButtons();
         if (IsAScriptRunning && puzzleDelay > 0)
         {
           Thread.Sleep(puzzleDelay); puzzleDelay = 0;
