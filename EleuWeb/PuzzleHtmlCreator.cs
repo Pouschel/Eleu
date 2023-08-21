@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.Data.SqlTypes;
+using System.Drawing;
 using System.Globalization;
 using System.IO;
 using Eleu.Puzzles;
@@ -10,7 +11,6 @@ class PuzzleHtmlCreator
   Puzzle? puzz;
   Puzzle puzzle => puzz!;
   HElement canvDiv, canvas, puzzDisplayDiv;
-  int width, height;
   float border = 28, borderX, borderY;
   int ColCount => puzzle?.ColCount ?? 1;
   int RowCount => puzzle?.RowCount ?? 1;
@@ -183,18 +183,31 @@ metrics.width+""|""+(metrics.actualBoundingBoxAscent + metrics.actualBoundingBox
     {
       DrawCat(orgx, orgy, csize);
     }
-    //if (cell.SVal != null)
-    //  DrawCellText(x, y, cell.SVal, csize, hasCat);
+    if (cell.SVal != null)
+      DrawCellText(x, y, cell.SVal, csize, hasCat);
     sw.WriteLine("</td>");
   }
-
 
   private void DrawCat(float x, float y, float cellSize)
   {
     var cat = puzzle!.Cat;
+    var angle = 0;
+    switch (cat.LookAt)
+    {
+      case Directions.S: angle = 90; break;
+      case Directions.W: angle = 180; break;
+      case Directions.N: angle = 270; break;
+    }
+    string sx = (x+cellSize/2).F(), sy = (y+cellSize/2).F(), scell2=(-cellSize/2).F(); 
+
     swc.WriteLine($"""
 const catImg = document.getElementById("catImg");
-ctx.drawImage(catImg,{x.F()},{y.F()},{cellSize.F()},{cellSize.F()})
+ctx.save();
+ctx.translate({sx} ,{sy});    
+ctx.rotate(Math.PI / 180 * {angle});
+ctx.drawImage(catImg, {scell2}, {scell2}, {cellSize.F()}, {cellSize.F()});
+//ctx.drawImage(catImg,{x.F()},{y.F()},{cellSize.F()},{cellSize.F()});
+ctx.restore();
 """);
 
 
@@ -244,7 +257,7 @@ ctx.drawImage(catImg,{x.F()},{y.F()},{cellSize.F()},{cellSize.F()})
       var (x0, y0) = GetCellPos(0, iy);
       var s = iy.ToString();
       //var (sx, sy) = MeasureString(fnts, s);
-      CanvasFunc("fillText", s, borderX - cellSize / 10, y0 +cellSize/2 );
+      CanvasFunc("fillText", s, borderX - cellSize / 10, y0 + cellSize / 2);
 
     }
     swc.WriteLine("ctx.textAlign = \"center\";ctx.textBaseline = 'alphabetic';");
@@ -253,7 +266,38 @@ ctx.drawImage(catImg,{x.F()},{y.F()},{cellSize.F()},{cellSize.F()})
       var (x0, y0) = GetCellPos(ix, 0);
       var s = ix.ToString();
       //var (sx, sy) = MeasureString(fnts, s);
-      CanvasFunc("fillText", s, x0 +cellSize/2, borderY -cellSize/10);
+      CanvasFunc("fillText", s, x0 + cellSize / 2, borderY - cellSize / 10);
     }
   }
+
+  private void DrawCellText(float x, float y, string text, float cellSize, bool hasCat)
+  {
+    var fh = cellSize * 0.8f;
+    var font = $"{(int)fh}px Arial";
+
+    var bo = 0.05f;
+    var measurewidth = (int)((1 - bo) * cellSize);
+    var mSizeW = measurewidth;
+    var mSizeH = measurewidth;
+
+    int wordCount = text.Split(" \t".ToCharArray(), StringSplitOptions.RemoveEmptyEntries).Length;
+    (float, float) FindSize()
+    {
+      while (true)
+      {
+        var (sx, sy) = MeasureString(font, text);
+        if (sy < cellSize*0.9f && sx < cellSize*0.9f )
+          return (sx, sy);
+        fh *= 0.9f;
+        font = $"{(int)fh}px Arial";
+      }
+
+    }
+    var sz = FindSize();
+    swc.WriteLine("ctx.textAlign = \"center\";ctx.textBaseline = 'middle';");
+    swc.WriteLine("ctx.fillStyle = \"black\";" + $"ctx.font = \"{font}\";");
+    CanvasFunc("fillText", text, x + cellSize / 2, y + cellSize / 2);
+
+  }
+
 }

@@ -46,6 +46,8 @@ class HUI
 
   internal void RunClicked()
   {
+    var popt = App.Options.Puzzle;
+    eleuEngine.SendPuzzleText(popt.Text, popt.TestIndex);
     var code = EditorApp.GetText();
     LocalStoragSet("code", code);
     App.Log.Clear();

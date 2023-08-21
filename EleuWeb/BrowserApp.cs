@@ -71,8 +71,6 @@ public partial class BrowserApp
     Console.WriteLine("in test");
   }
 
-  [JSExport]
-  internal static void RunCode() => App.RunClicked();
 }
 
 public partial class EditorApp

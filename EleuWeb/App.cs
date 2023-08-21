@@ -72,13 +72,7 @@ class App
     return code;
   }
 
-  internal static void RunClicked()
-  {
-    var code = GetSaveCode();
-    Log.Clear();
-    eleuEngine.Start(code);
-    Ui.EnableButtons();
-  }
+
 
   static void StopClicked()
   {
