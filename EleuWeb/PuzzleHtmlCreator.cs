@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Globalization;
 using System.IO;
+using System.Text;
 using Eleu.Puzzles;
 using EleuWeb.Html;
 
@@ -178,33 +179,33 @@ metrics.width+""|""+(metrics.actualBoundingBoxAscent + metrics.actualBoundingBox
     //  }
     //}
 
-    //DrawCellShape(cell.Shape, x, y, lastBrush, csize);
+    DrawCellShape(cell.Shape, x, y, lastBrush, csize);
     if (hasCat)
     {
       DrawCat(orgx, orgy, csize);
     }
     if (cell.SVal != null)
       DrawCellText(x, y, cell.SVal, csize, hasCat);
-    sw.WriteLine("</td>");
   }
 
   private void DrawCat(float x, float y, float cellSize)
   {
     var cat = puzzle!.Cat;
     var angle = 0;
+    string scaleStr = "";
     switch (cat.LookAt)
     {
       case Directions.S: angle = 90; break;
-      case Directions.W: angle = 180; break;
+      case Directions.W: angle = 180; scaleStr = "ctx.scale(1,-1);"; break;
       case Directions.N: angle = 270; break;
     }
-    string sx = (x+cellSize/2).F(), sy = (y+cellSize/2).F(), scell2=(-cellSize/2).F(); 
-
+    string sx = (x + cellSize / 2).F(), sy = (y + cellSize / 2).F(), scell2 = (-cellSize / 2).F();
+    // Console.WriteLine(scaleStr);
     swc.WriteLine($"""
 const catImg = document.getElementById("catImg");
 ctx.save();
-ctx.translate({sx} ,{sy});    
-ctx.rotate(Math.PI / 180 * {angle});
+ctx.translate({sx},{sy});    
+ctx.rotate(Math.PI / 180 * {angle});{scaleStr}
 ctx.drawImage(catImg, {scell2}, {scell2}, {cellSize.F()}, {cellSize.F()});
 //ctx.drawImage(catImg,{x.F()},{y.F()},{cellSize.F()},{cellSize.F()});
 ctx.restore();
@@ -286,7 +287,7 @@ ctx.restore();
       while (true)
       {
         var (sx, sy) = MeasureString(font, text);
-        if (sy < cellSize*0.9f && sx < cellSize*0.9f )
+        if (sy < cellSize * 0.9f && sx < cellSize * 0.9f)
           return (sx, sy);
         fh *= 0.9f;
         font = $"{(int)fh}px Arial";
@@ -297,7 +298,68 @@ ctx.restore();
     swc.WriteLine("ctx.textAlign = \"center\";ctx.textBaseline = 'middle';");
     swc.WriteLine("ctx.fillStyle = \"black\";" + $"ctx.font = \"{font}\";");
     CanvasFunc("fillText", text, x + cellSize / 2, y + cellSize / 2);
-
   }
 
+  private void DrawCellShape(FieldShapes shape, float x, float y, string br, float cellSize)
+  {
+    if (shape == FieldShapes.None) return;
+    var d = cellSize / 20;
+    var e = cellSize / 10;
+    var wh = cellSize - 2 * d;
+    var wh2 = wh / 2;
+    var cx = x + cellSize / 2;
+    var cy = y + cellSize / 2;
+    var p2 = ((float)(Math.PI * 2)).F();
+
+    swc.WriteLine($"ctx.fillStyle = \"{br}\";" + $"ctx.strokeStyle = \"grey\";");
+
+    
+    switch (shape)
+    {
+      case FieldShapes.Diamond:
+        var poly = new PointF[] { new( cellSize/2,  d), new(cellSize-e,cellSize/2),
+          new(cellSize/2,cellSize-d),new(e,cellSize/2) };
+        var shift = new SizeF(x, y);
+        for (int i = 0; i < poly.Length; i++)
+        {
+          poly[i] = PointF.Add(poly[i], shift);
+        }
+        string PolyPath()
+        {
+          var sb = new StringBuilder();
+          for (int i = 0; i < poly.Length; i++)
+          {
+            var p = poly[i];
+            var mlto = i == 0 ? "moveTo" : "lineTo";
+            sb.Append($"ctx.{mlto}({p.X.F()},{p.Y.F()});");
+          }
+          sb.Append("ctx.closePath();");
+          return sb.ToString();
+        }
+        {
+          var els = PolyPath();  
+          swc.WriteLine($"ctx.beginPath();{els};ctx.fill();");
+          swc.WriteLine($"ctx.beginPath();{els};ctx.stroke();");
+        }
+
+        break;
+      case FieldShapes.Circle:
+        {
+          var els = $"ctx.ellipse({cx.F()},{cy.F()},{wh2.F()},{wh2.F()},0,0,{p2})";
+          swc.WriteLine($"ctx.beginPath();{els};ctx.fill();");
+          swc.WriteLine($"ctx.beginPath();{els};ctx.stroke();");
+        }
+        break;
+      case FieldShapes.Square:
+        {
+          var els = $"ctx.rect({(x+d).F()},{(y+d).F()},{wh.F()},{wh.F()},0,0,{p2})";
+          swc.WriteLine($"ctx.beginPath();{els};ctx.fill();");
+          swc.WriteLine($"ctx.beginPath();{els};ctx.stroke();");
+        }
+        break;
+        //default:
+        //  gr.DrawString(shape.ToString(), SystemFonts.DefaultFont, Brushes.Red, x, y);
+        //  break;
+    }
+  }
 }
