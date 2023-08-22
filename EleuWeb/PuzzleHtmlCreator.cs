@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Globalization;
 using System.IO;
+using System.Reflection.Metadata;
 using System.Text;
 using Eleu.Puzzles;
 using EleuWeb.Html;
@@ -83,7 +84,11 @@ metrics.width+""|""+(metrics.actualBoundingBoxAscent + metrics.actualBoundingBox
     borderY = (canvasHeight - (RowCount + 1) * cellSize) / 2 + cellSize;
     border = Math.Min(borderX, borderY);
     swc.WriteLine(canvasPrelude);
-
+    swc.WriteLine(@"const catImg = document.getElementById(""catImg"");
+const wallImg = document.getElementById(""wallImg"");
+const mouseImg = document.getElementById(""mouseImg"");
+const bowlImg = document.getElementById(""bowlImg"");
+");
     DrawGrid();
     DrawCoordinateLines();
     DrawCoordinates();
@@ -156,28 +161,28 @@ metrics.width+""|""+(metrics.actualBoundingBoxAscent + metrics.actualBoundingBox
     {
       x += csize;
     }
-    //// draw the object
-    //if (cell.Object != FieldObjects.None)
-    //{
-    //  switch (cell.Object)
-    //  {
-    //    case FieldObjects.Wall:
-    //      DrawWall(x, y, csize);
-    //      break;
-    //    case FieldObjects.Bowl: DrawBowl(x, y, csize); break;
-    //    case FieldObjects.Mouse:
-    //      DrawMouseMapShifted(x, y, 0.06f, csize);
-    //      break;
-    //    case FieldObjects.BowlWithMouse:
-    //      DrawBowl(x, y, csize); DrawMouseMapShifted(x, y, 0.2f, csize);
-    //      break;
-    //  }
-    //  x += csize;
-    //  if (x > orgx + 0.9f * cellSize)
-    //  {
-    //    x = orgx; y += csize;
-    //  }
-    //}
+    // draw the object
+    if (cell.Object != FieldObjects.None)
+    {
+      switch (cell.Object)
+      {
+        case FieldObjects.Wall:
+          DrawWall(x, y, csize);
+          break;
+        case FieldObjects.Bowl: DrawBowl(x, y, csize); break;
+        case FieldObjects.Mouse:
+          DrawMouseMapShifted(x, y, 0.06f, csize);
+          break;
+        case FieldObjects.BowlWithMouse:
+          DrawBowl(x, y, csize); DrawMouseMapShifted(x, y, 0.2f, csize);
+          break;
+      }
+      x += csize;
+      if (x > orgx + 0.9f * cellSize)
+      {
+        x = orgx; y += csize;
+      }
+    }
 
     DrawCellShape(cell.Shape, x, y, lastBrush, csize);
     if (hasCat)
@@ -187,7 +192,10 @@ metrics.width+""|""+(metrics.actualBoundingBoxAscent + metrics.actualBoundingBox
     if (cell.SVal != null)
       DrawCellText(x, y, cell.SVal, csize, hasCat);
   }
-
+  private void DrawWall(float x, float y, float cellSize)
+  {
+    swc.WriteLine($"ctx.drawImage(wallImg,{x.F()}, {y.F()}, {cellSize.F()}, {cellSize.F()});");
+  }
   private void DrawCat(float x, float y, float cellSize)
   {
     var cat = puzzle!.Cat;
@@ -202,7 +210,6 @@ metrics.width+""|""+(metrics.actualBoundingBoxAscent + metrics.actualBoundingBox
     string sx = (x + cellSize / 2).F(), sy = (y + cellSize / 2).F(), scell2 = (-cellSize / 2).F();
     // Console.WriteLine(scaleStr);
     swc.WriteLine($"""
-const catImg = document.getElementById("catImg");
 ctx.save();
 ctx.translate({sx},{sy});    
 ctx.rotate(Math.PI / 180 * {angle});{scaleStr}
@@ -210,12 +217,20 @@ ctx.drawImage(catImg, {scell2}, {scell2}, {cellSize.F()}, {cellSize.F()});
 //ctx.drawImage(catImg,{x.F()},{y.F()},{cellSize.F()},{cellSize.F()});
 ctx.restore();
 """);
-
-
-    //if (cat.Carrying == FieldObjects.Mouse)
-    //  DrawMouseMapShifted(x, y, 0.12f, cellSize);
+    if (cat.Carrying == FieldObjects.Mouse)
+      DrawMouseMapShifted(x, y, 0.12f, cellSize);
   }
 
+  void DrawMouseMapShifted(float x, float y, float shift, float cellSize)
+  {
+    shift = cellSize * shift;
+    var scsh = (cellSize - 2 * shift).F();
+    swc.WriteLine($"ctx.drawImage(mouseImg, {(x + shift).F()}, {(y + shift).F()}, {scsh}, {scsh});");
+  }
+  void DrawBowl(float x, float y, float cellSize)
+  {
+    swc.WriteLine($"ctx.drawImage(bowlImg,{x.F()}, {y.F()},{cellSize.F()}, {cellSize.F()});");
+  }
   void CanvasFunc(string name, params object[] args)
   {
     swc.Write($"ctx.{name}(");
@@ -352,7 +367,7 @@ ctx.restore();
         break;
       case FieldShapes.Square:
         {
-          var els = $"ctx.rect({(x+d).F()},{(y+d).F()},{wh.F()},{wh.F()},0,0,{p2})";
+          var els = $"ctx.rect({(x+d).F()},{(y+d).F()},{wh.F()},{wh.F()})";
           swc.WriteLine($"ctx.beginPath();{els};ctx.fill();");
           swc.WriteLine($"ctx.beginPath();{els};ctx.stroke();");
         }
