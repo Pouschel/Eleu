@@ -119,10 +119,8 @@ const bowlImg = document.getElementById(""bowlImg"");
     var lastBrush = CreateBrush(lastState);
     for (int iy = 0; iy < puzzle.RowCount; iy++)
     {
-      sw.Write("<tr>");
       for (int ix = 0; ix < puzzle.ColCount; ix++)
       {
-        sw.Write("<td class=\"puzzleCell\">");
         var cell = puzzle[iy, ix];
         if (!cell.Equals(lastState))
         {
@@ -130,9 +128,7 @@ const bowlImg = document.getElementById(""bowlImg"");
           lastBrush = CreateBrush(cell);
         }
         DrawCell(lastBrush, iy, ix, cell);
-        sw.WriteLine("</td>");
       }
-      sw.WriteLine("</tr>");
     }
   }
   private static int CountObjects(FieldState cell)
@@ -342,7 +338,7 @@ ctx.restore();
         string PolyPath()
         {
           var sb = new StringBuilder();
-          for (int i = 0; i < poly.Length; i++)
+          for (int i = 0; i < poly!.Length; i++)
           {
             var p = poly[i];
             var mlto = i == 0 ? "moveTo" : "lineTo";

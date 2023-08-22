@@ -1,11 +1,6 @@
-﻿using System.Reflection;
-using System.Reflection.Metadata;
-using System.Runtime.CompilerServices;
-using System.Xml.Linq;
-using Eleu.Puzzles;
+﻿using Eleu.Puzzles;
 using EleuStudio;
 using EleuWeb.Html;
-using static System.Net.Mime.MediaTypeNames;
 
 class HUI
 {
@@ -13,6 +8,8 @@ class HUI
   readonly HElement mainDiv, waitDiv,  puzzInputDiv;
   readonly HElement puzzleInputText;
   readonly HButton runBtn, stopBtn, inputPuzzleBtn, puzzInput_btnOk;
+  readonly HButton backToStartBtn, runAllTestsBtn;
+  bool hasPuzzle;
   public HUI()
   {
     mainDiv = new("mainDiv"); waitDiv = new("waitDiv");
@@ -24,6 +21,8 @@ class HUI
     inputPuzzleBtn.Click += InputPuzzleClicked;
     stopBtn = new("btnStop");
     stopBtn.Click += StopClicked;
+    backToStartBtn = new("btnBackToStart"); backToStartBtn.Click += PuzzleBackToStart;
+    runAllTestsBtn = new("btnRunAllTests");
 
     puzzleInputText = new("puzzleInputText");
     puzzInput_btnOk = new("puzzInput_btnOk");
@@ -42,6 +41,10 @@ class HUI
     var scriptRunning = App.eleuEngine.IsAScriptRunning;
     runBtn.Disabled = scriptRunning;
     stopBtn.Disabled = !scriptRunning;
+    inputPuzzleBtn.Enabled = !scriptRunning;
+    bool puzzBtn= hasPuzzle && !scriptRunning;
+    backToStartBtn.Enabled = puzzBtn;
+    runAllTestsBtn.Enabled = puzzBtn;
   }
 
   internal void RunClicked()
@@ -67,7 +70,11 @@ class HUI
     puzzleInputText.Value = App.Options.Puzzle.Text;
     puzzleInputText.Focus();
   }
-
+  public void PuzzleBackToStart()
+  {
+    var popt = App.Options.Puzzle;
+    SetPuzzleText(popt.Text, popt.TestIndex);
+  }
   void PuzzInput_BtnOkClicked()
   {
     var text = puzzleInputText.Value;
@@ -75,21 +82,23 @@ class HUI
     mainDiv.Style.Display = "block";
     puzzInputDiv.Style.Display = "none";
     App.SaveOptions();
-    SetPuzzleText(text);
+    SetPuzzleText(text,0);
   }
-
-  public void SetPuzzleText(string text)
+  public void SetPuzzleText(string text, int testIndex)
   {
     text = text.Trim();
     var popt = App.Options.Puzzle;
     popt.Text = text;
-    popt.TestIndex = 0;
+    popt.TestIndex = testIndex;
     SetPuzzle(null);
     eleuEngine.SendPuzzleText(text, popt.TestIndex);
   }
+  //from engine and ui
   public void SetPuzzle(Puzzle? puzzle)
   {
+    hasPuzzle = puzzle != null;
     var hcreator = new PuzzleHtmlCreator(puzzle);
     hcreator.Render();
+    EnableButtons();
   }
 }

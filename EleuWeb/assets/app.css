@@ -21,11 +21,8 @@ button {
 	/*border: 1px solid yellow;*/
 	border: none;
 	height: 85%;
-	margin: 4px;
-	/*
-	
-	margin: 2px;
-	margin-bottom: 2px;*/
+	margin: 2px 2px 0px 2px;
+	padding: 0;
 }
 
 	button:active {
@@ -156,4 +153,9 @@ button {
 */	width:100%;
 	height:70%;
 	margin:auto;
+}
+
+#selTest{
+	width:100px;
+	vertical-align:middle;
 }

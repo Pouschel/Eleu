@@ -26,6 +26,7 @@ public class HElement
   {
     set => BrowserApp.SetProperty(Id, "disabled", value);
   }
+  public bool Enabled { set => Disabled = !value; }
   public string InnerHTML
   {
     get => GetProperty(Id, "innerHTML");

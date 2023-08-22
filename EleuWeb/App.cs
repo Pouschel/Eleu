@@ -30,7 +30,7 @@ class App
     Ui = new();
 
     EditorApp.SetText(code);
-    Ui.SetPuzzleText(Options.Puzzle.Text);
+    Ui.SetPuzzleText(Options.Puzzle.Text, Options.Puzzle.TestIndex);
 
     Ui.EnableButtons();
     Ui.SetModeLoaded();
