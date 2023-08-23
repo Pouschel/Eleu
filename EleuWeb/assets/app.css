@@ -21,7 +21,7 @@ button {
 	/*border: 1px solid yellow;*/
 	border: none;
 	height: 85%;
-	margin: 2px 2px 0px 2px;
+	margin: 2px 4px 0px 4px;
 	padding: 0;
 }
 
@@ -61,10 +61,12 @@ button {
 }
 
 #menuBar {
-	height: 5vh;
+	height: 40px; 
+	width: 100%;
 	background-color: #CCD5F0;
 	margin: 0px;
 	padding: 0px;
+	display:flex;
 }
 
 #editor {
@@ -155,7 +157,9 @@ button {
 	margin:auto;
 }
 
-#selTest{
-	width:100px;
-	vertical-align:middle;
+#selTest {
+	width: 80px;
+	vertical-align: middle;
+	margin: 0 10px 20px 10px;
+
 }

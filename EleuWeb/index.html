@@ -23,20 +23,28 @@
 	<div id="mainDiv" style="display:none">
 		<!--Main view-->
 		<table style="height:98vh;width:98vw">
-			<tr style="height:6%">
+			<tr style="height:44px">
 				<td colspan="2">
 					<!--Menue bar-->
 					<div id="menuBar">
-						<button id="btnRun" title="Programm ausführen">  <img class="tbbImage" src="assets/Run.png" /></button>
-						<button disabled id="btnStop" title="Laufendes Programm beenden"> <img class="tbbImage" src="assets/Stop.png" /></button>
-						<button id="btnPuzzle" title="Puzzle Code eingeben">  <img class="tbbImage" src="assets/InputPuzzle.png" /></button>
-						<button id="btnBackToStart" title="Zurück zum Puzzleanfang" style="margin-left:15px">
-							<img class="tbbImage" src="assets/BackToStart.png" />
-						</button>
-						<select id="selTest"></select>
-						<button id="btnRunAllTests" title="Alle Tests ausführen">  <img class="tbbImage" src="assets/RunAllTests.png" /></button>
-
-
+						<div style="position:relative;height:100%">
+							<button id="btnRun" title="Programm ausführen">  <img class="tbbImage" src="assets/Run.png" /></button>
+							<button disabled id="btnStop" title="Laufendes Programm beenden"> <img class="tbbImage" src="assets/Stop.png" /></button>
+							<button id="btnPuzzle" title="Puzzle Code eingeben">  <img class="tbbImage" src="assets/InputPuzzle.png" /></button>
+							<button id="btnBackToStart" title="Zurück zum Puzzleanfang" style="margin-left:15px">
+								<img class="tbbImage" src="assets/BackToStart.png" />
+							</button>
+							<select id="selTest"><option>Test 1</option> </select>
+							<button id="btnRunAllTests" title="Alle Tests ausführen">  <img class="tbbImage" src="assets/RunAllTests.png" /></button>
+						</div>
+						<div style="margin-top:2px;">
+							Geschwindigkeit:<br />
+							<input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+						</div>
+						<div style="margin-left: auto;margin-right:20px;vertical-align:middle;font-weight:600">
+							<p><a href="ace/ace.js" target="_blank">Funktionen</a>  &bull; 
+							Puzzlefunktionen &bull; Kurs &bull; Über</p>
+						</div>
 					</div>
 				</td>
 			</tr>
