@@ -118,8 +118,8 @@ public class EleuLanguageServer : IDisposable
           : new PuzzleFunctions().GetFunctions().Select(mi => mi.name).ToArray();
           Response($"{sarg}Funcs", funcs);
           break;
-        case "ping":
-          _sendInfo("Eleu Sprachserver bereit.");
+        case "ping":         
+          _sendInfo($"Eleu Sprachserver Version {Version} bereit.");
           break;
         case "code":
           var fileName = ArgAtIndex<string>(0);

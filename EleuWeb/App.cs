@@ -1,5 +1,6 @@
 ﻿//https://learn.microsoft.com/en-us/aspnet/core/client-side/dotnet-interop?view=aspnetcore-7.0
 
+using Eleu.LangServer;
 using Eleu.Puzzles;
 using EleuStudio;
 
@@ -34,6 +35,7 @@ class App
 
     Ui.EnableButtons();
     Ui.SetModeLoaded();
+    BrowserApp.SetProperty("title", "innerText", $"EleuStudio {EleuLanguageServer.Version}");
     SetTimeout(AutoSave, 10_000);
   }
 
@@ -70,13 +72,5 @@ class App
     var code = EditorApp.GetText();
     LocalStoragSet("code", code);
     return code;
-  }
-
-
-
-  static void StopClicked()
-  {
-    eleuEngine.Stop();
-    Ui.EnableButtons();
   }
 }
