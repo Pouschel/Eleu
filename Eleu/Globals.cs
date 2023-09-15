@@ -35,7 +35,7 @@ public abstract class IInterpreter
 	internal InputStatus currentStatus;
 	public Puzzle? Puzzle;
 	public Action<Puzzle?>? PuzzleChanged;
-	public Action<PuzzCode>? puzzleSet;
+	public Action<string>? PuzzleSet;
 	public IInterpreter(EleuOptions options)
 	{
 		this.options = options;

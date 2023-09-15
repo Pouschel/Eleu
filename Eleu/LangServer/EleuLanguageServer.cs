@@ -94,7 +94,7 @@ public class EleuLanguageServer : IDisposable
     if (puzzle != null) Response("puzzle", puzzle);
     _outStateChanged = true;
   }
-  void _onPuzzleSet(PuzzCode code)
+  void _onPuzzleSet(string code)
   {
     Response("_pcall", code);
   }
@@ -196,7 +196,7 @@ public class EleuLanguageServer : IDisposable
       _interpreter = interp;
       interp!.Puzzle = _bundle?[puzzleIndex];
       interp!.PuzzleChanged = _onPuzzleChanged;
-      interp!.puzzleSet = _onPuzzleSet;
+      interp!.PuzzleSet = _onPuzzleSet;
 
       _lastResult = _interpreter!.start();
     }

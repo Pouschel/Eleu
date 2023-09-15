@@ -1,19 +1,6 @@
 ﻿using System.Text;
-using Ts;
 
 namespace Eleu.Puzzles;
-public class PuzzCode
-{
-	public readonly String text;
-	public readonly String compressed = "";
-	public readonly int testIndex;
-
-	PuzzCode(string text, int testIndex)
-	{
-		this.text = text; this.testIndex = testIndex;
-		compressed = PuzzleStatics.EncodePuzzle(text);
-	}
-}
 
 public class Puzzle
 {
