@@ -11,8 +11,10 @@ class PuzzleInputUI
 
   public PuzzleInputUI(Action endHandler)
   {
-    puzzInputDiv = new("puzzInputDiv");
-    puzzInputDiv.Visible = false;
+    puzzInputDiv = new("puzzInputDiv")
+    {
+      Visible = false
+    };
     puzzleInputText = new("puzzleInputText");
     puzzInput_btnOk = new("puzzInput_btnOk");
     puzzInput_btnOk.Click += PuzzInput_BtnOkClicked;
@@ -34,7 +36,6 @@ class PuzzleInputUI
     App.SaveOptions();
     endHandler();
   }
-
 }
 
 class HUI
@@ -128,11 +129,14 @@ class HUI
   public void SetPuzzleText(string text, int testIndex)
   {
     text = text.Trim();
+    if (string.IsNullOrEmpty(text))
+    {
+      testIndex = 0;
+      SetPuzzle(null);
+    }
     var popt = App.Options.Puzzle;
     popt.Text = text;
     popt.TestIndex = testIndex;
-    SetPuzzle(null);
-
     eleuEngine.SendPuzzleText(text, popt.TestIndex);
   }
   //from engine and ui
@@ -141,6 +145,24 @@ class HUI
     hasPuzzle = puzzle != null;
     var hcreator = new PuzzleHtmlCreator(puzzle);
     hcreator.Render();
+    SetSelOptions(puzzle);
     EnableButtons();
+  }
+
+  void SetSelOptions(Puzzle? puzzle)
+  {
+    if (puzzle == null)
+    {
+      selTest.Enabled = false;
+      selTest.SetOptions("Kein Puzzle");
+      return;
+    }
+    string[] ar = new string[puzzle.Bundle.Count];
+    for (int i = 0; i < ar.Length; i++)
+    {
+      ar[i] = $"Test Nr. {i + 1}";
+    }
+    selTest.SetOptions(ar);
+    selTest.SelectedIndex = App.Options.Puzzle.TestIndex;
   }
 }

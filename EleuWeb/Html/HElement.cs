@@ -107,8 +107,8 @@ public class HSelect : HElement
 
   public int SelectedIndex
   {
-    get => int.Parse(GetProperty(Id, "selectedIndex"));
-    set => SetProperty(Id, value.ToString());
+    get => GetIntProperty(Id, "selectedIndex");
+    set => BrowserApp.SetProperty(Id, "selectedIndex", value.ToString());
   }
 
 }

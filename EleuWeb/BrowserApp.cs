@@ -25,6 +25,9 @@ public partial class BrowserApp
   [JSImport("cs.getPropDouble", "main.js")]
 
   public static partial double GetDoubleProperty(string elName, string propName);
+  [JSImport("cs.getPropInt", "main.js")]
+
+  public static partial int GetIntProperty(string elName, string propName);
 
   public static void SetStyle(string elId, string propName, string propValue)
   {
