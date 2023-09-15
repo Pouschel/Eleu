@@ -174,6 +174,7 @@ public class EleuLanguageServer : IDisposable
         puzIndex = 0;
       this.puzzleIndex = puzIndex;
       if (bundle.Count > 0) SendPuzzle(bundle[puzIndex]);
+      else _bundle = null;
     }
     catch (PuzzleParseException ex)
     {

@@ -62,7 +62,7 @@ public class WasmExecuter
 
   private void ProcResponseDelayed(string cmd, object arg)
   {
-    SetTimeout(() => ProcResponse(cmd, arg),0);
+    SetTimeout(() => ProcResponse(cmd, arg), 0);
   }
 
   private void ProcResponse(string cmd, object arg)
@@ -118,7 +118,7 @@ public class WasmExecuter
 
 
   internal void ClearInputStatus(string fileName)
-  {  }
+  { }
 
   internal void Stop()
   {
@@ -126,11 +126,11 @@ public class WasmExecuter
     CallServer("stop", "");
   }
 
-  public void Start(string code)
+  public void Start(string code, bool runAllTests = false)
   {
     if (IsAScriptRunning) Stop();
     stopRequested = false;
-    CallServerArray("code", "[textfeld]", code);
+    CallServerArray("code", "[textfeld]", code, runAllTests);
   }
 
   public void SendPuzzleText(string text, int selIndex)
