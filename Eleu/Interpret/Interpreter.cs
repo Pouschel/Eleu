@@ -60,7 +60,7 @@ public class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<Inte
 	{
 		if (useVm)
 		{
-			var res = start();
+			var res = Start();
 			while (res == EEleuResult.NextStep)
 			{
 				res = step();
@@ -95,7 +95,7 @@ public class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<Inte
 		}
 		return result;
 	}
-	public EEleuResult start()
+	public EEleuResult Start()
 	{
 		EEleuResult result = EEleuResult.RuntimeError;
 		try
