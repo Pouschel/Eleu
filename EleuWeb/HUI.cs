@@ -2,19 +2,55 @@
 using EleuStudio;
 using EleuWeb.Html;
 
+class PuzzleInputUI
+{
+  readonly HButton puzzInput_btnOk;
+  readonly HElement puzzleInputText;
+  readonly HElement puzzInputDiv;
+  readonly Action endHandler;
+
+  public PuzzleInputUI(Action endHandler)
+  {
+    puzzInputDiv = new("puzzInputDiv");
+    puzzInputDiv.Visible = false;
+    puzzleInputText = new("puzzleInputText");
+    puzzInput_btnOk = new("puzzInput_btnOk");
+    puzzInput_btnOk.Click += PuzzInput_BtnOkClicked;
+    this.endHandler = endHandler;
+  }
+
+  public void ShowDialog()
+  {
+    puzzInputDiv.Visible = true;
+    puzzleInputText.Value = App.Options.Puzzle.Text;
+    puzzleInputText.Focus();
+  }
+
+  void PuzzInput_BtnOkClicked()
+  {
+    var text = puzzleInputText.Value;
+    App.Options.Puzzle.Text = text;
+    puzzInputDiv.Visible = false;
+    App.SaveOptions();
+    endHandler();
+  }
+
+}
+
 class HUI
 {
   WasmExecuter eleuEngine => App.eleuEngine;
-  readonly HElement mainDiv, waitDiv,  puzzInputDiv;
-  readonly HElement puzzleInputText;
-  readonly HButton runBtn, stopBtn, inputPuzzleBtn, puzzInput_btnOk;
+  readonly HElement mainDiv, waitDiv;
+  readonly HButton runBtn, stopBtn, inputPuzzleBtn;
   readonly HButton backToStartBtn, runAllTestsBtn;
+  readonly HSelect selTest;
+  readonly PuzzleInputUI pInView;
   bool hasPuzzle;
   public HUI()
   {
     mainDiv = new("mainDiv"); waitDiv = new("waitDiv");
-   
-    puzzInputDiv = new("puzzInputDiv");
+    pInView = new(InputPuzzleCompleted);
+
     runBtn = new("btnRun");
     runBtn.Click += RunClicked;
     inputPuzzleBtn = new("btnPuzzle");
@@ -24,16 +60,23 @@ class HUI
     backToStartBtn = new("btnBackToStart"); backToStartBtn.Click += PuzzleBackToStart;
     runAllTestsBtn = new("btnRunAllTests");
 
-    puzzleInputText = new("puzzleInputText");
-    puzzInput_btnOk = new("puzzInput_btnOk");
-    puzzInput_btnOk.Click += PuzzInput_BtnOkClicked;
+    selTest = new("selTest");
+    selTest.Change += this.SelTest_Change;
+  }
+
+  private void SelTest_Change()
+  {
+    var selIndex = selTest.SelectedIndex;
+    if (selIndex < 0) return;
+    var popt = App.Options.Puzzle;
+    popt.TestIndex = selIndex;
+    eleuEngine.SendPuzzleText(popt.Text, popt.TestIndex);
   }
 
   public void SetModeLoaded()
   {
     waitDiv.Style.Display = "none";
     mainDiv.Style.Display = "block";
-    //InputPuzzleClicked();
   }
 
   public void EnableButtons()
@@ -42,9 +85,10 @@ class HUI
     runBtn.Disabled = scriptRunning;
     stopBtn.Disabled = !scriptRunning;
     inputPuzzleBtn.Enabled = !scriptRunning;
-    bool puzzBtn= hasPuzzle && !scriptRunning;
-    backToStartBtn.Enabled = puzzBtn;
-    runAllTestsBtn.Enabled = puzzBtn;
+    bool puzzBtnEnabled = hasPuzzle && !scriptRunning;
+    backToStartBtn.Enabled = puzzBtnEnabled;
+    runAllTestsBtn.Enabled = puzzBtnEnabled;
+    selTest.Enabled = puzzBtnEnabled;
   }
 
   internal void RunClicked()
@@ -65,25 +109,22 @@ class HUI
   }
   void InputPuzzleClicked()
   {
-    mainDiv.Style.Display = "none";
-    puzzInputDiv.Style.Display = "block";
-    puzzleInputText.Value = App.Options.Puzzle.Text;
-    puzzleInputText.Focus();
+    mainDiv.Visible = false;
+    pInView.ShowDialog();
   }
+
+  void InputPuzzleCompleted()
+  {
+    mainDiv.Style.Display = "block";
+    SetPuzzleText(App.Options.Puzzle.Text, 0);
+  }
+
   public void PuzzleBackToStart()
   {
     var popt = App.Options.Puzzle;
     SetPuzzleText(popt.Text, popt.TestIndex);
   }
-  void PuzzInput_BtnOkClicked()
-  {
-    var text = puzzleInputText.Value;
-    App.Options.Puzzle.Text = text;
-    mainDiv.Style.Display = "block";
-    puzzInputDiv.Style.Display = "none";
-    App.SaveOptions();
-    SetPuzzleText(text,0);
-  }
+
   public void SetPuzzleText(string text, int testIndex)
   {
     text = text.Trim();
@@ -91,6 +132,7 @@ class HUI
     popt.Text = text;
     popt.TestIndex = testIndex;
     SetPuzzle(null);
+
     eleuEngine.SendPuzzleText(text, popt.TestIndex);
   }
   //from engine and ui
