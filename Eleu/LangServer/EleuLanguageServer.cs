@@ -93,14 +93,14 @@ public class EleuLanguageServer : IDisposable
     _sendOutput(s);
     _outStateChanged = true;
   }
-  void _onPuzzleChanged(Puzzle? puzzle)
+  void OnPuzzleStateChanged(Puzzle? puzzle)
   {
     if (puzzle != null) Response("puzzle", puzzle);
     _outStateChanged = true;
   }
-  void _onPuzzleSet(string code)
+  void OnPuzzleSet(string code, int testIndex)
   {
-    Response("_pcall", code);
+    Response("_pcall", new PuzzCode(code, testIndex));
   }
 
   bool HandleCmd(Cmd cmd)
@@ -199,8 +199,8 @@ public class EleuLanguageServer : IDisposable
     {
       interpreter = interp;
       interp!.Puzzle = _bundle?[puzzleIndex];
-      interp!.PuzzleChanged = _onPuzzleChanged;
-      interp!.PuzzleSet = _onPuzzleSet;
+      interp!.PuzzleStateChanged = OnPuzzleStateChanged;
+      interp!.PuzzleCalled = OnPuzzleSet;
       lastResult = interpreter!.Start();
       this.curCode = code;
       this.curFileName = fileName;
@@ -238,6 +238,7 @@ public class EleuLanguageServer : IDisposable
       if (bwin && runAllTests && puzzleIndex < this._bundle?.Count - 1 && this.curCode != null)
       {
         puzzleIndex++;
+        OnPuzzleSet(_bundle!.Code, puzzleIndex);
         EndCodeHandler(this.curFileName ?? "", this.curCode);
       }
       else runAllTests = false;

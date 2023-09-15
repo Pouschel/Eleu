@@ -70,7 +70,7 @@ public class PuzzleFunctions : NativeFunctionBase
     if (!string.IsNullOrEmpty(fn))
       bundle.SetImageNameHints(fn);
     var puzzle = Vm.Puzzle = bundle[index].Copy();
-    Vm.PuzzleSet?.Invoke(bundle.Code);
+    Vm.PuzzleCalled?.Invoke(bundle.Code, index);
     Vm.NotifyPuzzleChange(puzzle, -1);
     puzzle.ImageNameHint = "";
     Animate(puzzle);

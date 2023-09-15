@@ -34,8 +34,8 @@ public abstract class IInterpreter
 	internal EleuOptions options;
 	internal InputStatus currentStatus;
 	public Puzzle? Puzzle;
-	public Action<Puzzle?>? PuzzleChanged;
-	public Action<string>? PuzzleSet;
+	public Action<Puzzle?>? PuzzleStateChanged;
+	public Action<string, int>? PuzzleCalled;
 	public IInterpreter(EleuOptions options)
 	{
 		this.options = options;
@@ -52,7 +52,7 @@ public abstract class IInterpreter
 
 	internal void NotifyPuzzleChange(Puzzle? newPuzzle, float animateState)
 	{
-		PuzzleChanged?.Invoke(newPuzzle);
+		PuzzleStateChanged?.Invoke(newPuzzle);
 	}
 }
 
