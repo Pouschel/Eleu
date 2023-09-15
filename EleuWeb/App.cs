@@ -29,7 +29,6 @@ class App
 
     var code = LocalStoragGet("code") ?? "";
     Ui = new();
-
     EditorApp.SetText(code);
     Ui.SetPuzzleText(Options.Puzzle.Text, Options.Puzzle.TestIndex);
 
