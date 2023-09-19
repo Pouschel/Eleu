@@ -18,13 +18,13 @@ class HUI
     pInView = new(InputPuzzleCompleted);
 
     runBtn = new("btnRun");
-    runBtn.Click += RunClicked;
+    runBtn.Click += () => RunClicked(false);
     inputPuzzleBtn = new("btnPuzzle");
     inputPuzzleBtn.Click += InputPuzzleClicked;
     stopBtn = new("btnStop");
     stopBtn.Click += StopClicked;
     backToStartBtn = new("btnBackToStart"); backToStartBtn.Click += PuzzleBackToStart;
-    runAllTestsBtn = new("btnRunAllTests");
+    runAllTestsBtn = new("btnRunAllTests"); runAllTestsBtn.Click += () => RunClicked(true);
     rangeSpeed = new("rangeSpeed");
     rangeSpeed.Change += this.RangeSpeed_Change;
     rangeSpeed.Value = App.Options.Puzzle.Speed;
@@ -68,14 +68,14 @@ class HUI
     rangeSpeed.Enabled = hasPuzzle;
   }
 
-  internal void RunClicked()
+  internal void RunClicked(bool all)
   {
     var popt = App.Options.Puzzle;
-    eleuEngine.SendPuzzleText(popt.Text, popt.TestIndex);
+    eleuEngine.SendPuzzleText(popt.Text, all ? 0 : popt.TestIndex);
     var code = EditorApp.GetText();
     LocalStoragSet("code", code); App.SaveOptions();
     App.Log.Clear();
-    eleuEngine.Start(code);
+    eleuEngine.Start(code, all);
     EnableButtons();
   }
 
@@ -139,6 +139,6 @@ class HUI
       ar[i] = $"Test Nr. {i + 1}";
     }
     selTest.SetOptions(ar);
-    selTest.SelectedIndex = App.Options.Puzzle.TestIndex;
+    selTest.SelectedIndex = App.Options.Puzzle.TestIndex = puzzle.BundleIndex;
   }
 }
