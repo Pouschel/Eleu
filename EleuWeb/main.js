@@ -28,7 +28,7 @@ const app = exports.BrowserApp;
 
 function evalCode(code)
 {
-  console.log(code);
+ // console.log(code);
   return eval(code);
 }
 function getProp(elId, propName)
@@ -53,33 +53,7 @@ function callTimeout(func, delay)
   setTimeout(func, delay);
 }
 
-editor.setTheme("ace/theme/textmate");
-editor.session.setMode("ace/mode/eleu");
-editor.setHighlightActiveLine(false);
-editor.setShowPrintMargin(false);
-editor.setKeyboardHandler("ace/keyboard/vscode");
-editor.getSession().setUseWorker(false);
-editor.session.setTabSize(2);
-editor.focus();
 
-var marker = null;
-marker = editor.getSession().addMarker(new Range(3, 2, 3, 2000), "compError", "text", true);
-
-document.onkeydown = fkey;
-//document.onkeypress = fkey
-//document.onkeyup = fkey;
-
-function fkey(e)
-{
-  e = e || window.event;
-  if (e.code == 'F5')
-  {
-    app.RunCode();
-    //alert("F5 pressed");
-    e.handled = true;
-    e.preventDefault();
-  }
-}
 
 await dotnet.run();
 

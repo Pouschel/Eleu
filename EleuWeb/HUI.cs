@@ -76,6 +76,7 @@ class HUI
     var code = EditorApp.GetText();
     LocalStoragSet("code", code); App.SaveOptions();
     App.Log.Clear();
+    ClearError();
     eleuEngine.Start(code, all);
     EnableButtons();
   }
@@ -143,13 +144,12 @@ class HUI
     selTest.SelectedIndex = App.Options.Puzzle.TestIndex = puzzle.BundleIndex;
   }
 
-  internal void MoveToPosition(string errLine)
+  static void ClearError() => JsEval($"setEleuError(-1,0,0,0);");
+  internal static void MoveToPosition(string errLine)
   {
     var status = InputStatus.Parse(errLine);
     if (status.IsEmpty) return;
-    var text = $"""editor.getSession().addMarker(new Range({status.LineStart}, 0, {status.LineEnd}, 2000),"compError", "text", true);""";
+    var text = $"setEleuError({status.LineStart},{status.ColStart},{status.LineEnd},{status.ColEnd});";
     BrowserApp.JsEval(text);
-    
-
   }
 }
