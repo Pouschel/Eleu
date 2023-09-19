@@ -1,14 +1,18 @@
 ﻿//https://learn.microsoft.com/en-us/aspnet/core/client-side/dotnet-interop?view=aspnetcore-7.0
 
-using System;
+using System.Globalization;
 using System.Runtime.InteropServices.JavaScript;
-using static System.Net.Mime.MediaTypeNames;
 
 public partial class BrowserApp
 {
   [JSImport("cs.evalCode", "main.js")]
 
   public static partial string JsEval(string jsCode);
+
+
+  public static void SetProperty(string elName, string propName, double propValue)
+    => SetProperty(elName, propName, propValue.ToString(CultureInfo.InvariantCulture));
+
 
   [JSImport("cs.setProp", "main.js")]
 

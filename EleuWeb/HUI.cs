@@ -2,42 +2,6 @@
 using EleuStudio;
 using EleuWeb.Html;
 
-class PuzzleInputUI
-{
-  readonly HButton puzzInput_btnOk;
-  readonly HElement puzzleInputText;
-  readonly HElement puzzInputDiv;
-  readonly Action endHandler;
-
-  public PuzzleInputUI(Action endHandler)
-  {
-    puzzInputDiv = new("puzzInputDiv")
-    {
-      Visible = false
-    };
-    puzzleInputText = new("puzzleInputText");
-    puzzInput_btnOk = new("puzzInput_btnOk");
-    puzzInput_btnOk.Click += PuzzInput_BtnOkClicked;
-    this.endHandler = endHandler;
-  }
-
-  public void ShowDialog()
-  {
-    puzzInputDiv.Visible = true;
-    puzzleInputText.Value = App.Options.Puzzle.Text;
-    puzzleInputText.Focus();
-  }
-
-  void PuzzInput_BtnOkClicked()
-  {
-    var text = puzzleInputText.Value;
-    App.Options.Puzzle.Text = text;
-    puzzInputDiv.Visible = false;
-    App.SaveOptions();
-    endHandler();
-  }
-}
-
 class HUI
 {
   WasmExecuter eleuEngine => App.eleuEngine;
@@ -46,6 +10,7 @@ class HUI
   readonly HButton backToStartBtn, runAllTestsBtn;
   readonly HSelect selTest;
   readonly PuzzleInputUI pInView;
+  readonly HSlider rangeSpeed;
   bool hasPuzzle;
   public HUI()
   {
@@ -60,9 +25,19 @@ class HUI
     stopBtn.Click += StopClicked;
     backToStartBtn = new("btnBackToStart"); backToStartBtn.Click += PuzzleBackToStart;
     runAllTestsBtn = new("btnRunAllTests");
+    rangeSpeed = new("rangeSpeed");
+    rangeSpeed.Change += this.RangeSpeed_Change;
+    rangeSpeed.Value = App.Options.Puzzle.Speed;
 
     selTest = new("selTest");
     selTest.Change += this.SelTest_Change;
+
+  }
+
+  private void RangeSpeed_Change()
+  {
+    var speedVal = rangeSpeed.Value;
+    App.Options.Puzzle.Speed = speedVal;
   }
 
   private void SelTest_Change()
@@ -90,6 +65,7 @@ class HUI
     backToStartBtn.Enabled = puzzBtnEnabled;
     runAllTestsBtn.Enabled = puzzBtnEnabled;
     selTest.Enabled = puzzBtnEnabled;
+    rangeSpeed.Enabled = hasPuzzle;
   }
 
   internal void RunClicked()
@@ -97,7 +73,7 @@ class HUI
     var popt = App.Options.Puzzle;
     eleuEngine.SendPuzzleText(popt.Text, popt.TestIndex);
     var code = EditorApp.GetText();
-    LocalStoragSet("code", code);
+    LocalStoragSet("code", code); App.SaveOptions();
     App.Log.Clear();
     eleuEngine.Start(code);
     EnableButtons();

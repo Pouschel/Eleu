@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Net;
 using System.Text;
 
@@ -109,6 +110,20 @@ public class HSelect : HElement
   {
     get => GetIntProperty(Id, "selectedIndex");
     set => BrowserApp.SetProperty(Id, "selectedIndex", value.ToString());
+  }
+
+}
+
+public class HSlider : HElement
+{
+  public HSlider(string id) : base(id)
+  {
+  }
+
+  public new double Value
+  {
+    get => double.Parse(GetProperty(Id, "value"), CultureInfo.InvariantCulture);
+    set => BrowserApp.SetProperty(Id, "value", value);
   }
 
 }
