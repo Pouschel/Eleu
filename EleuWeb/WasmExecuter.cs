@@ -84,7 +84,7 @@ public class WasmExecuter
       case "err":
       case "i_err":
         App.Println(text(), viewOptions.LogErrorColor);
-        //TODO App.Mvu.EnqueueMessage(new MoveToPosistionInFileMsg(text()));
+        App.Ui.MoveToPosition(text());
         break;
       case "out": App.Println(text()); break;
       case "pout": App.Println(text(), viewOptions.LogPuzzleColor); break;

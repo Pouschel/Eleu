@@ -1,4 +1,5 @@
 ﻿using Eleu.Puzzles;
+using Eleu.Scanning;
 using EleuStudio;
 using EleuWeb.Html;
 
@@ -140,5 +141,15 @@ class HUI
     }
     selTest.SetOptions(ar);
     selTest.SelectedIndex = App.Options.Puzzle.TestIndex = puzzle.BundleIndex;
+  }
+
+  internal void MoveToPosition(string errLine)
+  {
+    var status = InputStatus.Parse(errLine);
+    if (status.IsEmpty) return;
+    var text = $"""editor.getSession().addMarker(new Range({status.LineStart}, 0, {status.LineEnd}, 2000),"compError", "text", true);""";
+    BrowserApp.JsEval(text);
+    
+
   }
 }

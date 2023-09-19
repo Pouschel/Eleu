@@ -28,6 +28,7 @@ const app = exports.BrowserApp;
 
 function evalCode(code)
 {
+  console.log(code);
   return eval(code);
 }
 function getProp(elId, propName)
@@ -60,6 +61,9 @@ editor.setKeyboardHandler("ace/keyboard/vscode");
 editor.getSession().setUseWorker(false);
 editor.session.setTabSize(2);
 editor.focus();
+
+var marker = null;
+marker = editor.getSession().addMarker(new Range(3, 2, 3, 2000), "compError", "text", true);
 
 document.onkeydown = fkey;
 //document.onkeypress = fkey

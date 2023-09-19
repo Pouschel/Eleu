@@ -163,3 +163,10 @@ button {
 	margin: 0 10px 20px 10px;
 
 }
+
+.compError {
+	background: rgba(255, 50, 50, 0.1);
+	position: absolute;
+	width: 100% !important;
+	left: 0 !important;
+}
