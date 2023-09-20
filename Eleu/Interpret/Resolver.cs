@@ -120,8 +120,9 @@ internal class Resolver : Expr.Visitor<object?>, Stmt.Visitor<object?>
 		return null;
 	}
 
-	public object? VisitExpressionStmt(Stmt.Expression stmt) => Resolve(stmt.expression);
-	public object? VisitFunctionStmt(Stmt.Function stmt)
+  public object? VisitExpressionStmt(Stmt.Expression stmt) => Resolve(stmt.expression);
+
+  public object? VisitFunctionStmt(Stmt.Function stmt)
 	{
 		Declare(stmt.Name);
 		define(stmt.Name);
