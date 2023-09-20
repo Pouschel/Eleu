@@ -95,11 +95,11 @@ class EleuFunction : ICallable
 			{
 				var compiler = new StmtCompiler();
 				compiler.isInitializer = this.isInitializer;
-				var chunk = compiler.compile(declaration.Body);
+				var chunk = compiler.Compile(declaration.Body);
 				if (!isInitializer)
-					chunk.add(new PushInstruction(NilValue, InputStatus.Empty));
+					chunk.Add(new PushInstruction(NilValue, InputStatus.Empty));
 				else
-					chunk.add(new LookupVarInstruction("this", 1, InputStatus.Empty));
+					chunk.Add(new LookupVarInstruction("this", 1, InputStatus.Empty));
 				_chunk = chunk;
 			}
 			return _chunk!;

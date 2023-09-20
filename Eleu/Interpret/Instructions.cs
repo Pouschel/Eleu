@@ -12,7 +12,7 @@ record CallFrame(Chunk chunk, ICallable? func = null)
 
   public Instruction? nextInstruction()
   {
-    if (ip >= chunk.length) return null;
+    if (ip >= chunk.Count) return null;
     return chunk.code[ip++];
   }
 }

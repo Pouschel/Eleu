@@ -103,7 +103,7 @@ public class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<Inte
 			callStack = new();
 			Resolve();
 			ExecutedInstructionCount = 0;
-			var chunk = new StmtCompiler().compile(this.statements);
+			var chunk = new StmtCompiler().Compile(this.statements);
 			
 			frame = new CallFrame(chunk);
 			return EEleuResult.NextStep;
