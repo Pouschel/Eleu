@@ -30,18 +30,5 @@ function setEleuError(l0, c0, l1, c1)
   }
 }
 
-document.onkeydown = fkey;
-//document.onkeypress = fkey
-//document.onkeyup = fkey;
+//window.addEventListener("keydown", fkey);
 
-function fkey(e)
-{
-  e = e || window.event;
-  if (e.code == 'F5')
-  {
-    app.RunCode();
-    //alert("F5 pressed");
-    e.handled = true;
-    e.preventDefault();
-  }
-}

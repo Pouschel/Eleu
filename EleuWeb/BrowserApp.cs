@@ -93,5 +93,11 @@ public partial class EditorApp
     JsEval($"editor.setValue(`{text}`);");
   }
 
+  [JSExport]
+  public static void RunCode()
+  {
+    App.Ui.RunClicked(false);
+  }
+
 
 }

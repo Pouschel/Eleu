@@ -24,7 +24,7 @@ setModuleImports('main.js', {
 
 const config = getConfig();
 const exports = await getAssemblyExports(config.mainAssemblyName);
-const app = exports.BrowserApp;
+const app = exports.EditorApp;
 
 function evalCode(code)
 {
@@ -53,7 +53,20 @@ function callTimeout(func, delay)
   setTimeout(func, delay);
 }
 
+document.addEventListener("keydown", fkey);
 
+function fkey(e)
+{
+  //e = e || window.event;
+  if (e.keyCode == 116)
+  {
+    //alert(`pressed: ${e.keyCode} v9`);
+    e.handled = true;
+    e.preventDefault();
+    app.RunCode();
+    return false;
+  }
+}
 
 await dotnet.run();
 
