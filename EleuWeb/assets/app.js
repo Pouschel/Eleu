@@ -9,6 +9,12 @@ editor.getSession().setUseWorker(false);
 editor.session.setTabSize(2);
 editor.focus();
 
+editor.getSession().on('change', function ()
+{
+  setEleuError(-1, -1, -1, -1);
+});
+
+
 var marker = null;
 
 function setEleuError(l0, c0, l1, c1)
@@ -22,11 +28,9 @@ function setEleuError(l0, c0, l1, c1)
   else
   {
     editor.scrollToLine(l0, true, true, function () { });
-    //editor.gotoLine(l0, c0, true);
     //console.log(`${l0} ${c0} ${l1} ${c1}`);
     l0--; c0--; l1--; c1--;
     marker = session.addMarker(new ace.Range(l0, c0, l1, c1), "compError", "text", true);
-
   }
 }
 
