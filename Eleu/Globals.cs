@@ -58,7 +58,6 @@ public abstract class IInterpreter
 
 public class Globals
 {
-  internal const int UINT8_COUNT = 256;
   internal static EEleuResult CompileAndRunAst(string fileName, EleuOptions options)
   {
     var source = File.ReadAllText(fileName);
