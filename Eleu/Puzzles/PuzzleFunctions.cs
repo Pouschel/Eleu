@@ -112,6 +112,7 @@ public class PuzzleFunctions : NativeFunctionBase
       Animate(puzzle);
     }
   }
+#warning move("0"); sollte Fehlermeldung erzeugen
   private object move(object[] args)
   {
     var puzzle = CheckPuzzleActive();
