@@ -6,12 +6,25 @@ global using static Statics;
 using System.Text.Json;
 using System.Text.Encodings.Web;
 using System.Globalization;
+using System.Text.Json.Serialization;
+
+[JsonSourceGenerationOptions(WriteIndented = true)]
+[JsonSerializable(typeof(OptionsModel))]
+internal partial class SourceGenContext:JsonSerializerContext
+{
+
+}
 
 static class Statics
 {
-  static readonly JsonSerializerOptions jsonOptions = new()
-  { IgnoreReadOnlyFields = true, IncludeFields = true, WriteIndented = true,
-  Encoder=JavaScriptEncoder.Default
+  internal static readonly JsonSerializerOptions jsonOptions = new()
+  {
+    IgnoreReadOnlyFields = true,
+    IncludeFields = true,
+    WriteIndented = true,
+    Encoder = JavaScriptEncoder.Default,
+    TypeInfoResolver = SourceGenContext.Default,
+
   };
 #pragma warning disable CS8603 // Possible null reference return.
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
@@ -23,7 +36,7 @@ static class Statics
 
   }
 
-  public static string JsonSaveString<T>( T data)
+  public static string JsonSaveString<T>(T data)
   {
     return JsonSerializer.Serialize(data, jsonOptions);
   }

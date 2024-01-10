@@ -2,6 +2,7 @@
 
 using System.Text.Json.Serialization;
 
+//[JsonSerializable]
 public class OptionsModel
 {
   public class PuzzleOptions
