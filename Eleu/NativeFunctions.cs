@@ -8,7 +8,7 @@ namespace Eleu;
 #pragma warning disable IDE0051 // Remove unused private members
 #pragma warning disable IDE1006 // Naming Styles
 
-class EleuNativeError : EleuRuntimeError
+public class EleuNativeError : EleuRuntimeError
 {
 	public EleuNativeError(string msg) : base(msg)
 	{	}
