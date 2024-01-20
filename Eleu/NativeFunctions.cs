@@ -16,8 +16,8 @@ public class EleuNativeError : EleuRuntimeError
 
 public class NativeFunctionBase
 {
-	private IInterpreter? vm;
-	protected IInterpreter Vm => vm!;
+	private Interpreter? vm;
+	protected Interpreter Vm => vm!;
 
 	public static void CheckArgLen(object[] args, int nMinArgs, int nMaxArgs = -1, [CallerMemberName] string name = "")
 	{
@@ -78,7 +78,7 @@ public class NativeFunctionBase
 		}
 	}
 
-  public static void DefineAll<T>(T funcClass, IInterpreter vm) where T : NativeFunctionBase, new()
+  public static void DefineAll<T>(T funcClass, Interpreter vm) where T : NativeFunctionBase, new()
 	{
 		funcClass.vm = vm;
 		foreach (var (name, method) in funcClass.GetFunctions())

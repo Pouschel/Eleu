@@ -29,33 +29,6 @@ public enum EEleuResult
 
 public delegate object NativeFn(object[] args);
 
-public abstract class IInterpreter
-{
-  internal EleuOptions options;
-  internal InputStatus currentStatus;
-  public Puzzle? Puzzle;
-  public Action<Puzzle?>? PuzzleStateChanged;
-  public Action<string, int>? PuzzleCalled;
-  public IInterpreter(EleuOptions options)
-  {
-    this.options = options;
-    NativeFunctionBase.DefineAll(new NativeFunctions(), this);
-    NativeFunctionBase.DefineAll(new PuzzleFunctions(), this);
-  }
-  public abstract EEleuResult Interpret(bool useVm);
-  public abstract void RuntimeError(string msg);
-  public abstract void DefineNative(string name, NativeFn function);
-
-  public int InstructionCount = 0;
-  public abstract EEleuResult InterpretWithDebug(CancellationToken token);
-  public virtual int FrameTimeMs { get; set; }
-
-  internal void NotifyPuzzleChange(Puzzle? newPuzzle, float animateState)
-  {
-    PuzzleStateChanged?.Invoke(newPuzzle);
-  }
-}
-
 public class Globals
 {
   internal static EEleuResult CompileAndRunAst(string fileName, EleuOptions options)

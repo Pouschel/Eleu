@@ -4,9 +4,15 @@ using Eleu.Types;
 
 namespace Eleu.Interpret;
 
-public class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<InterpretResult> 
+public class Interpreter :  Expr.Visitor<object>, Stmt.Visitor<InterpretResult> 
 {
-	private List<Stmt> statements;
+  internal EleuOptions options;
+  internal InputStatus currentStatus;
+  public Puzzle? Puzzle;
+  public Action<Puzzle?>? PuzzleStateChanged;
+  public Action<string, int>? PuzzleCalled;
+
+  private List<Stmt> statements;
 	internal EleuEnvironment globals = new();
 	internal EleuEnvironment environment;
 	internal Func<Stmt, bool>? canContinueFunc;
@@ -18,10 +24,18 @@ public class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<Inte
 	int frameDepth = 0;
 	List<EleuEnvironment> prevEnvs = new();
 	readonly List<object> valueStack = new();
+  public int InstructionCount = 0;
+  public int FrameTimeMs { get; set; }
+  internal void NotifyPuzzleChange(Puzzle? newPuzzle, float animateState)
+  {
+    PuzzleStateChanged?.Invoke(newPuzzle);
+  }
 
-
-	public Interpreter(EleuOptions options, List<Stmt> statements, List<Token> tokens) :base(options)
+  public Interpreter(EleuOptions options, List<Stmt> statements, List<Token> tokens) 
 	{
+    this.options = options;
+    NativeFunctionBase.DefineAll(new NativeFunctions(), this);
+    NativeFunctionBase.DefineAll(new PuzzleFunctions(), this); 
 		this.orgTokens = tokens;
 		this.environment = globals;
 		this.statements = statements;
@@ -38,7 +52,7 @@ public class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<Inte
 	}
 	public int PuzzleScore => this.Puzzle == null ? 0 :
 		 this.Puzzle.Complexity - this.Puzzle.EnergyUsed - ProgramLength - ExecutedInstructionCount / 3;
-	public override void DefineNative(string name, NativeFn function)
+	public  void DefineNative(string name, NativeFn function)
 	{
 		var ofun = new NativeFunction(name, function);
 		globals.Define(name, ofun);
@@ -50,13 +64,11 @@ public class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<Inte
 		Execute = ExecuteDebug;
 		return DoInterpret();
 	}
-	public override EEleuResult InterpretWithDebug(CancellationToken token)
+	public  EEleuResult InterpretWithDebug(CancellationToken token)
 	{
 		return InterpretWithDebug(stmt => !token.IsCancellationRequested);
 	}
-
-
-	public override EEleuResult Interpret(bool useVm)
+	public  EEleuResult Interpret(bool useVm)
 	{
 		if (useVm)
 		{
@@ -117,36 +129,44 @@ public class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<Inte
 		return result;
 	}
 	public EEleuResult step()
-	{
-		var ins = frame!.nextInstruction();
-		if (ins == null)
-		{
-			if (frame.next == null) return EEleuResult.Ok;
-			// leave current chunk function
-			leaveFrame();
-			return EEleuResult.NextStep;
-		}
+  {
+    var ins = frame!.nextInstruction();
+    if (ins == null)
+    {
+      if (frame.next == null) return EEleuResult.Ok;
+      // leave current chunk function
+      leaveFrame();
+      return EEleuResult.NextStep;
+    }
+    return ExecuteInstruction(ins!);
+  }
 
-		try
-		{
-			if (!ins.status.IsEmpty) currentStatus = ins.status;
-			ins.execute(this);
-			ExecutedInstructionCount++;
-		} catch (EleuRuntimeError ex) {
-			if (options.ThrowOnAssert && ex is EleuAssertionFail) throw;
-			var stat = ex.Status ?? currentStatus;
-			var msg = $"{stat.Message}: {ex.Message}";
-			options.Err.WriteLine(msg);
-			return EEleuResult.RuntimeError;
-		}
-		catch (Exception ex) {
-			var msg = $"{currentStatus.Message}: {ex.GetType()}";
-			options.Err.WriteLine(msg);
-			return EEleuResult.RuntimeError;
-		}
-		return EEleuResult.NextStep;
-	}
-	internal void enterFrame(CallFrame newFrame)
+  private EEleuResult ExecuteInstruction(Instruction ins)
+  {
+    try
+    {
+      if (!ins.status.IsEmpty) currentStatus = ins.status;
+      ins.execute(this);
+      ExecutedInstructionCount++;
+    }
+    catch (EleuRuntimeError ex)
+    {
+      if (options.ThrowOnAssert && ex is EleuAssertionFail) throw;
+      var stat = ex.Status ?? currentStatus;
+      var msg = $"{stat.Message}: {ex.Message}";
+      options.Err.WriteLine(msg);
+      return EEleuResult.RuntimeError;
+    }
+    catch (Exception ex)
+    {
+      var msg = $"{currentStatus.Message}: {ex.GetType()}";
+      options.Err.WriteLine(msg);
+      return EEleuResult.RuntimeError;
+    }
+    return EEleuResult.NextStep;
+  }
+
+  internal void enterFrame(CallFrame newFrame)
 	{
 		newFrame.next = frame;
 		frame = newFrame;
@@ -248,6 +268,16 @@ public class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<Inte
 		};
 	}
 
+	public void InjectCall(ICallable func, params object[] args)
+	{
+		push(func);
+		for (int i = 0; i < args.Length; i++)
+		{
+			push(args[i]);
+		}
+		var call = new CallInstruction(args.Length, currentStatus);
+		ExecuteInstruction(call);
+	}
 	public object VisitCallExpr(Expr.Call expr)
 	{
 		var callee = Evaluate(expr.Callee);
@@ -531,7 +561,7 @@ public class Interpreter : IInterpreter, Expr.Visitor<object>, Stmt.Visitor<Inte
 	{
 		return stmt.IsBreak ? InterpretResult.BreakResult : InterpretResult.ContinueResult;
 	}
-	public override void RuntimeError(string msg) => throw new EleuRuntimeError(currentStatus, msg);
+	public  void RuntimeError(string msg) => throw new EleuRuntimeError(currentStatus, msg);
 	public IEnumerable<VariableInfo> GetGlobalVariablesAndValues()
 	{
 		return globals.GetVariableInfos(null);

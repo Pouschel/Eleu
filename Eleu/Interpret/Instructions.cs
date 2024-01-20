@@ -56,7 +56,7 @@ record CallInstruction(int nArgs, InputStatus status) : Instruction(status)
     if (callee is EleuFunction efunc)
     {
       var environment = new EleuEnvironment(efunc.closure);
-      doCall(vm, environment, efunc);
+      DoCall(vm, environment, efunc);
       return;
     }
     if (callee is EleuClass cls)
@@ -72,13 +72,13 @@ record CallInstruction(int nArgs, InputStatus status) : Instruction(status)
 
       var environment = new EleuEnvironment(ifunc.closure);
       // environment.Define("this", instance);
-      doCall(vm, environment, ifunc);
+      DoCall(vm, environment, ifunc);
       return;
     }
     throw new NotSupportedException("message");
   }
 
-  void doCall(Interpreter vm, EleuEnvironment environment, EleuFunction callee)
+  void DoCall(Interpreter vm, EleuEnvironment environment, EleuFunction callee)
   {
     for (int i = nArgs - 1; i >= 0; i--)
     {
