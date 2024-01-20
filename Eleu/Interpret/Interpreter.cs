@@ -270,11 +270,11 @@ public class Interpreter :  Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
 
 	public void InjectCall(ICallable func, params object[] args)
 	{
-		push(func);
 		for (int i = 0; i < args.Length; i++)
 		{
 			push(args[i]);
 		}
+    push(func); 
 		var call = new CallInstruction(args.Length, currentStatus);
 		ExecuteInstruction(call);
 	}

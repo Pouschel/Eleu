@@ -166,8 +166,8 @@ public class NativeFunctions : NativeFunctionBase
 		Vm.options.Out.WriteLine(s);
 		return NilValue;
 	}
-	private static object toFixed(object[] args)
-	{
+  private static object toFixed(object[] args)
+  {
 		CheckArgLen(args, 2);
 		var x = CheckArgType<Number>(0, args);
 		var n = CheckIntArg(1, args);
