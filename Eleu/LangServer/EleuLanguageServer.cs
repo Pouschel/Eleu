@@ -42,6 +42,7 @@ public class EleuLanguageServer : IDisposable
   bool directCallback = false;
   bool runAllTests = false;
   string? curFileName, curCode;
+  List<Type> additionalNativeFunctions = [];
   public EleuLanguageServer(Action<string, object> responseAction, bool directCallback = false)
   {
     this.responseAction = responseAction;
@@ -53,6 +54,10 @@ public class EleuLanguageServer : IDisposable
       Name = "EleuLangServer"
     };
     worker.Start();
+  }
+  public void RegisterNativeFunctions(Type type)
+  {
+    additionalNativeFunctions.Add(type);
   }
 
   public void Dispose()
@@ -118,7 +123,7 @@ public class EleuLanguageServer : IDisposable
           : new PuzzleFunctions().GetFunctions().Select(mi => mi.name).ToArray();
           Response($"{sarg}Funcs", funcs);
           break;
-        case "ping":         
+        case "ping":
           _sendInfo($"Eleu Sprachserver Version {Version} bereit.");
           break;
         case "code":
@@ -198,10 +203,17 @@ public class EleuLanguageServer : IDisposable
     lastResult = result;
     if (result == EEleuResult.Ok)
     {
-      interpreter = interp;
-      interp!.Puzzle = _bundle?[puzzleIndex];
-      interp!.PuzzleStateChanged = OnPuzzleStateChanged;
-      interp!.PuzzleCalled = OnPuzzleSet;
+      interpreter = interp!;
+      foreach (var type in additionalNativeFunctions)
+      {
+        if (Activator.CreateInstance(type) is not NativeFunctionBase func) 
+          _sendInternalError($"type {type.Name} is no native function type");
+        else
+          NativeFunctionBase.DefineAll(func, interpreter);
+      }
+      interpreter.Puzzle = _bundle?[puzzleIndex];
+      interpreter.PuzzleStateChanged = OnPuzzleStateChanged;
+      interpreter.PuzzleCalled = OnPuzzleSet;
       lastResult = interpreter!.Start();
       this.curCode = code;
       this.curFileName = fileName;

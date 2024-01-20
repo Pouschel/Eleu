@@ -78,9 +78,9 @@ public class NativeFunctionBase
 		}
 	}
 
-	public static void DefineAll<T>(IInterpreter vm) where T : NativeFunctionBase, new()
+  public static void DefineAll<T>(T funcClass, IInterpreter vm) where T : NativeFunctionBase, new()
 	{
-		var funcClass = new T() { vm = vm };
+		funcClass.vm = vm;
 		foreach (var (name, method) in funcClass.GetFunctions())
 		{
 			if (method.IsStatic)

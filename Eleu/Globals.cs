@@ -39,8 +39,8 @@ public abstract class IInterpreter
   public IInterpreter(EleuOptions options)
   {
     this.options = options;
-    NativeFunctionBase.DefineAll<NativeFunctions>(this);
-    NativeFunctionBase.DefineAll<PuzzleFunctions>(this);
+    NativeFunctionBase.DefineAll(new NativeFunctions(), this);
+    NativeFunctionBase.DefineAll(new PuzzleFunctions(), this);
   }
   public abstract EEleuResult Interpret(bool useVm);
   public abstract void RuntimeError(string msg);
