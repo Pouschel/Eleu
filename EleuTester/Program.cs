@@ -80,7 +80,7 @@ class Program
 		var source = File.ReadAllText(fileName);
 		var opt = new EleuOptions();
 		Stopwatch watch = Stopwatch.StartNew();
-		Globals.CompileAndRunAst(source, fileName, opt);
+		Globals.CompileAndRunAst(source, fileName, opt, useVm);
 		var elapsed = watch.Elapsed;
 		lock (benchMarkResults)
 		{
@@ -97,9 +97,8 @@ class Program
 			DumpStackOnError = false,
 			UseDebugger = true,
 			ThrowOnAssert = true,
-			UseInterpreter = !useVm
 		};
-		var cres = Globals.CompileAndRunAst(source, path, opt);
+		var cres = Globals.CompileAndRunAst(source, path, opt, useVm);
 		return cres == EEleuResult.Ok;
 	}
 

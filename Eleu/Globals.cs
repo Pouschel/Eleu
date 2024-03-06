@@ -31,10 +31,10 @@ public delegate object NativeFn(object[] args);
 
 public class Globals
 {
-  internal static EEleuResult CompileAndRunAst(string fileName, EleuOptions options)
+  internal static EEleuResult CompileAndRunAst(string fileName, EleuOptions options, bool useVm)
   {
     var source = File.ReadAllText(fileName);
-    return CompileAndRunAst(source, fileName, options);
+    return CompileAndRunAst(source, fileName, options, useVm);
   }
   public static List<Stmt>? ScanAndParse(string source, string fileName, EleuOptions options)
   {
@@ -57,11 +57,11 @@ public class Globals
     return (presult, interpreter);
   }
 
-  public static EEleuResult CompileAndRunAst(string source, string fileName, EleuOptions options)
+  public static EEleuResult CompileAndRunAst(string source, string fileName, EleuOptions options, bool useVm)
   {
     var (res, vm) = Compile(source, fileName, options);
     if (res != Ok) return res;
-    return vm!.Interpret(true);
+    return vm!.Interpret(useVm);
   }
   public static bool RunFile(string path, TextWriter tw, bool useVm = false)
   {
@@ -69,9 +69,8 @@ public class Globals
     {
       Out = tw,
       Err = tw,
-      UseInterpreter = !useVm
     };
-    var result = CompileAndRunAst(path, opt);
+    var result = CompileAndRunAst(path, opt, useVm);
     return result == Ok;
   }
 
