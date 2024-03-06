@@ -42,7 +42,21 @@ internal class AstParser
   }
 
   InputStatus CurrentInputStatus => Peek.Status;
-
+  private void Declaration(List<Stmt> statements)
+  {
+    try
+    {
+      if (Match(TokenFun)) statements.Add(Function(FunTypeFunction));
+      else if (Match(TokenClass)) statements.Add(ClassDeclaration());
+      else if (Match(TokenVar)) statements.Add(VarDeclaration());
+      else statements.Add(Statement());
+    }
+    catch (EleuParseError)
+    {
+      if (options.OnlyFirstError) throw;
+      Synchronize();
+    }
+  }
   private Stmt Statement()
   {
 
@@ -50,6 +64,7 @@ internal class AstParser
     var curStat = CurrentInputStatus;
 
     if (Match(TokenAssert)) stmt = AssertStatement();
+   //TODO else if (Match(TokenVar)) stmt = VarDeclaration();
     else if (Match(TokenLeftBrace)) stmt = new Stmt.Block(Block());
     else if (Match(TokenFor)) stmt = ForStatement();
     else if (Match(TokenIf)) stmt = IfStatement();
@@ -61,6 +76,18 @@ internal class AstParser
     stmt.Status = curStat.Union(Previous.Status);
     return stmt;
   }
+
+  //private Stmt SafeStatement()
+  //{
+  //  Stmt stmt;
+  //  var curStat = CurrentInputStatus;
+
+  //  if (Match(TokenAssert)) stmt = AssertStatement();
+  //  else if (Match(TokenLeftBrace)) stmt = new Stmt.Block(Block());
+  //  else if (Match(TokenFor)) stmt = ForStatement();
+  //  else if (Match(TokenIf)) stmt = IfStatement();
+  //}
+
   private Stmt ForStatement()
   {
     Consume(TokenLeftParen, "Nach 'for' wird '(' erwartet.");
@@ -226,21 +253,7 @@ internal class AstParser
     expr.Status = curStat.Union(CurrentInputStatus);
     return expr;
   }
-  private void Declaration(List<Stmt> statements)
-  {
-    try
-    {
-      if (Match(TokenFun)) statements.Add(Function(FunTypeFunction));
-      else if (Match(TokenClass)) statements.Add(ClassDeclaration());
-      else if (Match(TokenVar)) statements.Add(VarDeclaration());
-      else statements.Add(Statement());
-    }
-    catch (EleuParseError)
-    {
-      if (options.OnlyFirstError) throw;
-      Synchronize();
-    }
-  }
+
   private Stmt ClassDeclaration()
   {
     var curStat = Previous.Status;
@@ -389,17 +402,6 @@ internal class AstParser
   }
   private Expr Primary()
   {
-    if (Match(TokenFalse)) return FalseLiteral;
-    if (Match(TokenTrue)) return TrueLiteral;
-    if (Match(TokenNil)) return NilLiteral;
-    if (Match(TokenNumber))
-    {
-      return new Expr.Literal(Number.TryParse(Previous.StringValue));
-    }
-    if (Match(TokenString))
-    {
-      return new Expr.Literal(Previous.StringStringValue);
-    }
     if (Match(TokenSuper))
     {
       Token keyword = Previous;
@@ -418,7 +420,43 @@ internal class AstParser
       Consume(TokenRightParen, "Expect ')' after expression.");
       return new Expr.Grouping(expr);
     }
+    return Literal();
+  }
+
+  private Expr.Literal Literal()
+  {
+    if (Match(TokenFalse)) return FalseLiteral;
+    if (Match(TokenTrue)) return TrueLiteral;
+    if (Match(TokenNil)) return NilLiteral;
+    if (Match(TokenNumber))
+    {
+      return new Expr.Literal(Number.TryParse(Previous.StringValue));
+    }
+    if (Match(TokenString))
+    {
+      return new Expr.Literal(Previous.StringStringValue);
+    }
+    if (Match(TokenLeftBracket))
+    {
+      return ListLiteral();
+    }
+    //throw CreateError(Previous.Status, "Hier wird erwartet: eine Zahl, ein String, eine Liste oder nil, true, false");
     throw CreateError(Previous.Status, "Hier wird ein Ausdruck erwartet.");
+  }
+  private Expr.Literal ListLiteral()
+  {
+    EleuList arguments = new();
+    if (!Check(TokenRightBracket))
+    {
+      do
+      {
+        var l = Literal();
+        if (l.Value == null) throw CreateError(Previous.Status, "internal: null added to list");
+        arguments.Add(l.Value);
+      } while (Match(TokenComma));
+    }
+    Consume(TokenRightParen, "Am Ende einer Liste wird ']' erwartet.");
+    return new(arguments);
   }
   private bool Match(params TokenType[] types)
   {

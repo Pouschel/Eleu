@@ -1,6 +1,4 @@
-﻿using Eleu.Interpret;
-
-namespace Eleu.Types;
+﻿namespace Eleu.Types;
 
 
 class EleuInstance

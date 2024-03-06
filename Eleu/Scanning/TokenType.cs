@@ -3,9 +3,9 @@
 public enum TokenType
 {
 	// Single-character tokens.
-	TokenLeftParen, TokenRightParen,
-	TokenLeftBrace, TokenRightBrace,
-	TokenLeftBracket, TokenRightBracket,
+	TokenLeftParen, TokenRightParen, // ()
+	TokenLeftBrace, TokenRightBrace, // {}
+	TokenLeftBracket, TokenRightBracket, //[]
 	TokenComma, TokenSemicolon,
 	TokenDot, TokenMinus, TokenPlus,
 	TokenSlash, TokenStar,
