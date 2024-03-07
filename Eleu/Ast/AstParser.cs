@@ -64,7 +64,7 @@ internal class AstParser
     var curStat = CurrentInputStatus;
 
     if (Match(TokenAssert)) stmt = AssertStatement();
-   //TODO else if (Match(TokenVar)) stmt = VarDeclaration();
+    //TODO else if (Match(TokenVar)) stmt = VarDeclaration();
     else if (Match(TokenLeftBrace)) stmt = new Stmt.Block(Block());
     else if (Match(TokenFor)) stmt = ForStatement();
     else if (Match(TokenIf)) stmt = IfStatement();
@@ -76,17 +76,6 @@ internal class AstParser
     stmt.Status = curStat.Union(Previous.Status);
     return stmt;
   }
-
-  //private Stmt SafeStatement()
-  //{
-  //  Stmt stmt;
-  //  var curStat = CurrentInputStatus;
-
-  //  if (Match(TokenAssert)) stmt = AssertStatement();
-  //  else if (Match(TokenLeftBrace)) stmt = new Stmt.Block(Block());
-  //  else if (Match(TokenFor)) stmt = ForStatement();
-  //  else if (Match(TokenIf)) stmt = IfStatement();
-  //}
 
   private Stmt ForStatement()
   {
@@ -106,29 +95,43 @@ internal class AstParser
     Consume(TokenSemicolon, "Expect ';' after loop condition.");
     Expr? increment = null;
     if (!Check(TokenRightParen))
-    {
       increment = Expression();
-    }
     Consume(TokenRightParen, "Expect ')' after for clauses.");
+    CheckIllegalContinuation(Peek, TokenVar, TokenFun, TokenClass);
     Stmt body = Statement();
     condition ??= new Expr.Literal(true);
     body = new Stmt.While(condition, body, increment);
     if (initializer != null)
-    {
-      body = new Stmt.Block(new() { initializer, body });
-    }
+      body = new Stmt.Block([initializer, body]);
     return body;
   }
-  private Stmt IfStatement()
+
+  bool CheckContinuation(Token tok, params TokenType[] types)
+  {
+    foreach (var tt in types)
+    {
+      if (tt == tok.Type) return true;
+    }
+    return false;
+  }
+
+  void CheckIllegalContinuation(Token tok, params TokenType[] illegalTokenTypes)
+  {
+    if (CheckContinuation(tok, illegalTokenTypes))
+      throw CreateError(tok.Status, $"'{tok.StringValue}' ist hier nicht erlaubt.");
+  }
+  private Stmt.If IfStatement()
   {
     Consume(TokenLeftParen, "Nach 'if' wird '(' erwartet.");
     Expr condition = Expression();
     Consume(TokenRightParen, "Nach der 'if'-Bedingung wird ')' erwartet.", condition.Status);
+    CheckIllegalContinuation(Peek, TokenVar, TokenFun, TokenClass);
 
     Stmt thenBranch = Statement();
     Stmt? elseBranch = null;
     if (Match(TokenElse))
     {
+      CheckIllegalContinuation(Peek, TokenVar, TokenFun, TokenClass);
       elseBranch = Statement();
     }
     return new Stmt.If(condition, thenBranch, elseBranch);
@@ -294,6 +297,7 @@ internal class AstParser
     Consume(TokenLeftParen, "Nach 'while' wird '(' erwartet.");
     Expr condition = Expression();
     Consume(TokenRightParen, "Nach der 'while'-Bedingung wird ')' erwartet.", condition.Status);
+    CheckIllegalContinuation(Peek, TokenVar, TokenFun, TokenClass);
     Stmt body = Statement();
     return new Stmt.While(condition, body, null);
   }
@@ -420,10 +424,11 @@ internal class AstParser
       Consume(TokenRightParen, "Expect ')' after expression.");
       return new Expr.Grouping(expr);
     }
-    return Literal();
+    var lit = Literal();
+    return lit == null ? throw CreateError(Previous.Status, "Hier wird ein Ausdruck erwartet.") : (Expr)lit;
   }
 
-  private Expr.Literal Literal()
+  private Expr.Literal? Literal()
   {
     if (Match(TokenFalse)) return FalseLiteral;
     if (Match(TokenTrue)) return TrueLiteral;
@@ -440,8 +445,7 @@ internal class AstParser
     {
       return ListLiteral();
     }
-    //throw CreateError(Previous.Status, "Hier wird erwartet: eine Zahl, ein String, eine Liste oder nil, true, false");
-    throw CreateError(Previous.Status, "Hier wird ein Ausdruck erwartet.");
+    return null;
   }
   private Expr.Literal ListLiteral()
   {
@@ -450,7 +454,7 @@ internal class AstParser
     {
       do
       {
-        var l = Literal();
+        var l = Literal() ?? throw CreateError(Previous.Status, "Hier wird erwartet: eine Zahl, ein String, eine Liste oder nil, true, false.");
         if (l.Value == null) throw CreateError(Previous.Status, "internal: null added to list");
         arguments.Add(l.Value);
       } while (Match(TokenComma));
