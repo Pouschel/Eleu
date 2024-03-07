@@ -126,7 +126,8 @@ internal class AstParser
     Expr condition = Expression();
     Consume(TokenRightParen, "Nach der 'if'-Bedingung wird ')' erwartet.", condition.Status);
     CheckIllegalContinuation(Peek, TokenVar, TokenFun, TokenClass);
-
+    if (CheckContinuation(Peek, TokenSemicolon))
+      throw CreateError(Peek.Status, "Ein Semikolon direkt hinter einen if ist nicht erlaubt.");
     Stmt thenBranch = Statement();
     Stmt? elseBranch = null;
     if (Match(TokenElse))
