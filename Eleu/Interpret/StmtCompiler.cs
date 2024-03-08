@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Eleu.Types;
 
 namespace Eleu.Interpret;
 
@@ -81,6 +82,17 @@ internal class StmtCompiler : Expr.Visitor<object>, Stmt.Visitor<object>
   public object VisitLiteralExpr(Expr.Literal expr)
   {
     var value = expr.Value ?? NilValue;
+    if (value is EleuList l)
+    {
+      throw new NotImplementedException();
+      var lres = new EleuList();
+
+      foreach (Expr itemExpr in l)
+      {
+        itemExpr.Accept(this);
+
+      }
+    }
     return Emit(new PushInstruction(value, expr.Status));
   }
   public object VisitLogicalExpr(Expr.Logical expr)

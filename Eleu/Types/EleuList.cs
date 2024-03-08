@@ -2,7 +2,7 @@
 
 namespace Eleu.Types;
 
-internal class EleuList: IEnumerable<object>
+internal class EleuList : IEnumerable<object>
 {
   List<object> data = [];
 
@@ -14,4 +14,5 @@ internal class EleuList: IEnumerable<object>
   internal void Add(object value) => data.Add(value);
   IEnumerator IEnumerable.GetEnumerator() => data.GetEnumerator();
 
+  public object this[int index] { get => data[index]; set => data[index] = value; }
 }

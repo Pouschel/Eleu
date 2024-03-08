@@ -2,7 +2,7 @@
   "profiles": {
     "Benchmark": {
       "commandName": "Project",
-      "commandLineArgs": "-benchmark C:\\Code\\OwnApps\\EleuStudio\\EleuSrc\\Benchmarks"
+      "commandLineArgs": "-vm -benchmark C:\\Code\\OwnApps\\EleuStudio\\EleuSrc\\Benchmarks"
     },
     "TestsVm": {
       "commandName": "Project",
@@ -16,9 +16,13 @@
       "commandName": "Project",
       "commandLineArgs": "-test c:\\Sync\\_Schule\\_Info\\10\\2-Programmieren C:\\Code\\OwnApps\\EleuStudio\\EleuSrc\\Examples\\Ex1.eleu"
     },
-    "SingleFile": {
+    "SingleFileAst": {
       "commandName": "Project",
       "commandLineArgs": "C:\\Code\\OwnApps\\EleuStudio\\EleuSrc\\Examples\\Ex1.eleu"
+    },
+    "SingleFileVm": {
+      "commandName": "Project",
+      "commandLineArgs": "-vm C:\\Code\\OwnApps\\EleuStudio\\EleuSrc\\Examples\\Ex1.eleu"
     }
   }
 }
