@@ -455,12 +455,11 @@ internal class AstParser
     {
       do
       {
-        var l = Literal() ?? throw CreateError(Previous.Status, "Hier wird erwartet: eine Zahl, ein String, eine Liste oder nil, true, false.");
-        if (l.Value == null) throw CreateError(Previous.Status, "internal: null added to list");
-        arguments.Add(l.Value);
+        var l = Expression() ?? throw CreateError(Previous.Status, "Hier wird ein Ausdruck erwartet.");
+        arguments.Add(l);
       } while (Match(TokenComma));
     }
-    Consume(TokenRightParen, "Am Ende einer Liste wird ']' erwartet.");
+    Consume(TokenRightBracket, "Am Ende einer Liste wird ']' erwartet.");
     return new(arguments);
   }
   private bool Match(params TokenType[] types)
