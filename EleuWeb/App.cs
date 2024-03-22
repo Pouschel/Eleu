@@ -1,7 +1,6 @@
 ﻿//https://learn.microsoft.com/en-us/aspnet/core/client-side/dotnet-interop?view=aspnetcore-7.0
 
 using Eleu.LangServer;
-using Eleu.Puzzles;
 using EleuStudio;
 
 class App
@@ -34,7 +33,7 @@ class App
 
     Ui.EnableButtons();
     Ui.SetModeLoaded();
-    BrowserApp.SetProperty("title", "innerText", $"EleuStudio {EleuLanguageServer.Version}");
+    SetProperty("title", "innerText", $"EleuStudio {EleuLanguageServer.Version}");
     SetTimeout(AutoSave, 10_000);
   }
 
@@ -43,7 +42,7 @@ class App
     try
     {
       var otext = LocalStoragGet("options");
-      Options = Statics.JsonLoadString<OptionsModel>(otext);
+      Options = JsonLoadString<OptionsModel>(otext);
       Options.Puzzle.Text = LocalStoragGet("puzzle");
     }
     catch (Exception ex)

@@ -1,15 +1,14 @@
-﻿using System.Data.SqlTypes;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Globalization;
 using System.IO;
-using System.Reflection.Metadata;
 using System.Text;
 using Eleu.Puzzles;
 using EleuWeb.Html;
 
 class PuzzleHtmlCreator
 {
-  StringWriter sw = new(), swc = new();
+  private readonly StringWriter sw = new();
+  private StringWriter swc = new();
   Puzzle? puzz;
   Puzzle puzzle => puzz!;
   HElement canvDiv, canvas, puzzDisplayDiv;
