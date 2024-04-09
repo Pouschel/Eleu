@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Runtime.InteropServices;
+using System.Text;
 using Eleu.Types;
 
 namespace Eleu.Interpret;
@@ -79,19 +80,20 @@ internal class StmtCompiler : Expr.Visitor<object>, Stmt.Visitor<object>
   }
 
   public object VisitGroupingExpr(Expr.Grouping expr) => expr.Expression.Accept(this);
+
+  static readonly NativeFunction newListFunction = new("@newList", args => new EleuList(args));
+
   public object VisitLiteralExpr(Expr.Literal expr)
   {
     var value = expr.Value ?? NilValue;
     if (value is EleuList l)
     {
-      throw new NotImplementedException();
-      var lres = new EleuList();
-
       foreach (Expr itemExpr in l)
       {
         itemExpr.Accept(this);
-
       }
+      Emit(new PushInstruction(newListFunction,expr.Status));
+      return Emit(new CallInstruction(l.Len, expr.Status));
     }
     return Emit(new PushInstruction(value, expr.Status));
   }

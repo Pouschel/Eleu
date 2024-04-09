@@ -307,4 +307,6 @@ public class NativeFunctions : NativeFunctionBase
     // no exceptione
     throw new EleuNativeError("Runtime errror expected: $s");
   }
+
+  object _newList(object[] args) => new EleuList(args);
 }

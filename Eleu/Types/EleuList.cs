@@ -4,10 +4,14 @@ namespace Eleu.Types;
 
 internal class EleuList : IEnumerable<object>
 {
-  List<object> data = [];
+  readonly List<object> data = [];
 
   public EleuList()
   {
+  }  
+  public EleuList(params object[] data): this()
+  {
+    this.data.AddRange(data);
   }
   public int Len => data.Count;
   public IEnumerator<object> GetEnumerator() => data.GetEnumerator();
