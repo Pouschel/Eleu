@@ -1,19 +1,13 @@
 ﻿using Eleu.Types;
 namespace Eleu.Ast;
 
-internal class AstParser
+internal class AstParser(EleuOptions options, List<Token> tokens)
 {
-  private static Expr.Literal NilLiteral = new(NilValue),
-    TrueLiteral = new(true), FalseLiteral = new(false);
-  private List<Token> tokens;
+  private static readonly Expr.Literal NilLiteral = new(NilValue);
+  private static readonly Expr.Literal TrueLiteral = new(true);
+  private static readonly Expr.Literal FalseLiteral = new(false);
   private int current = 0;
-  private EleuOptions options;
   public int ErrorCount { get; private set; }
-  public AstParser(EleuOptions options, List<Token> tokens)
-  {
-    this.tokens = tokens;
-    this.options = options;
-  }
 
   public List<Stmt> Parse()
   {
@@ -23,13 +17,12 @@ internal class AstParser
     }
     catch (EleuParseError)
     {
-      return new();
+      return [];
     }
   }
-
   List<Stmt> DoParse()
   {
-    List<Stmt> statements = new();
+    List<Stmt> statements = [];
     while (!IsAtEnd())
     {
       Declaration(statements);
@@ -40,7 +33,6 @@ internal class AstParser
     }
     return statements;
   }
-
   InputStatus CurrentInputStatus => Peek.Status;
   private void Declaration(List<Stmt> statements)
   {
@@ -59,7 +51,6 @@ internal class AstParser
   }
   private Stmt Statement()
   {
-
     Stmt stmt;
     var curStat = CurrentInputStatus;
 
@@ -76,7 +67,6 @@ internal class AstParser
     stmt.Status = curStat.Union(Previous.Status);
     return stmt;
   }
-
   private Stmt ForStatement()
   {
     Consume(TokenLeftParen, "Nach 'for' wird '(' erwartet.");
@@ -139,7 +129,7 @@ internal class AstParser
     }
     return new Stmt.If(condition, thenBranch, elseBranch);
   }
-  private Stmt AssertStatement()
+  private Stmt.Assert AssertStatement()
   {
     string? msg = null;
     bool isErrorAssert = Check(TokenBreak);
@@ -151,7 +141,7 @@ internal class AstParser
     return new Stmt.Assert(value, msg, isErrorAssert);
   }
 
-  private Stmt ReturnStatement()
+  private Stmt.Return ReturnStatement()
   {
     Token keyword = Previous;
     Expr? value = null;
@@ -170,7 +160,7 @@ internal class AstParser
     return new Stmt.BreakContinue(isBreak);
   }
 
-  private Stmt ExpressionStatement()
+  private Stmt.Expression ExpressionStatement()
   {
     if (Match(TokenSemicolon))
       return new Stmt.Expression(NilLiteral);
@@ -260,7 +250,7 @@ internal class AstParser
     return expr;
   }
 
-  private Stmt ClassDeclaration()
+  private Stmt.Class ClassDeclaration()
   {
     var curStat = Previous.Status;
     Token name = Consume(TokenIdentifier, "Expect class name.");
@@ -280,7 +270,7 @@ internal class AstParser
     Consume(TokenRightBrace, "Expect '}' after class body.");
     return new Stmt.Class(name.StringValue, superclass, methods) { Status = curStat };
   }
-  private Stmt VarDeclaration()
+  private Stmt.Var VarDeclaration()
   {
     var cs = CurrentInputStatus;
     if (Peek.Type >= TokenKeywordStart && Peek.Type <= TokenKeywordEnd)
@@ -295,7 +285,7 @@ internal class AstParser
     Consume(TokenSemicolon, "Nach einer Variablendeklaration wird ';' erwartet.");
     return new Stmt.Var(name.StringValue, initializer) { Status = cs };
   }
-  private Stmt WhileStatement()
+  private Stmt.While WhileStatement()
   {
     Consume(TokenLeftParen, "Nach 'while' wird '(' erwartet.");
     Expr condition = Expression();
@@ -393,7 +383,7 @@ internal class AstParser
     }
     return expr;
   }
-  private Expr FinishCall(Expr callee, string? mthName)
+  private Expr.Call FinishCall(Expr callee, string? mthName)
   {
     List<Expr> arguments = new();
     if (!Check(TokenRightParen))
