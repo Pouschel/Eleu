@@ -6,5 +6,5 @@ C:\Code\Eleu\EleuWeb\index.html
 $out\index.html 
 C:\Code\Eleu\EleuWeb\main.js
 $out\main.js
-C:\Code\OwnApps\EleuStudio\EleuStudio\Doc\*.html
-$out\assets
+C:\Sync\Public\EleuWeb\kurs\*.html
+$out\kurs
