@@ -98,6 +98,8 @@ internal class AstParser
       increment = Expression();
     Consume(TokenRightParen, "Expect ')' after for clauses.");
     CheckIllegalContinuation(Peek, TokenVar, TokenFun, TokenClass);
+    if (CheckContinuation(Peek, TokenSemicolon))
+      throw CreateError(Peek.Status, "Ein Semikolon direkt hinter einen for ist nicht erlaubt.");
     Stmt body = Statement();
     condition ??= new Expr.Literal(true);
     body = new Stmt.While(condition, body, increment);
@@ -298,6 +300,8 @@ internal class AstParser
     Consume(TokenLeftParen, "Nach 'while' wird '(' erwartet.");
     Expr condition = Expression();
     Consume(TokenRightParen, "Nach der 'while'-Bedingung wird ')' erwartet.", condition.Status);
+    if (CheckContinuation(Peek, TokenSemicolon))
+      throw CreateError(Peek.Status, "Ein Semikolon direkt hinter einen while ist nicht erlaubt.");
     CheckIllegalContinuation(Peek, TokenVar, TokenFun, TokenClass);
     Stmt body = Statement();
     return new Stmt.While(condition, body, null);
@@ -307,10 +311,11 @@ internal class AstParser
     Consume(TokenLeftParen, "Nach 'repeat' wird '(' erwartet.");
     Expr numExpr = Expression();
     Consume(TokenRightParen, "Nach der Anzahl wird ')' erwartet.", numExpr.Status);
+    if (CheckContinuation(Peek, TokenSemicolon))
+      throw CreateError(Peek.Status, "Ein Semikolon direkt hinter einen repeat ist nicht erlaubt.");
     Stmt body = Statement();
     return new Stmt.Repeat(numExpr, body);
   }
-
   private Expr Equality()
   {
     Expr expr = Comparison();

@@ -176,6 +176,7 @@ class Program
 		Console.WriteLine($"Start Testing dir: {dir}");
 		var watch = Stopwatch.StartNew();
 		RunActionInDirParallel(dir, TestFile);
+		//RunActionInDir(dir, TestFile);
 
 		Console.WriteLine();
 		Console.WriteLine("---- Test Results ---");

@@ -263,7 +263,6 @@ internal class Resolver : Expr.Visitor<object?>, Stmt.Visitor<object?>
 	{
 		Resolve(stmt.Condition);
 		loopLevel++;
-		CheckEmptyBody(stmt.Body);
 		Resolve(stmt.Body);
 		Resolve(stmt.Increment);
 		loopLevel--;
@@ -273,24 +272,9 @@ internal class Resolver : Expr.Visitor<object?>, Stmt.Visitor<object?>
 	{
 		Resolve(stmt.Count);
 		loopLevel++;
-		CheckEmptyBody(stmt.Body);
 		Resolve(stmt.Body);
 		loopLevel--;
 		return null;
-	}
-
-	public static bool IsEmptyBody(Stmt body)
-	{
-		if (body is not Stmt.Expression se) return false;
-		if (se.expression is not Expr.Literal lit) return false;
-		if (lit.Value is null || lit.Value == NilValue)
-			return true;
-		return false;
-	}
-	void CheckEmptyBody(Stmt body)
-	{
-		if (IsEmptyBody(body))
-		  Error(body.Status, "Eine Anweisung oder { wurde erwartet.");
 	}
 	public object? VisitAssertStmt(Stmt.Assert stmt) => Resolve(stmt.expression);
 	public object? VisitBreakContinueStmt(Stmt.BreakContinue stmt)
