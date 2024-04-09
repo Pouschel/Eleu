@@ -213,9 +213,11 @@ public class NativeFunctions : NativeFunctionBase
       throw new EleuNativeError($"Der Index {idx} liegt außerhalb des Strings.");
     return s[idx].ToString();
   }
-  private static object listAt(object[] args)
+  private static object at(object[] args)
   {
     CheckArgLen(args, 2);
+    var a0 = args[0];
+    if (a0 is string) return charAt(args);
     var l = CheckArgType<EleuList>(0, args);
     var idx = CheckIntArg(1, args);
     if (idx < 0 || idx >= l.Len)
