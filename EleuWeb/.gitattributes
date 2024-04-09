@@ -1,0 +1,3 @@
+
+# avoid counting in git language statistics
+ace/** linguist-vendored
