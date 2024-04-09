@@ -224,6 +224,28 @@ public class NativeFunctions : NativeFunctionBase
       throw new EleuNativeError($"Der Index {idx} liegt außerhalb der Liste.");
     return l[idx];
   }
+
+  private static object setAt(object[] args)
+  {
+    CheckArgLen(args, 3);
+    var l = CheckArgType<EleuList>(0, args);
+    var idx = CheckIntArg(1, args);
+    var val = args[2];
+    if (idx < 0)
+      throw new EleuNativeError($"Der Index {idx} liegt außerhalb der Liste.");
+    if (idx < l.Len) l[idx] = val;
+    else if (idx == l.Len) l.Add(val);
+    else
+    {
+      for (int i = 0; i < idx - l.Len; i++)
+      {
+        l.Add(NilValue);
+      }
+      l.Add(val);
+    }
+    return l[idx];
+  }
+
   private static object substr(object[] args)
   {
     CheckArgLen(args, 2, 3);
