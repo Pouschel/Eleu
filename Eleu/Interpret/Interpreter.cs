@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Text;
 using Eleu.Puzzles;
 using Eleu.Types;
 
@@ -26,6 +27,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
   readonly List<object> valueStack = new();
   public int InstructionCount = 0;
   public int FrameTimeMs { get; set; }
+  private bool doDumpVm = false;
   internal void NotifyPuzzleChange(Puzzle? newPuzzle, float animateState)
   {
     PuzzleStateChanged?.Invoke(newPuzzle);
@@ -109,6 +111,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
   }
   public EEleuResult Start()
   {
+    doDumpVm = !string.IsNullOrEmpty(options.DumpFileName);
     EEleuResult result = EEleuResult.RuntimeError;
     try
     {
@@ -116,7 +119,11 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
       Resolve();
       ExecutedInstructionCount = 0;
       var chunk = new StmtCompiler().Compile(this.statements);
-
+      if (doDumpVm)
+      {
+        if (File.Exists(options.DumpFileName)) File.Delete(options.DumpFileName);
+        File.AppendAllText(options.DumpFileName, $"[global]\n\n{chunk}");
+      }
       frame = new CallFrame(chunk);
       return EEleuResult.NextStep;
     }
@@ -139,6 +146,20 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
       // leave current chunk function
       leaveFrame();
       return EEleuResult.NextStep;
+    }
+    if (doDumpVm)
+    {
+      var sb = new StringBuilder();
+      foreach (var item in valueStack.Take(10))
+      {
+        var s = item.ToString()!;
+        if (s.Length > 10) s = s[..10] + "...";
+        s = s.Replace('\n', '\t');
+        s = s.Replace('\r', '\t');
+        sb.Append(' ');
+        sb.Append(s);
+      }
+      File.AppendAllText(options.DumpFileName,$"{ins,-20} | {sb}\n");
     }
     return ExecuteInstruction(ins!);
   }

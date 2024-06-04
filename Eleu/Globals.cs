@@ -63,12 +63,13 @@ public class Globals
     if (res != Ok) return res;
     return vm!.Interpret(useVm);
   }
-  public static bool RunFile(string path, TextWriter tw, bool useVm = false)
+  public static bool RunFile(string path, TextWriter tw, bool useVm = false, string dumpFile = "")
   {
     var opt = new EleuOptions()
     {
       Out = tw,
       Err = tw,
+      DumpFileName = dumpFile,
     };
     var result = CompileAndRunAst(path, opt, useVm);
     return result == Ok;

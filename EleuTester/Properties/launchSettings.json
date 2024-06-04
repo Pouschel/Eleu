@@ -22,7 +22,7 @@
     },
     "SingleFileVm": {
       "commandName": "Project",
-      "commandLineArgs": "-vm C:\\Code\\OwnApps\\EleuStudio\\EleuSrc\\Examples\\Ex1.eleu"
+      "commandLineArgs": "-dump c:\\temp\\eleu.log -vm C:\\Code\\OwnApps\\EleuStudio\\EleuSrc\\Examples\\Ex1.eleu"
     }
   }
 }

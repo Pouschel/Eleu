@@ -216,12 +216,14 @@ class Program
 		Console.WriteLine("Eleu Tester v2");
 		Console.WriteLine(
 @"Arguments: 
--vm                           use bytecode vm
+-vm                        use vm
 -test TestDir [FileToExecute] 
--benchmark BenchmarkDir");
+-benchmark BenchmarkDir
+-dump file         Dump code execution to log file:");
+
 		if (args.Length < 1) return;
 		var prog = new Program();
-		string file = "";
+		string file = "", dumpFile="";
 		for (int i = 0; i < args.Length; i++)
 		{
 			var arg = args[i];
@@ -238,14 +240,16 @@ class Program
 						prog.RunBenchmarks(args[++i]);
 						continue;
 					}
-				default: file = arg; break;
-
+				case "-dump":
+					dumpFile = args[++i];
+					break;
+        default: file = arg; break;
 			}
 		}
 		if (!string.IsNullOrEmpty(file))
 		{
 			Console.WriteLine($"Running file: {file}");
-			Globals.RunFile(file, Console.Out, prog.useVm);
+			Globals.RunFile(file, Console.Out, prog.useVm, dumpFile);
 		}
 		Console.WriteLine("Finished!");
 		//Console.ReadLine();
