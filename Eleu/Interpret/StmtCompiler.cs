@@ -226,8 +226,8 @@ internal class StmtCompiler : Expr.Visitor<object>, Stmt.Visitor<object>
     { offset = loopStart };
     Emit(jsi);
     exitJump.offset = chunk.Count;
-    //Emit(new PopInstruction(stmt.Condition.Status));
-    PatchBreakContinues(exitJump.offset, incrementOfs);
+    Emit(new PopInstruction(stmt.Condition.Status));
+    PatchBreakContinues(chunk.Count, incrementOfs);
     breakContinues = oldBreaks;
     return nothing;
   }

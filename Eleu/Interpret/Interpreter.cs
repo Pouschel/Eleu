@@ -77,7 +77,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
       var res = Start();
       while (res == EEleuResult.NextStep)
       {
-        res = step();
+        res = Step();
       }
       return res;
     }
@@ -137,7 +137,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
     }
     return result;
   }
-  public EEleuResult step()
+  public EEleuResult Step()
   {
     var ins = frame!.nextInstruction();
     if (ins == null)
@@ -145,12 +145,12 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
       if (frame.next == null) return EEleuResult.Ok;
       // leave current chunk function
       leaveFrame();
-      return EEleuResult.NextStep;
+      return NextStep;
     }
     if (doDumpVm)
     {
       var sb = new StringBuilder();
-      foreach (var item in valueStack.Take(10))
+      foreach (var item in valueStack.Take(10).Reverse())
       {
         var s = item.ToString()!;
         if (s.Length > 10) s = s[..10] + "...";

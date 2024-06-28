@@ -37,7 +37,7 @@ record PopInstruction(InputStatus stat) : Instruction(stat)
   {
     vm.pop();
   }
-  public override String ToString() => "pop";
+  public override string ToString() => "pop";
 }
 
 record CallInstruction(int nArgs, InputStatus status) : Instruction(status)
@@ -102,7 +102,7 @@ record CallInstruction(int nArgs, InputStatus status) : Instruction(status)
   }
 
 
-  public override String ToString() => $"call/{nArgs}";
+  public override string ToString() => $"call/{nArgs}";
 }
 
 record LookupVarInstruction(string name, int distance, InputStatus status) : Instruction(status)
@@ -114,7 +114,7 @@ record LookupVarInstruction(string name, int distance, InputStatus status) : Ins
     vm.push(value);
   }
 
-  public override String ToString() => $"get_value '{name}' at dist {distance}";
+  public override string ToString() => $"get_value@{distance} '{name}'";
 }
 
 record AssignInstruction(string name, int distance, InputStatus status) : Instruction(status)
@@ -126,7 +126,7 @@ record AssignInstruction(string name, int distance, InputStatus status) : Instru
     vm.assignAtDistance(name, distance, value);
   }
 
-  public override String ToString() => $"assign {name} at dist {distance}";
+  public override string ToString() => $"assign@{distance} {name}";
 }
 
 
@@ -155,7 +155,7 @@ record BinaryOpInstruction(TokenType op, InputStatus status) : Instruction(statu
     };
     vm.push(result);
   }
-  public override String ToString() => $"op {op}";
+  public override string ToString() => $"op {op}";
 }
 
 record GetInstruction(string name, InputStatus status) : Instruction(status)
@@ -283,7 +283,7 @@ record ScopeInstruction(bool begin) : Instruction(InputStatus.Empty)
       vm.leaveEnv();
   }
 
-  public override String ToString() => begin ? "enter_scope" : "leave_scope";
+  public override string ToString() => begin ? "enter_scope" : "leave_scope";
 }
 
 record VarDefInstruction(string name, InputStatus status1) : Instruction(status1)

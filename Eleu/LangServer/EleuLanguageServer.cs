@@ -235,7 +235,7 @@ public class EleuLanguageServer : IDisposable
     var interp = interpreter!;
     for (var i = 0; i < maxSteps && lastResult == EEleuResult.NextStep; i++)
     {
-      lastResult = interp.step();
+      lastResult = interp.Step();
       if (_outStateChanged) break;
     }
     if (lastResult == EEleuResult.Ok)
