@@ -209,7 +209,6 @@ class Program
 		lines.Add($"            Total : {total,6:##,###.##} s");
 		File.AppendAllLines(Path.Combine(dir, "_Results.txt"), lines);
 	}
-
 	public static void Main(string[] args)
 	{
 		//CliTest.Test(); return;
