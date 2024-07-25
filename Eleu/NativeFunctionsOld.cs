@@ -15,13 +15,6 @@ class NativeFunctionsOld
 		vm.DefineNative("invoke", Invoke);
 		vm.DefineNative("len", Len);
 	}
-
-	object RuntimeErrorWithNil(string msg)
-	{
-		vm.RuntimeError(msg);
-		return NilValue;
-	}
-
 	public object Clock(object[] _)
 	{
 		return DateTime.Now.Ticks / 10000000.0;
@@ -29,10 +22,10 @@ class NativeFunctionsOld
 
 	public object Len(object[] args)
 	{
-		if (args.Length != 1) return RuntimeErrorWithNil("len must have 1 argument");
+		if (args.Length != 1) throw vm.Error("len must have 1 argument");
 		var arg = args[0];
 		if (arg is string s) return (double)s.Length;
-		return RuntimeErrorWithNil($"{arg} has no length");
+    throw vm.Error($"{arg} has no length");
 	}
 
 	static Type FindType(string name)

@@ -305,12 +305,12 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
     var callee = Evaluate(expr.Callee);
     if (callee is not ICallable function)
     {
-      RuntimeError("Can only call functions and classes."); return expr;
+      throw Error("Can only call functions and classes."); 
     }
     if (function is not NativeFunction && expr.Arguments.Count != function.Arity)
-      RuntimeError($"{function.Name} erwartet {function.Arity} Argumente, übergeben wurden aber {expr.Arguments.Count}.");
+      throw Error($"{function.Name} erwartet {function.Arity} Argumente, übergeben wurden aber {expr.Arguments.Count}.");
     if (callStack.Count >= MaxStackDepth)
-      RuntimeError("Zu viele verschachtelte Funktionsaufrufe.");
+      throw Error("Zu viele verschachtelte Funktionsaufrufe.");
     var arguments = new object[expr.Arguments.Count];
     for (int i = 0; i < expr.Arguments.Count; i++)
     {
@@ -594,19 +594,16 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
   {
     return stmt.IsBreak ? InterpretResult.BreakResult : InterpretResult.ContinueResult;
   }
-  public void RuntimeError(string msg) => throw new EleuRuntimeError(currentStatus, msg);
   public IEnumerable<VariableInfo> GetGlobalVariablesAndValues()
   {
     return globals.GetVariableInfos(null);
   }
-
   public List<CallStackInfo> GetCallStack()
   {
     var l = callStack.ToList();
     l.Reverse();
     return l;
   }
-
   public InterpretResult VisitRepeatStmt(Stmt.Repeat stmt)
   {
     var result = InterpretResult.NilResult;
