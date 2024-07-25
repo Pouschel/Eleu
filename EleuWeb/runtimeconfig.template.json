@@ -3,8 +3,8 @@
         "perHostConfig": [
             {
                 "name": "browser",
-                "html-path": "index.html",
-                "Host": "browser"
+                //"html-path": "index.html",
+                "host": "browser"
             }
         ]
     }

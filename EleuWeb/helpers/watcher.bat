@@ -1,1 +1,1 @@
-C:\Code\OwnApps\CopyWatcher\bin\Debug\net7.0\copyWatcher.exe 	C:\Code\Eleu\EleuWeb\helpers\watcher.txt C:\Code\Eleu\EleuWeb\bin\debug\net8.0\browser-wasm\AppBundle
+C:\Code\OwnApps\CopyWatcher\bin\Debug\net8.0\copyWatcher.exe 	C:\Code\Eleu\EleuWeb\helpers\watcher.txt C:\Code\Eleu\EleuWeb\bin\debug\net8.0\wwwroot
