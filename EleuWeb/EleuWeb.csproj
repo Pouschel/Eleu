@@ -1,9 +1,6 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk.WebAssembly">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <RuntimeIdentifier>browser-wasm</RuntimeIdentifier>
-    <WasmMainJSPath>main.js</WasmMainJSPath>
-    <OutputType>Exe</OutputType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<Nullable>enable</Nullable>
   </PropertyGroup>
@@ -14,5 +11,51 @@
   <ItemGroup>
     <WasmExtraFilesToDeploy Include="index.html" />
     <WasmExtraFilesToDeploy Include="main.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\ace\ace.js" />
+    <None Include="wwwroot\ace\ext-beautify.js" />
+    <None Include="wwwroot\ace\ext-code_lens.js" />
+    <None Include="wwwroot\ace\ext-elastic_tabstops_lite.js" />
+    <None Include="wwwroot\ace\ext-emmet.js" />
+    <None Include="wwwroot\ace\ext-error_marker.js" />
+    <None Include="wwwroot\ace\ext-keybinding_menu.js" />
+    <None Include="wwwroot\ace\ext-language_tools.js" />
+    <None Include="wwwroot\ace\ext-linking.js" />
+    <None Include="wwwroot\ace\ext-modelist.js" />
+    <None Include="wwwroot\ace\ext-options.js" />
+    <None Include="wwwroot\ace\ext-prompt.js" />
+    <None Include="wwwroot\ace\ext-rtl.js" />
+    <None Include="wwwroot\ace\ext-searchbox.js" />
+    <None Include="wwwroot\ace\ext-settings_menu.js" />
+    <None Include="wwwroot\ace\ext-spellcheck.js" />
+    <None Include="wwwroot\ace\ext-split.js" />
+    <None Include="wwwroot\ace\ext-static_highlight.js" />
+    <None Include="wwwroot\ace\ext-statusbar.js" />
+    <None Include="wwwroot\ace\ext-textarea.js" />
+    <None Include="wwwroot\ace\ext-themelist.js" />
+    <None Include="wwwroot\ace\ext-whitespace.js" />
+    <None Include="wwwroot\ace\keybinding-vscode.js" />
+    <None Include="wwwroot\ace\mode-eleu.js" />
+    <None Include="wwwroot\ace\mode-javascript.js" />
+    <None Include="wwwroot\ace\mode-json.js" />
+    <None Include="wwwroot\ace\mode-json5.js" />
+    <None Include="wwwroot\ace\theme-textmate.js" />
+    <None Include="wwwroot\ace\worker-javascript.js" />
+    <None Include="wwwroot\assets\app.css" />
+    <None Include="wwwroot\assets\app.js" />
+    <None Include="wwwroot\assets\BackToStart.png" />
+    <None Include="wwwroot\assets\bowl.png" />
+    <None Include="wwwroot\assets\Cat.png" />
+    <None Include="wwwroot\assets\EleuStudio.png" />
+    <None Include="wwwroot\assets\InputPuzzle.png" />
+    <None Include="wwwroot\assets\Mouse.png" />
+    <None Include="wwwroot\assets\Run.png" />
+    <None Include="wwwroot\assets\RunAllTests.png" />
+    <None Include="wwwroot\assets\Stop.png" />
+    <None Include="wwwroot\assets\Wall.png" />
+    <None Include="wwwroot\index.html" />
+    <None Include="wwwroot\main.js" />
   </ItemGroup>
 </Project>
