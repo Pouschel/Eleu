@@ -101,14 +101,28 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
     catch (EleuRuntimeError ex)
     {
       if (options.ThrowOnAssert && ex is EleuAssertionFail) throw;
-      var stat = ex.Status ?? currentStatus;
-      var msg = $"{stat.Message}: {ex.Message}";
-      options.Err.WriteLine(msg);
-      Trace.WriteLine(msg);
       result = EEleuResult.RuntimeError;
+      RuntimeExHandler(ex);
     }
     return result;
   }
+
+  private void RuntimeExHandler(EleuRuntimeError ex)
+  {
+    var stat = ex.Status ?? currentStatus;
+    var msg = $"{stat.Message}: {ex.Message}";
+    options.Err.WriteLine(msg);
+    Trace.WriteLine(msg);
+    if (!options.DumpStackOnError) return;
+    var stack = GetCallStack();
+    if (stack.Count == 0) return;
+    options.Err.WriteLine("Aufgerufene Funktionen:");
+    foreach (var se in stack)
+    {
+      options.Err.WriteLine(se);
+    }
+  }
+
   public EEleuResult Start()
   {
     doDumpVm = !string.IsNullOrEmpty(options.DumpFileName);
@@ -130,10 +144,8 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
     catch (EleuRuntimeError ex)
     {
       if (options.ThrowOnAssert && ex is EleuAssertionFail) throw;
-      var stat = ex.Status ?? currentStatus;
-      var msg = $"{stat.Message}: {ex.Message}";
-      options.Err.WriteLine(msg);
       result = EEleuResult.RuntimeError;
+      RuntimeExHandler(ex);
     }
     return result;
   }
@@ -144,7 +156,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
     {
       if (frame.next == null) return EEleuResult.Ok;
       // leave current chunk function
-      leaveFrame();
+      LeaveFrame();
       return NextStep;
     }
     if (doDumpVm)
@@ -159,7 +171,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
         sb.Append(' ');
         sb.Append(s);
       }
-      File.AppendAllText(options.DumpFileName,$"{ins,-20} | {sb}\n");
+      File.AppendAllText(options.DumpFileName, $"{ins,-20} | {sb}\n");
     }
     return ExecuteInstruction(ins!);
   }
@@ -175,9 +187,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
     catch (EleuRuntimeError ex)
     {
       if (options.ThrowOnAssert && ex is EleuAssertionFail) throw;
-      var stat = ex.Status ?? currentStatus;
-      var msg = $"{stat.Message}: {ex.Message}";
-      options.Err.WriteLine(msg);
+      RuntimeExHandler(ex);
       return EEleuResult.RuntimeError;
     }
     catch (Exception ex)
@@ -189,19 +199,22 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
     return EEleuResult.NextStep;
   }
 
-  internal void enterFrame(CallFrame newFrame)
+  internal void EnterFrame(CallFrame newFrame)
   {
     newFrame.next = frame;
     frame = newFrame;
     frameDepth++;
     if (frameDepth >= MaxStackDepth)
       throw new EleuRuntimeError(currentStatus, "Zu viele verschachtelte Funktionsaufrufe.");
+    var csi = new CallStackInfo(this, newFrame.func!, environment);
+    callStack.Push(csi);
   }
-  internal void leaveFrame()
+  internal void LeaveFrame()
   {
     frame = frame!.next!;
     environment = prevEnvs.RemoveLast();
     frameDepth--;
+    callStack.Pop();
   }
   internal object pop() => valueStack.RemoveLast();
   internal object peek() => valueStack[^1];
@@ -305,7 +318,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
     var callee = Evaluate(expr.Callee);
     if (callee is not ICallable function)
     {
-      throw Error("Can only call functions and classes."); 
+      throw Error("Can only call functions and classes.");
     }
     if (function is not NativeFunction && expr.Arguments.Count != function.Arity)
       throw Error($"{function.Name} erwartet {function.Arity} Argumente, übergeben wurden aber {expr.Arguments.Count}.");
@@ -317,18 +330,19 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
       var argument = expr.Arguments[i];
       arguments[i] = Evaluate(argument);
     }
-    try
-    {
-      var csi = new CallStackInfo(this, function, environment);
-      callStack.Push(csi);
-      //Trace.Write($"{callStack.Count} ");		if (callStack.Count % 100 == 0) Trace.WriteLine("");
-      return function.Call(this, arguments);
-    }
-    finally
-    {
-      callStack.Pop();
-    }
+    object retVal = CallFunction(function, arguments);
+    return retVal;
   }
+
+  public object CallFunction(ICallable function, object[] arguments)
+  {
+    var csi = new CallStackInfo(this, function, environment);
+    callStack.Push(csi);
+    var retVal = function.Call(this, arguments);
+    callStack.Pop();
+    return retVal;
+  }
+
   public object VisitGetExpr(Expr.Get expr)
   {
     var obj = Evaluate(expr.Obj);
@@ -601,7 +615,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
   public List<CallStackInfo> GetCallStack()
   {
     var l = callStack.ToList();
-    l.Reverse();
+    //l.Reverse();
     return l;
   }
   public InterpretResult VisitRepeatStmt(Stmt.Repeat stmt)

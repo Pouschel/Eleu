@@ -50,7 +50,7 @@ record CallInstruction(int nArgs, InputStatus status) : Instruction(status)
     var callee = vm.pop();
     if (callee is NativeFunction nfunc)
     {
-      executeNative(vm, nfunc);
+      ExecuteNative(vm, nfunc);
       return;
     }
     if (callee is not ICallable function) throw vm.Error("Can only call functions and classes.");
@@ -89,10 +89,10 @@ record CallInstruction(int nArgs, InputStatus status) : Instruction(status)
     }
     vm.enterEnv(environment);
     var frame = new CallFrame(callee.compiledChunk, func: callee);
-    vm.enterFrame(frame);
+    vm.EnterFrame(frame);
   }
 
-  void executeNative(Interpreter vm, NativeFunction callee)
+  void ExecuteNative(Interpreter vm, NativeFunction callee)
   {
     var arguments = new object[nArgs];
     for (int i = 0; i < nArgs; i++)
@@ -100,7 +100,7 @@ record CallInstruction(int nArgs, InputStatus status) : Instruction(status)
       var argument = vm.pop();
       arguments[nArgs - i - 1] = argument;
     }
-    var res = callee.Call(vm, arguments);
+    var res = vm.CallFunction(callee, arguments);
     vm.push(res);
   }
 
@@ -383,7 +383,7 @@ record ReturnInstruction(int scopeDepth, InputStatus status) : Instruction(statu
     {
       vm.leaveEnv();
     }
-    vm.leaveFrame();
+    vm.LeaveFrame();
   }
 }
 

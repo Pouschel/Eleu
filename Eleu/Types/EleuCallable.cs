@@ -1,4 +1,5 @@
-﻿using Eleu.Interpret;
+﻿using System.Text;
+using Eleu.Interpret;
 namespace Eleu.Types;
 
 class NilType
@@ -48,7 +49,7 @@ internal class NativeFunction : ICallable
 	{
 		return function(arguments);
 	}
-	public override string ToString() => "<native function>";
+	public override string ToString() => $"Interne Funktion {name}({new string(',',Arity)})";
 }
 
 class EleuFunction : ICallable
@@ -75,8 +76,20 @@ class EleuFunction : ICallable
 		if (isInitializer) return closure.GetAt("this", 0);
 		return retVal;
 	}
-	public override string ToString() => $"<function {declaration.Name}>";
-	public string Name => declaration.Name;
+  public override string ToString()
+  {
+		var sb = new StringBuilder();
+		sb.Append($"Funktion {declaration.Name}(");
+		for (int i = 0;i < declaration.Paras.Count;i++)
+		{
+			if (i > 0) sb.Append(',');
+			sb.Append(declaration.Paras[i].StringValue);
+		}
+		sb.Append(')');
+		return sb.ToString();
+  }
+
+  public string Name => declaration.Name;
 
 	public EleuFunction bind(EleuInstance instance, bool copyInstructions)
 	{

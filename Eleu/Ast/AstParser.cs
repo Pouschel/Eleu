@@ -170,6 +170,7 @@ internal class AstParser(EleuOptions options, List<Token> tokens)
   }
   private Stmt.Function Function(FunctionType kind)
   {
+    
     Token name = Consume(TokenIdentifier, "Expect " + kind + " name.");
     Consume(TokenLeftParen, "Expect '(' after " + kind + " name.");
     List<Token> parameters = new();
@@ -188,7 +189,7 @@ internal class AstParser(EleuOptions options, List<Token> tokens)
     string tmsg = kind == FunctionType.FunTypeFunction ? "function" : "method";
     Consume(TokenLeftBrace, "Expect '{' before " + tmsg + " body.");
     List<Stmt> body = Block();
-    return new Stmt.Function(kind, name.StringValue, parameters, body);
+    return new Stmt.Function(kind, name.StringValue, parameters, body) { Status=name.Status};
   }
   private List<Stmt> Block()
   {

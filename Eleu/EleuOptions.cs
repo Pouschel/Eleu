@@ -10,6 +10,9 @@ public class EleuOptions
   public TextWriter Err = TextWriter.Null;
   public bool PrintByteCode = false;
   public bool OnlyFirstError = false;
+  /// <summary>
+  /// show the call stack in case of a runtime error
+  /// </summary>
   public string DumpFileName = "";
 
   public void WriteCompilerError(in InputStatus status, string message)
