@@ -18,7 +18,7 @@ class EleuInstance
 			var method = klass.FindMethod(name);
 			if (method == NilValue) throw new EleuRuntimeError("Undefined property '" + name + "'.");
 			var func = method as EleuFunction;
-			return func!.bind(this,bindInstructions);
+			return func!.Bind(this,bindInstructions);
 		}
 		return val;
 	}

@@ -30,7 +30,7 @@ class EleuClass : ICallable
 		EleuFunction? initializer = FindMethod("init") as EleuFunction;
 		if (initializer != null)
 		{
-			initializer.bind(instance, false).Call(interpreter, arguments);
+			initializer.Bind(instance, false).Call(interpreter, arguments);
 		}
 		return instance;
 	}

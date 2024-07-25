@@ -16,7 +16,10 @@ public enum FunctionType
   FunTypeFunction,
   FunTypeInitializer,
   FunTypeMethod,
-  FunTypeScript
+  /// <summary>
+  /// fake type for top level script
+  /// </summary>
+  FunTypeScript   
 }
 
 public enum EEleuResult

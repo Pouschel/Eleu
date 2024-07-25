@@ -406,7 +406,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
     {
       throw Error("Undefined property '" + expr.Method + "'.");
     }
-    return method.bind(obj, false);
+    return method.Bind(obj, false);
   }
   public object VisitThisExpr(Expr.This expr)
   {

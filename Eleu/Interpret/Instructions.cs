@@ -71,7 +71,7 @@ record CallInstruction(int nArgs, InputStatus status) : Instruction(status)
         vm.push(instance);
         return;
       }
-      ifunc = ifunc.bind(instance, true);
+      ifunc = ifunc.Bind(instance, true);
 
       var environment = new EleuEnvironment(ifunc.closure);
       // environment.Define("this", instance);
@@ -234,7 +234,7 @@ record SuperInstruction(string name, int distance, InputStatus status) : Instruc
     var method = superclass.FindMethod(name);
     if (method is not EleuFunction func)
       throw vm.Error($"Undefined property '{name}'.");
-    vm.push(func.bind(obj, true));
+    vm.push(func.Bind(obj, true));
   }
 }
 
