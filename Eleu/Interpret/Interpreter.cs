@@ -309,7 +309,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
       RuntimeError("Can only call functions and classes."); return expr;
     }
     if (function is not NativeFunction && expr.Arguments.Count != function.Arity)
-      RuntimeError("Expected " + function.Arity + " arguments but got " + expr.Arguments.Count + ".");
+      RuntimeError($"{function.Name} erwartet {function.Arity} Argumente, übergeben wurden aber {expr.Arguments.Count}.");
     if (callStack.Count >= MaxStackDepth)
       RuntimeError("Zu viele verschachtelte Funktionsaufrufe.");
     var arguments = new object[expr.Arguments.Count];

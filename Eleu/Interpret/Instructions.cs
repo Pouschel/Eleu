@@ -52,7 +52,7 @@ record CallInstruction(int nArgs, InputStatus status) : Instruction(status)
     }
     if (callee is not ICallable function) throw vm.Error("Can only call functions and classes.");
     if (nArgs != function.Arity)
-      throw vm.Error($"Expected {function.Arity} arguments but got {nArgs}.");
+      throw vm.Error($"{function.Name} erwartet {function.Arity} Argumente, übergeben wurden aber {nArgs}.");
     if (callee is EleuFunction efunc)
     {
       var environment = new EleuEnvironment(efunc.closure);

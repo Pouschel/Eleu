@@ -51,7 +51,7 @@ class Program
 		lock (this)
 		{
 			var col = Console.ForegroundColor;
-			Console.ForegroundColor = ConsoleColor.Magenta;
+			Console.ForegroundColor = ConsoleColor.Red;
 			Console.WriteLine($"\r{fileName}              ");
 			Console.ForegroundColor = col;
 			Console.WriteLine(msg);
