@@ -81,7 +81,7 @@ public class EleuLanguageServer : IDisposable
   {
     Array.ForEach(s.Split("\n"), (element) =>
     {
-      if (!string.IsNullOrEmpty(element)) Response(head, s);
+      if (!string.IsNullOrEmpty(element)) Response(head, element.TrimEnd());
     });
   }
   void _sendError(String msg) => _sendString("err", msg); // compiler and runtime errors
