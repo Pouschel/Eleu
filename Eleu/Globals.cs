@@ -5,8 +5,9 @@ global using static Eleu.FunctionType;
 global using static Eleu.EEleuResult;
 global using static Eleu.Globals;
 global using static Eleu.Scanning.TokenType;
+global using static Eleu.Messages;
 using Eleu.Interpret;
-using Eleu.Puzzles;
+
 
 namespace Eleu;
 

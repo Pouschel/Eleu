@@ -33,9 +33,12 @@ record PushInstruction(object value, InputStatus stat) : Instruction(stat)
 
 record PopInstruction(InputStatus stat) : Instruction(stat)
 {
+  public bool DisallowFunctionPop = false;
   public override void execute(Interpreter vm)
   {
-    vm.pop();
+    var o = vm.pop();
+    if (DisallowFunctionPop && o is ICallable call) 
+      throw vm.Error(Func_Call_Missing_Paren(call.Name));
   }
   public override string ToString() => "pop";
 }

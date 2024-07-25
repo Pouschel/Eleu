@@ -231,8 +231,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
   }
   public EleuRuntimeError Error(string message)
   {
-    //options.Err.WriteLine(message);
-    return new EleuRuntimeError(message);
+    return new EleuRuntimeError(currentStatus, message);
   }
   private object Evaluate(Expr expr)
   {
@@ -503,8 +502,8 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
   public InterpretResult VisitExpressionStmt(Stmt.Expression stmt)
   {
     var evRes = Evaluate(stmt.expression);
-    if (evRes is ICallable call && stmt.expression.GetType() == typeof(Expr.Variable))
-      throw Error($"Die Funktion '{call.Name}' muss mit () aufgerufen werden");
+    if (evRes is ICallable call && stmt.expression is Expr.Variable)
+      throw Error(Func_Call_Missing_Paren(call.Name));
     return new(evRes);
   }
   public InterpretResult VisitFunctionStmt(Stmt.Function stmt)

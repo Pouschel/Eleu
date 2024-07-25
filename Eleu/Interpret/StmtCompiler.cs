@@ -92,7 +92,7 @@ internal class StmtCompiler : Expr.Visitor<object>, Stmt.Visitor<object>
       {
         itemExpr.Accept(this);
       }
-      Emit(new PushInstruction(newListFunction,expr.Status));
+      Emit(new PushInstruction(newListFunction, expr.Status));
       return Emit(new CallInstruction(l.Len, expr.Status));
     }
     return Emit(new PushInstruction(value, expr.Status));
@@ -150,7 +150,7 @@ internal class StmtCompiler : Expr.Visitor<object>, Stmt.Visitor<object>
   public object VisitExpressionStmt(Stmt.Expression stmt)
   {
     stmt.expression.Accept(this);
-    return Emit(new PopInstruction(stmt.expression.Status));
+    return Emit(new PopInstruction(stmt.expression.Status) { DisallowFunctionPop = stmt.expression is Expr.Variable });
   }
   public object VisitFunctionStmt(Stmt.Function stmt) => Emit(new DefFunInstruction(stmt));
   public object VisitIfStmt(Stmt.If stmt)
