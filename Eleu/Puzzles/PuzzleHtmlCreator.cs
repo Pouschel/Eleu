@@ -36,8 +36,8 @@ public class PuzzleHtmlCreator
     {
       puzzDisplayDiv.InnerText = "";
     }
-    canvas.SetProperty("width", "200");
-    canvas.SetProperty("height", "200");
+    canvas.SetProperty("width", "1");
+    canvas.SetProperty("height", "1");
   }
 
   void WriteTag(string tag, string content, params string[] attributes)
@@ -77,13 +77,17 @@ metrics.width+""|""+(metrics.actualBoundingBoxAscent + metrics.actualBoundingBox
 
     canvasWidth = canvDiv.ClientWidth;
     canvasHeight = canvDiv.ClientHeight;
+    //Dom.SetStyle("puzzCanvasDiv", "display", "none");
+
     canvas.SetProperty("width", canvasWidth.ToString());
     canvas.SetProperty("height", canvasHeight.ToString());
     cellSize = Math.Min(canvasWidth / (ColCount + 1), canvasHeight / (RowCount + 1));
     borderX = (canvasWidth - (ColCount + 1) * cellSize) / 2 + cellSize;
     borderY = (canvasHeight - (RowCount + 1) * cellSize) / 2 + cellSize;
     border = Math.Min(borderX, borderY);
+
     swc.WriteLine(canvasPrelude);
+    swc.WriteLine($"");
     swc.WriteLine(@"const catImg = document.getElementById(""catImg"");
 const wallImg = document.getElementById(""wallImg"");
 const mouseImg = document.getElementById(""mouseImg"");
@@ -93,6 +97,7 @@ const bowlImg = document.getElementById(""bowlImg"");
     DrawCoordinateLines();
     DrawCoordinates();
     JsEval(swc.ToString());
+    //Dom.SetStyle("puzzCanvasDiv", "display", "block");
   }
 
   string CreateBrush(FieldState fs)

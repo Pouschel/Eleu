@@ -1,15 +1,14 @@
-﻿
+﻿body {
+	background-color: #5D6B99;
+	font-family: sans-serif;
+}
+
 .blueDarkerBackground {
 	background-color: #40568D;
 }
 
 .blueDarkBackground {
 	background-color: #5D6B99;
-}
-
-body {
-	background-color: #5D6B99;
-	font-family: sans-serif;
 }
 
 td {
