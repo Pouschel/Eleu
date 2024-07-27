@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EleuWeb", "EleuWeb\EleuWeb.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EleuTester", "EleuTester\EleuTester.csproj", "{2C8E0F3C-FAF7-4578-ABF4-A32DC3DB6970}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DomCask", "DomCask\DomCask.csproj", "{982E53AD-E090-49DC-97C9-A7CFCB21D305}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{2C8E0F3C-FAF7-4578-ABF4-A32DC3DB6970}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2C8E0F3C-FAF7-4578-ABF4-A32DC3DB6970}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2C8E0F3C-FAF7-4578-ABF4-A32DC3DB6970}.Release|Any CPU.Build.0 = Release|Any CPU
+		{982E53AD-E090-49DC-97C9-A7CFCB21D305}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{982E53AD-E090-49DC-97C9-A7CFCB21D305}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{982E53AD-E090-49DC-97C9-A7CFCB21D305}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{982E53AD-E090-49DC-97C9-A7CFCB21D305}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

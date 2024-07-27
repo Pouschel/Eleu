@@ -62,7 +62,7 @@ public class WasmExecuter
 
   private void ProcResponseDelayed(string cmd, object arg)
   {
-    SetTimeout(() => ProcResponse(cmd, arg), 0);
+    BrowserApp.SetTimeout(() => ProcResponse(cmd, arg), 0);
   }
 
   private void ProcResponse(string cmd, object arg)

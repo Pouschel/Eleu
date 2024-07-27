@@ -1,5 +1,6 @@
 ﻿//https://learn.microsoft.com/en-us/aspnet/core/client-side/dotnet-interop?view=aspnetcore-7.0
 
+using DomCask;
 using Eleu.LangServer;
 using EleuStudio;
 
@@ -19,6 +20,9 @@ class App
 
   public static void Main()
   {
+    // set DOM Link
+    Dom.SetProvider(new WasmDom());
+
     Log = new("log");
     Log.AddLine("Eleu Studio (Web) gestartet.", Options.View.LogInfoColor);
     LoadOptions();
@@ -34,7 +38,7 @@ class App
     Ui.EnableButtons();
     Ui.SetModeLoaded();
     SetProperty("title", "innerText", $"EleuStudio {EleuLanguageServer.Version}");
-    SetTimeout(AutoSave, 10_000);
+    BrowserApp.SetTimeout(AutoSave, 10_000);
   }
 
   static void LoadOptions()
@@ -63,7 +67,7 @@ class App
     GetSaveCode();
     SaveOptions();
     //Console.WriteLine("autosave!");
-    SetTimeout(AutoSave, 10_000);
+    BrowserApp.SetTimeout(AutoSave, 10_000);
   }
   internal static string GetSaveCode()
   {

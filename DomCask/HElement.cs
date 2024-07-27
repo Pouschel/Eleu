@@ -3,14 +3,11 @@ using System.Globalization;
 using System.Net;
 using System.Text;
 
-namespace EleuWeb.Html;
+namespace DomCask;
 
-public class ValueCached
-{
-  Dictionary<string, object?> valueCache = new();
+using static Dom;
 
 
-}
 
 public record HStyle(HElement el)
 {
@@ -34,7 +31,7 @@ public class HElement
 
   public bool Disabled
   {
-    set => BrowserApp.SetProperty(Id, "disabled", value);
+    set => Dom.SetProperty(Id, "disabled", value);
   }
   public bool Enabled { set => Disabled = !value; }
   public string InnerHTML
@@ -61,11 +58,11 @@ public class HElement
   public int ClientHeight => int.Parse(JsEval($"document.getElementById('{Id}').clientHeight.toString();"));
 
 
-  public void AddEventListener(string evName, Action callback) => BrowserApp.AddEventListener(Id, evName, callback);
+  public void AddEventListener(string evName, Action callback) => Dom.AddEventListener(Id, evName, callback);
 
   public void Focus() => CallMethod(Id, "focus");
 
-  public void SetProperty(string name, string value) => BrowserApp.SetProperty(Id, name, value);
+  public void SetProperty(string name, string value) => Dom.SetProperty(Id, name, value);
 
   public event Action Change
   {
@@ -109,7 +106,7 @@ public class HSelect : HElement
   public int SelectedIndex
   {
     get => GetIntProperty(Id, "selectedIndex");
-    set => BrowserApp.SetProperty(Id, "selectedIndex", value.ToString());
+    set => Dom.SetProperty(Id, "selectedIndex", value.ToString());
   }
 
 }
@@ -123,7 +120,7 @@ public class HSlider : HElement
   public new double Value
   {
     get => double.Parse(GetProperty(Id, "value"), CultureInfo.InvariantCulture);
-    set => BrowserApp.SetProperty(Id, "value", value);
+    set => Dom.SetProperty(Id, "value", value);
   }
 
 }

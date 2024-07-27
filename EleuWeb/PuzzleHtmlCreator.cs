@@ -2,8 +2,9 @@
 using System.Globalization;
 using System.IO;
 using System.Text;
+using DomCask;
 using Eleu.Puzzles;
-using EleuWeb.Html;
+
 
 class PuzzleHtmlCreator
 {

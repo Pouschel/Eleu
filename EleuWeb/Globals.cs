@@ -1,8 +1,8 @@
 //https://learn.microsoft.com/en-us/aspnet/core/client-side/dotnet-interop?view=aspnetcore-7.0
 
-global using static BrowserApp;
 global using System;
 global using static Statics;
+global using static DomCask.Dom;
 using System.Text.Json;
 using System.Text.Encodings.Web;
 using System.Globalization;
