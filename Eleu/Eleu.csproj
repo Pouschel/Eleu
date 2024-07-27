@@ -29,4 +29,9 @@
     <Compile Remove="TableNew.cs" />
   </ItemGroup>
 
+
+  <ItemGroup>
+    <ProjectReference Include="..\DomCask\DomCask.csproj" />
+  </ItemGroup>
+
 </Project>

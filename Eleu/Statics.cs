@@ -1,4 +1,6 @@
 ﻿
+using System.Globalization;
+
 namespace Eleu;
 
 public static class Statics
@@ -10,4 +12,6 @@ public static class Statics
     list.RemoveAt(idx);
     return item;
   }
+
+  public static string F(this float x) => x.ToString("f2", CultureInfo.InvariantCulture);
 }

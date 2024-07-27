@@ -44,8 +44,7 @@ static class Statics
 #pragma warning restore CS8603 // Possible null reference return.
 #pragma warning restore IL2026 // Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code
 
-  public static string F(this float x) => x.ToString("f2", CultureInfo.InvariantCulture);
-
+ 
 }
 
 class HtmlLogger

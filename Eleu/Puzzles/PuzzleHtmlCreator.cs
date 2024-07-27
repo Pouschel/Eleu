@@ -1,12 +1,12 @@
 ﻿using System.Drawing;
 using System.Globalization;
-using System.IO;
 using System.Text;
 using DomCask;
-using Eleu.Puzzles;
+using static DomCask.Dom;
 
+namespace Eleu.Puzzles;
 
-class PuzzleHtmlCreator
+public class PuzzleHtmlCreator
 {
   private readonly StringWriter sw = new();
   private StringWriter swc = new();
@@ -373,4 +373,9 @@ ctx.restore();
         //  break;
     }
   }
+
+
 }
+
+
+
