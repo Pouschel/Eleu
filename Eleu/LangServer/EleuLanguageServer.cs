@@ -28,7 +28,7 @@ record struct Cmd(string Name, object Arg)
 
 public class EleuLanguageServer : IDisposable
 {
-  public const string Version = "24.2";
+  public const string Version = "24.3";
   BlockingCollection<Cmd> queue = new(new ConcurrentQueue<Cmd>());
   Action<string, object> responseAction;
   Thread? worker;
@@ -79,10 +79,10 @@ public class EleuLanguageServer : IDisposable
   }
   void _sendString(string head, string s)
   {
-    Array.ForEach(s.Split("\n"), (element) =>
+    foreach (var element in s.Split("\n"))
     {
-      if (!string.IsNullOrEmpty(element)) Response(head, element.TrimEnd());
-    });
+      Response(head, element.TrimEnd());
+    }
   }
   void _sendError(String msg) => _sendString("err", msg); // compiler and runtime errors
   void _sendInternalError(String msg) => _sendString("i_err", msg);
@@ -206,7 +206,7 @@ public class EleuLanguageServer : IDisposable
       interpreter = interp!;
       foreach (var type in additionalNativeFunctions)
       {
-        if (Activator.CreateInstance(type) is not NativeFunctionBase func) 
+        if (Activator.CreateInstance(type) is not NativeFunctionBase func)
           _sendInternalError($"type {type.Name} is no native function type");
         else
           NativeFunctionBase.DefineAll(func, interpreter);

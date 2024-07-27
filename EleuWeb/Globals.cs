@@ -10,7 +10,7 @@ using System.Text.Json.Serialization;
 
 [JsonSourceGenerationOptions(WriteIndented = true)]
 [JsonSerializable(typeof(OptionsModel))]
-internal partial class SourceGenContext:JsonSerializerContext
+internal partial class SourceGenContext : JsonSerializerContext
 {
 
 }
@@ -60,6 +60,7 @@ class HtmlLogger
   public void AddLine(string text, string color = "black")
   {
     var fullId = $"{elId}_{curId}";
+    if (string.IsNullOrEmpty(text)) text = "&nbsp;";
     var line = $@"<div id=""{fullId}"" style=""color:{color}"">{text}</div>";
     InsertAdjacentHTML(elId, "beforeend", line);
     ScrollIntoView(fullId);
