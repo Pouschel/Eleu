@@ -145,7 +145,7 @@ class HUI
     selTest.SelectedIndex = App.Options.Puzzle.TestIndex = puzzle.BundleIndex;
   }
 
-  static void ClearError() => JsEval($"setEleuError(-1,0,0,0);");
+  static void ClearError() => JsEvalWithResult($"setEleuError(-1,0,0,0);");
   internal static void MoveToPosition(string errLine)
   {
     var status = InputStatus.Parse(errLine);

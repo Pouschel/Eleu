@@ -4,7 +4,8 @@ namespace DomCask;
 
 public interface IDomProvider
 {
-  string JsEval(string jsCode);
+  string JsEvalWithResult(string jsCode);
+  void JsEval(string jsCode) => JsEvalWithResult(jsCode);
   void SetProperty(string elName, string propName, string propValue);
   void SetProperty(string elName, string propName, bool propValue);
   string GetProperty(string elName, string propName);
@@ -16,14 +17,15 @@ public static class Dom
 {
   private static IDomProvider Provider = new DummyDom();
   public static void SetProvider(IDomProvider provider) => Provider = provider;
-  public static string JsEval(string jsCode) => Provider.JsEval(jsCode);
+  public static string JsEvalWithResult(string jsCode) => Provider.JsEvalWithResult(jsCode);
+  public static void JsEval(string jsCode) => Provider.JsEval(jsCode);
   public static void SetStyle(string elId, string propName, string propValue)
   {
     JsEval($"document.getElementById('{elId}').style.{propName} = '{propValue}';");
   }
 
   public static string GetStyle(string elId, string propName) =>
-    JsEval($"document.getElementById('{elId}').style.{propName};");
+    JsEvalWithResult($"document.getElementById('{elId}').style.{propName};");
 
   public static void CallMethod(string elId, string methodName)
   {
@@ -49,13 +51,13 @@ public static class Dom
   }
   public static string LocalStoragGet(string key)
   {
-    return JsEval($"window.localStorage.getItem('{key}');");
+    return JsEvalWithResult($"window.localStorage.getItem('{key}');");
   }
 }
 
 class DummyDom : IDomProvider
 {
-  public string JsEval(string jsCode) => throw new NotImplementedException();
+  public string JsEvalWithResult(string jsCode) => throw new NotImplementedException();
   public string GetProperty(string elName, string propName) => throw new NotImplementedException();
   public void SetProperty(string elName, string propName, string propValue) => throw new NotImplementedException();
   public void SetProperty(string elName, string propName, bool propValue) => throw new NotImplementedException();

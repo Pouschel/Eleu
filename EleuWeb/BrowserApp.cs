@@ -8,7 +8,7 @@ class WasmDom : IDomProvider
 {
   public void AddEventListener(string elId, string eventName, Action action) => BrowserApp.AddEventListener(elId, eventName, action);
   public string GetProperty(string elName, string propName) => BrowserApp.GetProperty(elName, propName);
-  public string JsEval(string jsCode) => BrowserApp.JsEval(jsCode);
+  public string JsEvalWithResult(string jsCode) => BrowserApp.JsEval(jsCode);
   public void SetProperty(string elName, string propName, string propValue) => BrowserApp.SetProperty(elName, propName, propValue);
   public void SetProperty(string elName, string propName, bool propValue) => BrowserApp.SetProperty(elName, propName, propValue);
 
@@ -57,12 +57,12 @@ public partial class EditorApp
 
   public static string GetText()
   {
-    return JsEval($"editor.getValue();");
+    return JsEvalWithResult($"editor.getValue();");
   }
 
   public static void SetText(string text)
   {
-    JsEval($"editor.setValue(`{text}`);");
+    JsEvalWithResult($"editor.setValue(`{text}`);");
   }
 
   [JSExport]

@@ -60,7 +60,7 @@ public class PuzzleHtmlCreator
 ctx.font = ""{font}"";
 let metrics = ctx.measureText(""{text}"");
 metrics.width+""|""+(metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent)";
-    s = JsEval(s);
+    s = JsEvalWithResult(s);
     var parts = s.Split('|');
     return (float.Parse(parts[0], CultureInfo.InvariantCulture), float.Parse(parts[1], CultureInfo.InvariantCulture));
   }
