@@ -8,6 +8,11 @@ namespace Eleu.Puzzles;
 
 public class PuzzleHtmlCreator
 {
+  public class RenderState
+  {
+    public int Width, Height;
+  }
+
   private readonly StringWriter sw = new();
   private StringWriter swc = new();
   Puzzle? puzz;
@@ -36,8 +41,8 @@ public class PuzzleHtmlCreator
     {
       puzzDisplayDiv.InnerText = "";
     }
-    canvas.SetProperty("width", "1");
-    canvas.SetProperty("height", "1");
+    //canvas.SetProperty("width", "1");
+    //canvas.SetProperty("height", "1");
   }
 
   void WriteTag(string tag, string content, params string[] attributes)
@@ -65,9 +70,11 @@ metrics.width+""|""+(metrics.actualBoundingBoxAscent + metrics.actualBoundingBox
     return (float.Parse(parts[0], CultureInfo.InvariantCulture), float.Parse(parts[1], CultureInfo.InvariantCulture));
   }
 
-  public void Render()
+  public void Render(ref RenderState state)
   {
-    SetEmpty();
+    //SetEmpty();
+    puzzDisplayDiv.Visible = puzz != null;
+    canvDiv.Visible = puzz != null;
     if (puzz == null) return;
     WriteTag("div", puzzle.Name, "class", "puzzTitle");
     WriteTag("div", puzzle.Description, "class", "puzzText");
@@ -79,15 +86,19 @@ metrics.width+""|""+(metrics.actualBoundingBoxAscent + metrics.actualBoundingBox
     canvasHeight = canvDiv.ClientHeight;
     //Dom.SetStyle("puzzCanvasDiv", "display", "none");
 
-    canvas.SetProperty("width", canvasWidth.ToString());
-    canvas.SetProperty("height", canvasHeight.ToString());
+    if (canvasWidth != state.Width || canvasHeight != state.Height)
+    {
+      state.Width = canvasWidth; state.Height = canvasHeight;
+      canvas.SetProperty("width", canvasWidth.ToString());
+      canvas.SetProperty("height", canvasHeight.ToString());
+    }
     cellSize = Math.Min(canvasWidth / (ColCount + 1), canvasHeight / (RowCount + 1));
     borderX = (canvasWidth - (ColCount + 1) * cellSize) / 2 + cellSize;
     borderY = (canvasHeight - (RowCount + 1) * cellSize) / 2 + cellSize;
     border = Math.Min(borderX, borderY);
 
     swc.WriteLine(canvasPrelude);
-    swc.WriteLine($"");
+    swc.WriteLine($"ctx.clearRect(0, 0,{canvasWidth}, {canvasHeight});");
     swc.WriteLine(@"const catImg = document.getElementById(""catImg"");
 const wallImg = document.getElementById(""wallImg"");
 const mouseImg = document.getElementById(""mouseImg"");
@@ -329,7 +340,7 @@ ctx.restore();
 
     swc.WriteLine($"ctx.fillStyle = \"{br}\";" + $"ctx.strokeStyle = \"grey\";");
 
-    
+
     switch (shape)
     {
       case FieldShapes.Diamond:
@@ -353,7 +364,7 @@ ctx.restore();
           return sb.ToString();
         }
         {
-          var els = PolyPath();  
+          var els = PolyPath();
           swc.WriteLine($"ctx.beginPath();{els};ctx.fill();");
           swc.WriteLine($"ctx.beginPath();{els};ctx.stroke();");
         }
@@ -368,7 +379,7 @@ ctx.restore();
         break;
       case FieldShapes.Square:
         {
-          var els = $"ctx.rect({(x+d).F()},{(y+d).F()},{wh.F()},{wh.F()})";
+          var els = $"ctx.rect({(x + d).F()},{(y + d).F()},{wh.F()},{wh.F()})";
           swc.WriteLine($"ctx.beginPath();{els};ctx.fill();");
           swc.WriteLine($"ctx.beginPath();{els};ctx.stroke();");
         }

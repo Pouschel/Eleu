@@ -118,12 +118,15 @@ class HUI
     popt.TestIndex = testIndex;
     eleuEngine.SendPuzzleText(text, popt.TestIndex);
   }
+
+  PuzzleHtmlCreator.RenderState state = new();
+
   //from engine and ui
   public void SetPuzzle(Puzzle? puzzle)
   {
     hasPuzzle = puzzle != null;
     var hcreator = new PuzzleHtmlCreator(puzzle);
-    hcreator.Render();
+    hcreator.Render(ref state);
     SetSelOptions(puzzle);
     EnableButtons();
   }
