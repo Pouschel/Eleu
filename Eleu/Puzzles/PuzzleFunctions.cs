@@ -49,6 +49,7 @@ public class PuzzleFunctions : NativeFunctionBase
   private Directions CheckDirection(string s, bool onlyNSEW)
   {
     bool b = Enum.TryParse<Directions>(s, true, out var edir);
+    if (b && int.TryParse(s, out var _)) b = false; 
     if (b && onlyNSEW && edir > Directions.S)
       b = false;
     if (!b)
@@ -112,7 +113,6 @@ public class PuzzleFunctions : NativeFunctionBase
       Animate(puzzle);
     }
   }
-#warning move("0"); sollte Fehlermeldung erzeugen
   private object move(object[] args)
   {
     var puzzle = CheckPuzzleActive();
