@@ -74,6 +74,7 @@ public class HElement
   public void AddEventListener(string evName, Action callback) => Dom.AddEventListener(Id, evName, callback);
 
   public void Focus() => CallMethod(Id, "focus");
+  public void Remove() => CallMethod(Id, "remove");
 
   public void SetProperty(string name, string value) => Dom.SetProperty(Id, name, value);
 

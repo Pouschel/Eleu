@@ -7,7 +7,7 @@ using EleuStudio;
 class HUI
 {
   WasmExecuter eleuEngine => App.eleuEngine;
-  readonly HElement mainDiv, waitDiv;
+  readonly HElement mainDiv;
   readonly HButton runBtn, stopBtn, inputPuzzleBtn;
   readonly HButton backToStartBtn, runAllTestsBtn;
   readonly HSelect selTest;
@@ -16,7 +16,7 @@ class HUI
   bool hasPuzzle;
   public HUI()
   {
-    mainDiv = new("mainDiv"); waitDiv = new("waitDiv");
+    mainDiv = new("mainDiv"); 
     pInView = new(InputPuzzleCompleted);
 
     runBtn = new("btnRun");
@@ -53,7 +53,9 @@ class HUI
 
   public void SetModeLoaded()
   {
-    waitDiv.Style.Display = "none";
+    HElement waitDiv = new("waitDiv");
+    waitDiv.Remove();
+    //waitDiv.Style.Display = "none";
     mainDiv.Style.Display = "block";
   }
 

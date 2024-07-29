@@ -26,11 +26,8 @@ public static class Dom
 
   public static string GetStyle(string elId, string propName) =>
     JsEvalWithResult($"document.getElementById('{elId}').style.{propName};");
-
-  public static void CallMethod(string elId, string methodName)
-  {
-    JsEval($"document.getElementById('{elId}').{methodName}();");
-  }
+  public static void CallMethod(string elId, string methodName) 
+    => JsEval($"document.getElementById('{elId}').{methodName}();");
   public static void AddEventListener(string elId, string eventName, Action action) => Provider.AddEventListener(elId, eventName, action);
   public static void SetProperty(string elName, string propName, string propValue) => Provider.SetProperty(elName, propName, propValue);
   public static void SetProperty(string elName, string propName, bool propValue) => Provider.SetProperty(elName, propName, propValue);
