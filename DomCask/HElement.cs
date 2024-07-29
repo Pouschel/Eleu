@@ -54,9 +54,22 @@ public class HElement
     set => Style.Display = value ? "block" : "none";
     get => Style.Display != "none";
   }
-  public int ClientWidth => int.Parse(JsEvalWithResult($"document.getElementById('{Id}').clientWidth.toString();"));
-  public int ClientHeight => int.Parse(JsEvalWithResult($"document.getElementById('{Id}').clientHeight.toString();"));
-
+  public int ClientWidth
+  {
+    get
+    {
+      int.TryParse(JsEvalWithResult($"document.getElementById('{Id}').clientWidth.toString();"), out var w);
+      return w;
+    }
+  }
+  public int ClientHeight
+  {
+    get
+    {
+      int.TryParse(JsEvalWithResult($"document.getElementById('{Id}').clientHeight.toString();"), out var h);
+      return h;
+    }
+  }
 
   public void AddEventListener(string evName, Action callback) => Dom.AddEventListener(Id, evName, callback);
 

@@ -56,7 +56,7 @@ public class PuzzleHtmlCreator
     sw.Write(content);
     sw.WriteLine($"</{tag}>");
   }
-  string canvasPrelude => $@"const canvas = document.getElementById(""{canvas.Id}"");
+  string canvasPrelude => $@"const canvas = document.getElementById(""{canvas.Id}"",""{{ alpha: false}}"");
     const ctx = canvas.getContext(""2d"");";
 
   (float, float) MeasureString(string font, string text)
@@ -93,12 +93,13 @@ metrics.width+""|""+(metrics.actualBoundingBoxAscent + metrics.actualBoundingBox
       canvas.SetProperty("height", canvasHeight.ToString());
     }
     cellSize = Math.Min(canvasWidth / (ColCount + 1), canvasHeight / (RowCount + 1));
-    borderX = (canvasWidth - (ColCount + 1) * cellSize) / 2 + cellSize;
-    borderY = (canvasHeight - (RowCount + 1) * cellSize) / 2 + cellSize;
+    borderX = (canvasWidth - (ColCount +1 ) * cellSize) / 2 + cellSize*0.6f;
+    borderY = (canvasHeight - (RowCount+1 ) * cellSize) / 2 + cellSize*0.6f;
     border = Math.Min(borderX, borderY);
 
     swc.WriteLine(canvasPrelude);
-    swc.WriteLine($"ctx.clearRect(0, 0,{canvasWidth}, {canvasHeight});");
+    swc.WriteLine($"ctx.fillStyle = \"#ffffff\";ctx.clearRect(0, 0,{canvasWidth}, {canvasHeight});" +
+      $"ctx.fillRect(0, 0,{canvasWidth}, {canvasHeight});");
     swc.WriteLine(@"const catImg = document.getElementById(""catImg"");
 const wallImg = document.getElementById(""wallImg"");
 const mouseImg = document.getElementById(""mouseImg"");
@@ -107,13 +108,14 @@ const bowlImg = document.getElementById(""bowlImg"");
     DrawGrid();
     DrawCoordinateLines();
     DrawCoordinates();
-    JsEval(swc.ToString());
+    var s = swc.ToString();
+    JsEvalWithResult(s);
     //Dom.SetStyle("puzzCanvasDiv", "display", "block");
   }
 
   string CreateBrush(FieldState fs)
   {
-    if (fs.Color == ShapeColors.None) return "transparent";
+    if (fs.Color == ShapeColors.None) return "white";
     var col = ColorTranslator.FromHtml(fs.Color.ToString());
     var colStr = $"#{col.R:x2}{col.G:x2}{col.B:x2}";
 
@@ -201,7 +203,7 @@ const bowlImg = document.getElementById(""bowlImg"");
     {
       DrawCat(orgx, orgy, csize);
     }
-    if (cell.SVal != null)
+    if (!string.IsNullOrEmpty(cell.SVal))
       DrawCellText(x, y, cell.SVal, csize, hasCat);
   }
   private void DrawWall(float x, float y, float cellSize)
@@ -226,7 +228,6 @@ ctx.save();
 ctx.translate({sx},{sy});    
 ctx.rotate(Math.PI / 180 * {angle});{scaleStr}
 ctx.drawImage(catImg, {scell2}, {scell2}, {cellSize.F()}, {cellSize.F()});
-//ctx.drawImage(catImg,{x.F()},{y.F()},{cellSize.F()},{cellSize.F()});
 ctx.restore();
 """);
     if (cat.Carrying == FieldObjects.Mouse)
@@ -257,6 +258,7 @@ ctx.restore();
   private void DrawCoordinateLines()
   {
     swc.WriteLine("ctx.strokeStyle = \"grey\";ctx.lineWidth = 0.8;");
+    CanvasFunc("beginPath");
     for (int iy = 0; iy <= RowCount; iy++)
     {
       var (x0, y0) = GetCellPos(0, iy);
@@ -340,7 +342,6 @@ ctx.restore();
 
     swc.WriteLine($"ctx.fillStyle = \"{br}\";" + $"ctx.strokeStyle = \"grey\";");
 
-
     switch (shape)
     {
       case FieldShapes.Diamond:
@@ -384,13 +385,8 @@ ctx.restore();
           swc.WriteLine($"ctx.beginPath();{els};ctx.stroke();");
         }
         break;
-        //default:
-        //  gr.DrawString(shape.ToString(), SystemFonts.DefaultFont, Brushes.Red, x, y);
-        //  break;
     }
   }
-
-
 }
 
 
