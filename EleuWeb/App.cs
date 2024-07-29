@@ -1,5 +1,6 @@
 ﻿//https://learn.microsoft.com/en-us/aspnet/core/client-side/dotnet-interop?view=aspnetcore-7.0
 
+using System.Threading;
 using DomCask;
 using Eleu.LangServer;
 using EleuStudio;
@@ -22,7 +23,7 @@ class App
   {
     // set DOM Link
     Dom.SetProvider(new WasmDom());
-
+    //Thread.Sleep(5000);
     Log = new("log");
     Log.AddLine("Eleu Studio (Web) gestartet.", Options.View.LogInfoColor);
     LoadOptions();

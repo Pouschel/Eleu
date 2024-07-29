@@ -101,14 +101,31 @@ button {
 	color: lightyellow;
 	font-size: 24pt;
 	margin: auto;
-	width: 50%;
+	width: 60%;
 	border: 3px solid yellow;
 	padding: 10px;
 	text-align: center;
 	background-color: darkslateblue;
-	animation-name: example;
-	animation-duration: 6s;
-	animation-iteration-count: infinite;
+}
+
+.loader {
+	margin: 10px auto 10px auto;
+	border: 20px solid #EAF0F6;
+	border-radius: 50%;
+	border-top: 20px solid #b51f76;
+	width: 200px;
+	height: 200px;
+	animation: spinner 4s linear infinite;
+}
+
+@keyframes spinner {
+	0% {
+		transform: rotate(0deg);
+	}
+
+	100% {
+		transform: rotate(360deg);
+	}
 }
 
 .puzzTitle
