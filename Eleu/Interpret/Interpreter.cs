@@ -23,7 +23,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
   int frameDepth = 0;
   internal EleuEnvironment environment;
   Stack<EleuEnvironment> envStack = new();
-  readonly List<object> valueStack = new();
+  readonly Stack<object> valueStack = new();
   public int InstructionCount = 0;
   public int FrameTimeMs { get; set; }
   private bool doDumpVm = false;
@@ -215,9 +215,9 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
     frameDepth--;
     callStack.Pop();
   }
-  internal object Pop() => valueStack.RemoveLast();
-  internal object Peek() => valueStack[^1];
-  internal void Push(object o) => valueStack.Add(o);
+  internal object Pop() => valueStack.Pop();
+  internal object Peek() => valueStack.Peek();
+  internal void Push(object o) => valueStack.Push(o);
   internal void EnterEnv(EleuEnvironment env)
   {
     envStack.Push(environment);
@@ -332,7 +332,6 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
     object retVal = CallFunction(function, arguments);
     return retVal;
   }
-
   public object CallFunction(ICallable function, object[] arguments)
   {
     var csi = new CallStackInfo(this, function, environment);
@@ -371,9 +370,9 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
   public object VisitLogicalExpr(Expr.Logical expr)
   {
     var left = Evaluate(expr.Left);
-    if (left is not bool) throw Error($"Der Operator '{expr.Op.StringValue}' kann nicht auf '{left}' angewendet werden.");
+    if (left is not bool) throw Error(Wrong_Op_Arg(expr.Op, left));
     var right = Evaluate(expr.Right);
-    if (right is not bool) throw Error($"Der Operator '{expr.Op.StringValue}' kann nicht auf '{right}' angewendet werden.");
+    if (right is not bool) throw Error(Wrong_Op_Arg(expr.Op, right));
     if (expr.Op.Type == TokenOr)
     {
       if (IsTruthy(left)) return left;
