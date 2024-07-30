@@ -21,20 +21,14 @@ class EleuClass : ICallable
 			return initializer.Arity;
 		}
 	}
-
 	string ICallable.Name => Name;
-
 	public object Call(Interpreter interpreter, object[] arguments)
 	{
 		var instance = new EleuInstance(this);
 		EleuFunction? initializer = FindMethod("init") as EleuFunction;
-		if (initializer != null)
-		{
-			initializer.Bind(instance, false).Call(interpreter, arguments);
-		}
+		initializer?.Bind(instance, false).Call(interpreter, arguments);
 		return instance;
 	}
-
 	public object FindMethod(string name)
 	{
 		if (Methods.Get(name, out var val))

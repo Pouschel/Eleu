@@ -12,10 +12,8 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
   public Puzzle? Puzzle;
   public Action<Puzzle?>? PuzzleStateChanged;
   public Action<string, int>? PuzzleCalled;
-
   private List<Stmt> statements;
   internal EleuEnvironment globals = new();
-  internal EleuEnvironment environment;
   internal Func<Stmt, bool>? canContinueFunc;
   private Func<Stmt, InterpretResult> Execute;
   private Stack<CallStackInfo> callStack = new();
@@ -23,7 +21,8 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
   public int MaxStackDepth = 200;
   internal CallFrame? frame;
   int frameDepth = 0;
-  List<EleuEnvironment> prevEnvs = new();
+  internal EleuEnvironment environment;
+  Stack<EleuEnvironment> envStack = new();
   readonly List<object> valueStack = new();
   public int InstructionCount = 0;
   public int FrameTimeMs { get; set; }
@@ -212,7 +211,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
   internal void LeaveFrame()
   {
     frame = frame!.next!;
-    environment = prevEnvs.RemoveLast();
+    environment = envStack.Pop();
     frameDepth--;
     callStack.Pop();
   }
@@ -221,10 +220,10 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
   internal void Push(object o) => valueStack.Add(o);
   internal void EnterEnv(EleuEnvironment env)
   {
-    prevEnvs.Add(environment);
+    envStack.Push(environment);
     environment = env;
   }
-  internal void LeaveEnv() => environment = prevEnvs.RemoveLast();
+  internal void LeaveEnv() => environment = envStack.Pop();
   internal object AssignAtDistance(String name, int distance, Object value)
   {
     if (distance >= 0)

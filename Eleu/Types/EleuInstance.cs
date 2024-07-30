@@ -1,6 +1,5 @@
 ﻿namespace Eleu.Types;
 
-
 class EleuInstance
 {
 	internal readonly EleuClass klass;
@@ -9,7 +8,7 @@ class EleuInstance
 	public EleuInstance(EleuClass klass)
 	{
 		this.klass = klass;
-		this.fields = new OTable();
+		this.fields = [];
 	}
 	public object Get(string name, bool bindInstructions)
 	{
