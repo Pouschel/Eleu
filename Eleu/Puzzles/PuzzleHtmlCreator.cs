@@ -93,8 +93,8 @@ metrics.width+""|""+(metrics.actualBoundingBoxAscent + metrics.actualBoundingBox
       canvas.SetProperty("height", canvasHeight.ToString());
     }
     cellSize = Math.Min(canvasWidth / (ColCount + 1), canvasHeight / (RowCount + 1));
-    borderX = (canvasWidth - (ColCount +1 ) * cellSize) / 2 + cellSize*0.6f;
-    borderY = (canvasHeight - (RowCount+1 ) * cellSize) / 2 + cellSize*0.6f;
+    borderX = (canvasWidth - (ColCount + 1) * cellSize) / 2 + cellSize * 0.6f;
+    borderY = (canvasHeight - (RowCount + 1) * cellSize) / 2 + cellSize * 0.6f;
     border = Math.Min(borderX, borderY);
 
     swc.WriteLine(canvasPrelude);

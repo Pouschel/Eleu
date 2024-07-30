@@ -53,9 +53,7 @@ class HUI
 
   public void SetModeLoaded()
   {
-    HElement waitDiv = new("waitDiv");
-    waitDiv.Remove();
-    //waitDiv.Style.Display = "none";
+    HElement waitDiv = new("waitDiv"); waitDiv.Remove();
     mainDiv.Style.Display = "block";
   }
 
