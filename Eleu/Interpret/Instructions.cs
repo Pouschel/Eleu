@@ -26,7 +26,7 @@ record PushInstruction(object value, InputStatus stat) : Instruction(stat)
 {
   public override void execute(Interpreter vm)
   {
-    vm.push(value);
+    vm.Push(value);
   }
   public override string ToString() => $"push {value}";
 }
@@ -36,7 +36,7 @@ record PopInstruction(InputStatus stat) : Instruction(stat)
   public bool DisallowFunctionPop = false;
   public override void execute(Interpreter vm)
   {
-    var o = vm.pop();
+    var o = vm.Pop();
     if (DisallowFunctionPop && o is ICallable call) 
       throw vm.Error(Func_Call_Missing_Paren(call.Name));
   }
@@ -47,7 +47,7 @@ record CallInstruction(int nArgs, InputStatus status) : Instruction(status)
 {
   public override void execute(Interpreter vm)
   {
-    var callee = vm.pop();
+    var callee = vm.Pop();
     if (callee is NativeFunction nfunc)
     {
       ExecuteNative(vm, nfunc);
@@ -68,7 +68,7 @@ record CallInstruction(int nArgs, InputStatus status) : Instruction(status)
       var initializer = cls.FindMethod("init");
       if (initializer is not EleuFunction ifunc)
       {
-        vm.push(instance);
+        vm.Push(instance);
         return;
       }
       ifunc = ifunc.Bind(instance, true);
@@ -85,9 +85,9 @@ record CallInstruction(int nArgs, InputStatus status) : Instruction(status)
   {
     for (int i = nArgs - 1; i >= 0; i--)
     {
-      environment.Define(callee.declaration.Paras[i].StringValue, vm.pop());
+      environment.Define(callee.declaration.Paras[i].StringValue, vm.Pop());
     }
-    vm.enterEnv(environment);
+    vm.EnterEnv(environment);
     var frame = new CallFrame(callee.compiledChunk, func: callee);
     vm.EnterFrame(frame);
   }
@@ -97,11 +97,11 @@ record CallInstruction(int nArgs, InputStatus status) : Instruction(status)
     var arguments = new object[nArgs];
     for (int i = 0; i < nArgs; i++)
     {
-      var argument = vm.pop();
+      var argument = vm.Pop();
       arguments[nArgs - i - 1] = argument;
     }
     var res = vm.CallFunction(callee, arguments);
-    vm.push(res);
+    vm.Push(res);
   }
 
 
@@ -114,7 +114,7 @@ record LookupVarInstruction(string name, int distance, InputStatus status) : Ins
   public override void execute(Interpreter vm)
   {
     var value = vm.LookUpVariable(name, distance);
-    vm.push(value);
+    vm.Push(value);
   }
 
   public override string ToString() => $"get_value@{distance} '{name}'";
@@ -125,8 +125,8 @@ record AssignInstruction(string name, int distance, InputStatus status) : Instru
 
   public override void execute(Interpreter vm)
   {
-    var value = vm.peek();
-    vm.assignAtDistance(name, distance, value);
+    var value = vm.Peek();
+    vm.AssignAtDistance(name, distance, value);
   }
 
   public override string ToString() => $"assign@{distance} {name}";
@@ -138,8 +138,8 @@ record BinaryOpInstruction(TokenType op, InputStatus status) : Instruction(statu
 
   public override void execute(Interpreter vm)
   {
-    var rhs = vm.pop();
-    var lhs = vm.pop();
+    var rhs = vm.Pop();
+    var lhs = vm.Pop();
     var result = NilValue;
     result = op switch
     {
@@ -156,7 +156,7 @@ record BinaryOpInstruction(TokenType op, InputStatus status) : Instruction(statu
       TokenType.TokenSlash => NumberOp("/", lhs, rhs, (a, b) => a / b),
       _ => throw new EleuRuntimeError(status, $"Invalid op: {op}")
     };
-    vm.push(result);
+    vm.Push(result);
   }
   public override string ToString() => $"op {op}";
 }
@@ -165,11 +165,11 @@ record GetInstruction(string name, InputStatus status) : Instruction(status)
 {
   public override void execute(Interpreter vm)
   {
-    var obj = vm.pop();
+    var obj = vm.Pop();
     if (obj is EleuInstance inst)
     {
       var val = inst.Get(name, true);
-      vm.push(val);
+      vm.Push(val);
       return;
     }
     throw vm.Error("Only instances have properties.");
@@ -181,17 +181,17 @@ record LogicalOpInstruction(Token op, InputStatus status) : Instruction(status)
 {
   public override void execute(Interpreter vm)
   {
-    var right = vm.pop();
+    var right = vm.Pop();
     if (right is not bool)
       throw new EleuRuntimeError(status, $"Der Operator '{op.StringValue}' kann nicht auf '{right}' angewendet werden.");
-    var left = vm.pop();
+    var left = vm.Pop();
     if (left is not bool)
       throw new EleuRuntimeError(status, $"Der Operator '{op.StringValue}' kann nicht auf '{left}' angewendet werden.");
     if (op.Type == TokenType.TokenOr)
     {
       if (IsTruthy(left))
       {
-        vm.push(left);
+        vm.Push(left);
         return;
       }
     }
@@ -199,11 +199,11 @@ record LogicalOpInstruction(Token op, InputStatus status) : Instruction(status)
     {
       if (IsFalsey(left))
       {
-        vm.push(left);
+        vm.Push(left);
         return;
       }
     }
-    vm.push(right);
+    vm.Push(right);
   }
 
   public override string ToString() => op.StringValue;
@@ -213,12 +213,12 @@ record SetInstruction(string name, InputStatus status) : Instruction(status)
 {
   public override void execute(Interpreter vm)
   {
-    var value = vm.pop();
-    var obj = vm.pop();
+    var value = vm.Pop();
+    var obj = vm.Pop();
     if (obj is not EleuInstance inst)
       throw vm.Error("Only instances have fields.");
     inst.Set(name, value);
-    vm.push(value);
+    vm.Push(value);
   }
   public override string ToString() => $"set_field {name}";
 }
@@ -234,7 +234,7 @@ record SuperInstruction(string name, int distance, InputStatus status) : Instruc
     var method = superclass.FindMethod(name);
     if (method is not EleuFunction func)
       throw vm.Error($"Undefined property '{name}'.");
-    vm.push(func.Bind(obj, true));
+    vm.Push(func.Bind(obj, true));
   }
 }
 
@@ -242,19 +242,19 @@ record UnaryOpInstruction(TokenType type, InputStatus status) : Instruction(stat
 {
   public override void execute(Interpreter vm)
   {
-    var right = vm.pop();
+    var right = vm.Pop();
     switch (type)
     {
       case TokenType.TokenBang:
         if (right is not bool)
           throw new EleuRuntimeError(status, "Operand muss vom Typ boolean sein.");
-        vm.push(!IsTruthy(right));
+        vm.Push(!IsTruthy(right));
         break;
       case TokenType.TokenMinus:
         {
           if (right is not Number num)
             throw new EleuRuntimeError(status, "Operand muss eine Zahl sein.");
-          vm.push(-num);
+          vm.Push(-num);
         }
         break;
       default:
@@ -267,7 +267,7 @@ record AssertInstruction(InputStatus status) : Instruction(status)
 {
   public override void execute(Interpreter vm)
   {
-    var val = vm.pop();
+    var val = vm.Pop();
     if (IsFalsey(val))
       throw new EleuAssertionFail(status, "Eine Annahme ist fehlgeschlagen.");
   }
@@ -280,10 +280,10 @@ record ScopeInstruction(bool begin) : Instruction(InputStatus.Empty)
     if (begin)
     {
       var env = new EleuEnvironment(vm.environment);
-      vm.enterEnv(env);
+      vm.EnterEnv(env);
     }
     else
-      vm.leaveEnv();
+      vm.LeaveEnv();
   }
 
   public override string ToString() => begin ? "enter_scope" : "leave_scope";
@@ -296,7 +296,7 @@ record VarDefInstruction(string name, InputStatus status1) : Instruction(status1
   {
     if (vm.environment.ContainsAtDistance0(name))
       throw new EleuRuntimeError(status, $"Mehrfache var-Anweisung: '{name}' wurde bereits deklariert!");
-    var value = vm.pop();
+    var value = vm.Pop();
     vm.environment.Define(name, value);
   }
   public override string ToString() => $"def var {name}";
@@ -326,14 +326,14 @@ record JumpInstruction : Instruction
   {
     for (var i = 0; i < leaveScopes; i++)
     {
-      vm.leaveEnv();
+      vm.LeaveEnv();
     }
     if (mode == JumpMode.jmp)
     {
       vm.frame!.ip = offset;
       return;
     }
-    var val = vm.peek();
+    var val = vm.Peek();
 
     int? GetCount()
     {
@@ -381,7 +381,7 @@ record ReturnInstruction(int scopeDepth, InputStatus status) : Instruction(statu
   {
     for (var i = 0; i < scopeDepth; i++)
     {
-      vm.leaveEnv();
+      vm.LeaveEnv();
     }
     vm.LeaveFrame();
   }
@@ -391,11 +391,11 @@ record ClassInstruction(string clsName, List<Stmt.Function> methods, InputStatus
 {
   public override void execute(Interpreter vm)
   {
-    if (vm.pop() is not bool hasSuper) throw new NotSupportedException();
+    if (vm.Pop() is not bool hasSuper) throw new NotSupportedException();
     EleuClass? superclass = null;
     if (hasSuper)
     {
-      var superclassV = vm.pop();
+      var superclassV = vm.Pop();
       if (superclassV is not EleuClass sucv)
       {
         throw vm.Error("Superclass must be a class.");

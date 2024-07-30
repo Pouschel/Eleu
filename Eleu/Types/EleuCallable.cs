@@ -5,8 +5,7 @@ namespace Eleu.Types;
 class NilType
 {
   private NilType()
-  {
-  }
+  { }
   public static NilType Nil = new();
   public override string ToString() => "nil";
 }

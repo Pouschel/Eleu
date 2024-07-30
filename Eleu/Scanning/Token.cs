@@ -11,26 +11,6 @@ public struct Token
   public string StringStringValue => Source[(Start + 1)..(End - 1)];
   public override string ToString() => $"{Type}: {StringValue}";
 
-  static object[] tokenNames = [
-// Single-character tokens.
-TokenLeftParen,
-    "(",
-    TokenRightParen,
-    ")",
-    TokenLeftBrace,
-    "{",
-    TokenRightBrace,
-    "}",
-
-  ];
-
-  public static string GetTokenName(TokenType tokenType)
-  {
-    int idx= Array.IndexOf(tokenNames, tokenType);
-    if (idx<0) throw new NotImplementedException($"Name for {tokenType} not implemented");
-    return (string) tokenNames[idx + 1];
-  }
-
 }
 
 

@@ -216,16 +216,16 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
     frameDepth--;
     callStack.Pop();
   }
-  internal object pop() => valueStack.RemoveLast();
-  internal object peek() => valueStack[^1];
-  internal void push(object o) => valueStack.Add(o);
-  internal void enterEnv(EleuEnvironment env)
+  internal object Pop() => valueStack.RemoveLast();
+  internal object Peek() => valueStack[^1];
+  internal void Push(object o) => valueStack.Add(o);
+  internal void EnterEnv(EleuEnvironment env)
   {
     prevEnvs.Add(environment);
     environment = env;
   }
-  internal void leaveEnv() => environment = prevEnvs.RemoveLast();
-  internal object assignAtDistance(String name, int distance, Object value)
+  internal void LeaveEnv() => environment = prevEnvs.RemoveLast();
+  internal object AssignAtDistance(String name, int distance, Object value)
   {
     if (distance >= 0)
     {
@@ -278,7 +278,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
   {
     var value = Evaluate(expr.Value);
     var distance = expr.localDistance;
-    assignAtDistance(expr.Name, distance, value);
+    AssignAtDistance(expr.Name, distance, value);
     return value;
   }
 
@@ -307,9 +307,9 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
   {
     for (int i = 0; i < args.Length; i++)
     {
-      push(args[i]);
+      Push(args[i]);
     }
-    push(func);
+    Push(func);
     var call = new CallInstruction(args.Length, currentStatus);
     ExecuteInstruction(call);
   }
