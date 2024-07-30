@@ -10,7 +10,7 @@ record CallFrame(Chunk chunk, ICallable? func = null)
   public int ip = 0;
   public CallFrame? next;
 
-  public Instruction? nextInstruction()
+  public Instruction? NextInstruction()
   {
     if (ip >= chunk.Count) return null;
     return chunk.code[ip++];
@@ -19,12 +19,12 @@ record CallFrame(Chunk chunk, ICallable? func = null)
 
 abstract record class Instruction(InputStatus status)
 {
-  public abstract void execute(Interpreter vm);
+  public abstract void Execute(Interpreter vm);
 
 }
 record PushInstruction(object value, InputStatus stat) : Instruction(stat)
 {
-  public override void execute(Interpreter vm)
+  public override void Execute(Interpreter vm)
   {
     vm.Push(value);
   }
@@ -34,7 +34,7 @@ record PushInstruction(object value, InputStatus stat) : Instruction(stat)
 record PopInstruction(InputStatus stat) : Instruction(stat)
 {
   public bool DisallowFunctionPop = false;
-  public override void execute(Interpreter vm)
+  public override void Execute(Interpreter vm)
   {
     var o = vm.Pop();
     if (DisallowFunctionPop && o is ICallable call) 
@@ -45,7 +45,7 @@ record PopInstruction(InputStatus stat) : Instruction(stat)
 
 record CallInstruction(int nArgs, InputStatus status) : Instruction(status)
 {
-  public override void execute(Interpreter vm)
+  public override void Execute(Interpreter vm)
   {
     var callee = vm.Pop();
     if (callee is NativeFunction nfunc)
@@ -111,7 +111,7 @@ record CallInstruction(int nArgs, InputStatus status) : Instruction(status)
 record LookupVarInstruction(string name, int distance, InputStatus status) : Instruction(status)
 {
 
-  public override void execute(Interpreter vm)
+  public override void Execute(Interpreter vm)
   {
     var value = vm.LookUpVariable(name, distance);
     vm.Push(value);
@@ -123,7 +123,7 @@ record LookupVarInstruction(string name, int distance, InputStatus status) : Ins
 record AssignInstruction(string name, int distance, InputStatus status) : Instruction(status)
 {
 
-  public override void execute(Interpreter vm)
+  public override void Execute(Interpreter vm)
   {
     var value = vm.Peek();
     vm.AssignAtDistance(name, distance, value);
@@ -136,7 +136,7 @@ record AssignInstruction(string name, int distance, InputStatus status) : Instru
 record BinaryOpInstruction(TokenType op, InputStatus status) : Instruction(status)
 {
 
-  public override void execute(Interpreter vm)
+  public override void Execute(Interpreter vm)
   {
     var rhs = vm.Pop();
     var lhs = vm.Pop();
@@ -163,7 +163,7 @@ record BinaryOpInstruction(TokenType op, InputStatus status) : Instruction(statu
 
 record GetInstruction(string name, InputStatus status) : Instruction(status)
 {
-  public override void execute(Interpreter vm)
+  public override void Execute(Interpreter vm)
   {
     var obj = vm.Pop();
     if (obj is EleuInstance inst)
@@ -179,7 +179,7 @@ record GetInstruction(string name, InputStatus status) : Instruction(status)
 
 record LogicalOpInstruction(Token op, InputStatus status) : Instruction(status)
 {
-  public override void execute(Interpreter vm)
+  public override void Execute(Interpreter vm)
   {
     var right = vm.Pop();
     if (right is not bool)
@@ -211,7 +211,7 @@ record LogicalOpInstruction(Token op, InputStatus status) : Instruction(status)
 
 record SetInstruction(string name, InputStatus status) : Instruction(status)
 {
-  public override void execute(Interpreter vm)
+  public override void Execute(Interpreter vm)
   {
     var value = vm.Pop();
     var obj = vm.Pop();
@@ -225,7 +225,7 @@ record SetInstruction(string name, InputStatus status) : Instruction(status)
 
 record SuperInstruction(string name, int distance, InputStatus status) : Instruction(status)
 {
-  public override void execute(Interpreter vm)
+  public override void Execute(Interpreter vm)
   {
     if (vm.environment.GetAt("super", distance) is not EleuClass superclass)
       throw vm.Error("No superclass found");
@@ -240,7 +240,7 @@ record SuperInstruction(string name, int distance, InputStatus status) : Instruc
 
 record UnaryOpInstruction(TokenType type, InputStatus status) : Instruction(status)
 {
-  public override void execute(Interpreter vm)
+  public override void Execute(Interpreter vm)
   {
     var right = vm.Pop();
     switch (type)
@@ -265,7 +265,7 @@ record UnaryOpInstruction(TokenType type, InputStatus status) : Instruction(stat
 
 record AssertInstruction(InputStatus status) : Instruction(status)
 {
-  public override void execute(Interpreter vm)
+  public override void Execute(Interpreter vm)
   {
     var val = vm.Pop();
     if (IsFalsey(val))
@@ -275,7 +275,7 @@ record AssertInstruction(InputStatus status) : Instruction(status)
 
 record ScopeInstruction(bool begin) : Instruction(InputStatus.Empty)
 {
-  public override void execute(Interpreter vm)
+  public override void Execute(Interpreter vm)
   {
     if (begin)
     {
@@ -292,7 +292,7 @@ record ScopeInstruction(bool begin) : Instruction(InputStatus.Empty)
 record VarDefInstruction(string name, InputStatus status1) : Instruction(status1)
 {
 
-  public override void execute(Interpreter vm)
+  public override void Execute(Interpreter vm)
   {
     if (vm.environment.ContainsAtDistance0(name))
       throw new EleuRuntimeError(status, $"Mehrfache var-Anweisung: '{name}' wurde bereits deklariert!");
@@ -322,7 +322,7 @@ record JumpInstruction : Instruction
     this.mode = mode;
   }
 
-  public override void execute(Interpreter vm)
+  public override void Execute(Interpreter vm)
   {
     for (var i = 0; i < leaveScopes; i++)
     {
@@ -368,7 +368,7 @@ record JumpInstruction : Instruction
 
 record DefFunInstruction(Stmt.Function func) : Instruction(InputStatus.Empty)
 {
-  public override void execute(Interpreter vm)
+  public override void Execute(Interpreter vm)
   {
     EleuFunction function = new EleuFunction(func, vm.environment, false);
     vm.environment.Define(func.Name, function);
@@ -377,7 +377,7 @@ record DefFunInstruction(Stmt.Function func) : Instruction(InputStatus.Empty)
 
 record ReturnInstruction(int scopeDepth, InputStatus status) : Instruction(status)
 {
-  public override void execute(Interpreter vm)
+  public override void Execute(Interpreter vm)
   {
     for (var i = 0; i < scopeDepth; i++)
     {
@@ -389,7 +389,7 @@ record ReturnInstruction(int scopeDepth, InputStatus status) : Instruction(statu
 
 record ClassInstruction(string clsName, List<Stmt.Function> methods, InputStatus status) : Instruction(status)
 {
-  public override void execute(Interpreter vm)
+  public override void Execute(Interpreter vm)
   {
     if (vm.Pop() is not bool hasSuper) throw new NotSupportedException();
     EleuClass? superclass = null;

@@ -150,7 +150,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
   }
   public EEleuResult Step()
   {
-    var ins = frame!.nextInstruction();
+    var ins = frame!.NextInstruction();
     if (ins == null)
     {
       if (frame.next == null) return EEleuResult.Ok;
@@ -180,7 +180,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
     try
     {
       if (!ins.status.IsEmpty) currentStatus = ins.status;
-      ins.execute(this);
+      ins.Execute(this);
       ExecutedInstructionCount++;
     }
     catch (EleuRuntimeError ex)
