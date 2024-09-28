@@ -183,10 +183,10 @@ record LogicalOpInstruction(Token op, InputStatus status) : Instruction(status)
   {
     var right = vm.Pop();
     if (right is not bool)
-      throw new EleuRuntimeError(status, $"Der Operator '{op.StringValue}' kann nicht auf '{right}' angewendet werden.");
+      throw new EleuRuntimeError(status, Wrong_Op_Arg(op, right));
     var left = vm.Pop();
     if (left is not bool)
-      throw new EleuRuntimeError(status, $"Der Operator '{op.StringValue}' kann nicht auf '{left}' angewendet werden.");
+      throw new EleuRuntimeError(status, Wrong_Op_Arg(op, left));
     if (op.Type == TokenType.TokenOr)
     {
       if (IsTruthy(left))
