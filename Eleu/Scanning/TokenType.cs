@@ -24,6 +24,7 @@ public enum TokenType
 	TokenAssert, TokenReturn, TokenSuper, TokenThis,
 	TokenTrue, TokenVar, TokenWhile, TokenRepeat,
 	TokenKeywordEnd,
+	TokenComment,
 	// Error, EOF
 	TokenError, TokenEof
 }
