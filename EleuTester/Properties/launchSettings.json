@@ -20,6 +20,10 @@
       "commandName": "Project",
       "commandLineArgs": "C:\\Code\\OwnApps\\EleuStudio\\EleuSrc\\Examples\\Ex1.eleu"
     },
+    "PrettyPrint": {
+      "commandName": "Project",
+      "commandLineArgs": "-pp C:\\Code\\OwnApps\\EleuStudio\\EleuSrc\\Examples\\Ex1.eleu"
+    },
     "SingleFileVm": {
       "commandName": "Project",
       "commandLineArgs": "-dump c:\\temp\\eleu.log -vm C:\\Code\\OwnApps\\EleuStudio\\EleuSrc\\Examples\\Ex1.eleu"

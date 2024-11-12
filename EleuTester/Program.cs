@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Text;
 using Eleu;
+using Eleu.Scanning;
 
 class Program
 {
@@ -216,11 +217,13 @@ class Program
 -vm                        use vm
 -test TestDir [FileToExecute] 
 -benchmark BenchmarkDir
--dump file         Dump code execution to log file:");
+-dump file         Dump code execution to log file:
+-pp file  prettyprint file to console");
 
     if (args.Length < 1) return;
     var prog = new Program();
     string file = "", dumpFile = "";
+    bool prettyPrint = false;
     for (int i = 0; i < args.Length; i++)
     {
       var arg = args[i];
@@ -240,16 +243,32 @@ class Program
         case "-dump":
           dumpFile = args[++i];
           break;
+        case "-pp": prettyPrint = true;
+          break;
         default: file = arg; break;
       }
     }
     if (!string.IsNullOrEmpty(file))
     {
-      Console.WriteLine($"Running file: {file}");
-      Globals.RunFile(file, Console.Out, prog.useVm, dumpFile);
+      if (prettyPrint) TestPrettyPrint(file);
+      else
+      {
+        Console.WriteLine($"Running file: {file}");
+        Globals.RunFile(file, Console.Out, prog.useVm, dumpFile);
+      }
     }
     Console.WriteLine("Finished!");
     //Console.ReadLine();
+  }
+
+  static void TestPrettyPrint(string fileName)
+  {
+    var text=File.ReadAllText(fileName);
+    var pp=new PrettyPrinter(text);
+    var ftext= pp.Format();
+    Console.WriteLine("------- start pp -------");
+    Console.WriteLine(ftext);
+    Console.WriteLine("-------- end pp --------");
   }
 }
 

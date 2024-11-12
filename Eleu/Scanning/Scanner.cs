@@ -53,7 +53,7 @@ internal ref struct Scanner
   Token Comment()
   {
     // A comment goes until the end of the line.
-    while (Peek() != '\n' && !IsAtEnd) Advance();
+    while (Peek() != '\n' && Peek()!='\r' && !IsAtEnd) Advance();
     return MakeToken(TokenComment);
   }
 
