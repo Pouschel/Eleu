@@ -17,6 +17,8 @@ public class PrettyPrinter
   public string IndentString = "  ";
   int indent;
   bool firstInNewLine;
+  int line = 1, col = 1;
+  
   public PrettyPrinter(string text)
   {
     this.text = text;
@@ -33,6 +35,7 @@ public class PrettyPrinter
 
     var token = tokens[idx++];
     tw.Write(token.StringValue);
+    col += token.StringValue.Length;
     firstInNewLine = false;
   }
 
@@ -40,10 +43,12 @@ public class PrettyPrinter
   {
     tw.Write(NewLine);
     firstInNewLine = true;
+    line++; col = 1;
   }
   void WriteSpace()
   {
     tw.Write(' '); firstInNewLine = false;
+    col++;
   }
   bool IsOneOf(TokenType ttype, params TokenType[] types)
   {
@@ -67,7 +72,7 @@ public class PrettyPrinter
           WriteLine(); ConsumeWrite(); WriteLine(); indent++;
           break;
         case TokenRightBrace:
-          if (!firstInNewLine)   WriteLine(); 
+          if (!firstInNewLine) WriteLine();
           indent--; ConsumeWrite(); WriteLine();
           break;
         case TokenSemicolon:
@@ -86,6 +91,10 @@ public class PrettyPrinter
           break;
         case TokenLeftParen:
           ConsumeWrite(); break;
+        case TokenFun:
+          WriteLine();
+          ConsumeWrite(); WriteSpace();
+          break;
         default:
           ConsumeWrite();
           if (!IsOneOf(PeekType(), TokenSemicolon, TokenRightParen))

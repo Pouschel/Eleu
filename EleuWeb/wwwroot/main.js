@@ -57,13 +57,18 @@ document.addEventListener("keydown", fkey);
 
 function fkey(e)
 {
-  //e = e || window.event;
-  if (e.keyCode == 116)
+  //console.log(`pressed: ${e.keyCode} | ${e.ctrlKey} ${e.code} `);
+
+  if (e.code == "F5")
   {
-    //alert(`pressed: ${e.keyCode} v9`);
     e.handled = true;
-    e.preventDefault();
     app.RunCode();
+    return false;
+  }
+  if (e.code == "KeyI" && e.ctrlKey)
+  {
+    e.handled = true; e.preventDefault();
+    app.PrettyPrintCode();
     return false;
   }
 }

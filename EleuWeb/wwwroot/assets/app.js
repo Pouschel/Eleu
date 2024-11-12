@@ -34,5 +34,10 @@ function setEleuError(l0, c0, l1, c1)
   }
 }
 
+function getEditorCursor()
+{
+  var pos = editor.getCursorPosition();
+  return `${pos.row}|${pos.column}`
+}
 //window.addEventListener("keydown", fkey);
 

@@ -3,6 +3,7 @@
 using System.Globalization;
 using System.Runtime.InteropServices.JavaScript;
 using DomCask;
+using Eleu.Scanning;
 
 class WasmDom : IDomProvider
 {
@@ -21,7 +22,7 @@ public partial class BrowserApp
 
   [JSImport("cs.setProp", "main.js")]
   public static partial void SetProperty(string elName, string propName, string propValue);
- 
+
   [JSImport("cs.setPropBool", "main.js")]
   public static partial void SetProperty(string elName, string propName, bool propValue);
 
@@ -62,7 +63,7 @@ public partial class EditorApp
 
   public static void SetText(string text)
   {
-    JsEvalWithResult($"editor.setValue(`{text}`);");
+    JsEval($"editor.setValue(`{text}`, -1);");
   }
 
   [JSExport]
@@ -71,5 +72,26 @@ public partial class EditorApp
     App.Ui.RunClicked(false);
   }
 
+  static (int, int) GetCursor()
+  {
+    var o = JsEvalWithResult("getEditorCursor();");
+    var sp = o.Split('|');
+    if (sp.Length < 2) return (-1, -1);
+    int.TryParse(sp[0], out var row);
+    int.TryParse(sp[1], out var col);
+    return (row +1 , col +1);
+  }
+
+  [JSExport]
+  public static void PrettyPrintCode()
+  {
+//    var (row, col) = GetCursor();
+    var text = GetText();
+    var pp = new PrettyPrinter(text);
+    var ftext = pp.Format();
+    SetText(ftext);
+    //if (row >= 0 && col >= 0)
+    //  JsEval($"editor.gotoLine({row}, {col});");
+  }
 
 }
