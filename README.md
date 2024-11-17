@@ -16,5 +16,5 @@ The language is based on famous book [Crafting interpreters](http://craftinginte
 repeat(5) { print("Hello Eleu"); }
 ```
 
-* a lot of basic native function for math and string manipulation
+* a lot of basic native functions for math and string manipulation
 
