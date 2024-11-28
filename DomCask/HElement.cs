@@ -119,8 +119,8 @@ public class HSelect : HElement
 
   public int SelectedIndex
   {
-    get => GetIntProperty(Id, "selectedIndex");
-    set => Dom.SetProperty(Id, "selectedIndex", value.ToString());
+    get => GetIntProperty(Id, "value");
+    set => Dom.SetProperty(Id, "value", value.ToString());
   }
 
 }

@@ -33,7 +33,6 @@ class HUI
 
     selTest = new("selTest");
     selTest.Change += this.SelTest_Change;
-
   }
 
   private void RangeSpeed_Change()

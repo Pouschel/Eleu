@@ -45,7 +45,10 @@ function setProp(elId, propName, propValue)
 function addListener(elId, eventName, callback)
 {
   var el = document.getElementById(elId);
-  el.addEventListener(eventName, callback);
+  el.addEventListener(eventName, (event) =>
+  {
+    callback()
+  });
 }
 
 function callTimeout(func, delay)
