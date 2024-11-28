@@ -1,4 +1,4 @@
-﻿//https://learn.microsoft.com/en-us/aspnet/core/client-side/dotnet-interop?view=aspnetcore-7.0
+﻿//https://learn.microsoft.com/en-us/aspnet/core/client-side/dotnet-interop
 
 using System.Threading;
 using DomCask;

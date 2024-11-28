@@ -3,7 +3,7 @@
 
 import { dotnet } from './_framework/dotnet.js'
 
-const { setModuleImports, getAssemblyExports, getConfig } = await dotnet
+const { setModuleImports, getAssemblyExports, getConfig, runMain } = await dotnet
     .withDiagnosticTracing(false)
     .withApplicationArgumentsFromQuery()
     .create();
@@ -73,5 +73,5 @@ function fkey(e)
   }
 }
 
-await dotnet.run();
+await runMain();
 
