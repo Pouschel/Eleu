@@ -1,4 +1,5 @@
 ﻿using Eleu.Types;
+using static Eleu.Interpret.InterpretResult;
 namespace Eleu.Ast;
 
 internal class AstParser(EleuOptions options, List<Token> tokens)
@@ -29,7 +30,7 @@ internal class AstParser(EleuOptions options, List<Token> tokens)
     }
     if (statements.Count == 0 && Peek.Type == TokenError && ErrorCount == 0)
     {
-      RegisterError(Peek.Status, Peek.StringValue);
+      throw CreateErrorException(Peek.Status, Peek.StringValue);
     }
     return statements;
   }
@@ -89,7 +90,7 @@ internal class AstParser(EleuOptions options, List<Token> tokens)
     Consume(TokenRightParen, "Expect ')' after for clauses.");
     CheckIllegalContinuation(Peek, TokenVar, TokenFun, TokenClass);
     if (CheckContinuation(Peek, TokenSemicolon))
-      throw CreateError(Peek.Status, "Ein Semikolon direkt hinter einen for ist nicht erlaubt.");
+      throw CreateErrorException(Peek.Status, "Ein Semikolon direkt hinter einen for ist nicht erlaubt.");
     Stmt body = Statement();
     condition ??= new Expr.Literal(true);
     body = new Stmt.While(condition, body, increment);
@@ -110,7 +111,7 @@ internal class AstParser(EleuOptions options, List<Token> tokens)
   void CheckIllegalContinuation(Token tok, params TokenType[] illegalTokenTypes)
   {
     if (CheckContinuation(tok, illegalTokenTypes))
-      throw CreateError(tok.Status, $"'{tok.StringValue}' ist hier nicht erlaubt.");
+      throw CreateErrorException(tok.Status, $"'{tok.StringValue}' ist hier nicht erlaubt.");
   }
   private Stmt.If IfStatement()
   {
@@ -119,7 +120,7 @@ internal class AstParser(EleuOptions options, List<Token> tokens)
     Consume(TokenRightParen, "Nach der 'if'-Bedingung wird ')' erwartet.", condition.Status);
     CheckIllegalContinuation(Peek, TokenVar, TokenFun, TokenClass);
     if (CheckContinuation(Peek, TokenSemicolon))
-      throw CreateError(Peek.Status, "Ein Semikolon direkt hinter einen if ist nicht erlaubt.");
+      throw CreateErrorException(Peek.Status, "Ein Semikolon direkt hinter einen if ist nicht erlaubt.");
     Stmt thenBranch = Statement();
     Stmt? elseBranch = null;
     if (Match(TokenElse))
@@ -180,7 +181,7 @@ internal class AstParser(EleuOptions options, List<Token> tokens)
       {
         if (parameters.Count >= 255)
         {
-          throw CreateError(Peek.Status, "Can't have more than 255 parameters.");
+          throw CreateErrorException(Peek.Status, "Can't have more than 255 parameters.");
         }
         parameters.Add(Consume(TokenIdentifier, "Expect parameter name."));
       } while (Match(TokenComma));
@@ -217,7 +218,7 @@ internal class AstParser(EleuOptions options, List<Token> tokens)
       {
         return new Expr.Set(get.Obj, get.Name, value);
       }
-      throw CreateError(expr.Status.IsEmpty ? equals.Status : expr.Status, "Diesem Ausdruck kann kein Wert zugewiesen werden.");
+      throw CreateErrorException(expr.Status.IsEmpty ? equals.Status : expr.Status, "Diesem Ausdruck kann kein Wert zugewiesen werden.");
     }
     return expr;
   }
@@ -275,7 +276,7 @@ internal class AstParser(EleuOptions options, List<Token> tokens)
   {
     var cs = CurrentInputStatus;
     if (Peek.Type >= TokenKeywordStart && Peek.Type <= TokenKeywordEnd)
-      throw CreateError(Peek.Status, $"Das Schlüsselwort '{Peek.StringValue}' ist kein gültiger Variablenname.");
+      throw CreateErrorException(Peek.Status, $"Das Schlüsselwort '{Peek.StringValue}' ist kein gültiger Variablenname.");
     Token name = Consume(TokenIdentifier, "Der Name einer Variablen wird erwartet.");
     Expr? initializer = null;
     if (Match(TokenEqual))
@@ -292,7 +293,7 @@ internal class AstParser(EleuOptions options, List<Token> tokens)
     Expr condition = Expression();
     Consume(TokenRightParen, "Nach der 'while'-Bedingung wird ')' erwartet.", condition.Status);
     if (CheckContinuation(Peek, TokenSemicolon))
-      throw CreateError(Peek.Status, "Ein Semikolon direkt hinter einen while ist nicht erlaubt.");
+      throw CreateErrorException(Peek.Status, "Ein Semikolon direkt hinter einen while ist nicht erlaubt.");
     CheckIllegalContinuation(Peek, TokenVar, TokenFun, TokenClass);
     Stmt body = Statement();
     return new Stmt.While(condition, body, null);
@@ -303,7 +304,7 @@ internal class AstParser(EleuOptions options, List<Token> tokens)
     Expr numExpr = Expression();
     Consume(TokenRightParen, "Nach der Anzahl wird ')' erwartet.", numExpr.Status);
     if (CheckContinuation(Peek, TokenSemicolon))
-      throw CreateError(Peek.Status, "Ein Semikolon direkt hinter einen repeat ist nicht erlaubt.");
+      throw CreateErrorException(Peek.Status, "Ein Semikolon direkt hinter einen repeat ist nicht erlaubt.");
     Stmt body = Statement();
     return new Stmt.Repeat(numExpr, body);
   }
@@ -393,7 +394,7 @@ internal class AstParser(EleuOptions options, List<Token> tokens)
       {
         if (arguments.Count >= 255)
         {
-          throw CreateError(Peek.Status, "Can't have more than 255 arguments.");
+          throw CreateErrorException(Peek.Status, "Can't have more than 255 arguments.");
         }
         arguments.Add(Expression());
       } while (Match(TokenComma));
@@ -422,7 +423,7 @@ internal class AstParser(EleuOptions options, List<Token> tokens)
       return new Expr.Grouping(expr);
     }
     var lit = Literal();
-    return lit == null ? throw CreateError(Previous.Status, "Hier wird ein Ausdruck erwartet.") : (Expr)lit;
+    return lit == null ? throw CreateErrorException(Previous.Status, "Hier wird ein Ausdruck erwartet.") : (Expr)lit;
   }
 
   private Expr.Literal? Literal()
@@ -451,7 +452,7 @@ internal class AstParser(EleuOptions options, List<Token> tokens)
     {
       do
       {
-        var l = Expression() ?? throw CreateError(Previous.Status, "Hier wird ein Ausdruck erwartet.");
+        var l = Expression() ?? throw CreateErrorException(Previous.Status, "Hier wird ein Ausdruck erwartet.");
         arguments.Add(l);
       } while (Match(TokenComma));
     }
@@ -474,18 +475,13 @@ internal class AstParser(EleuOptions options, List<Token> tokens)
   {
     if (Check(type)) return Advance();
     var stat = status ?? Previous.Status;
-    RegisterError(stat, message);
-    throw new EleuParseError();
+    throw CreateErrorException(stat, message);
   }
-  private EleuParseError CreateError(InputStatus stat, string message)
-  {
-    RegisterError(stat, message);
-    return new EleuParseError();
-  }
-  void RegisterError(in InputStatus status, string message)
+  private EleuParseError CreateErrorException(InputStatus status, string message)
   {
     ErrorCount++;
     options.WriteCompilerError(status, message);
+    return new EleuParseError();
   }
   private void Synchronize()
   {
@@ -521,7 +517,7 @@ internal class AstParser(EleuOptions options, List<Token> tokens)
       var tok = Peek;
       if (tok.Type == TokenError)
       {
-        RegisterError(tok.Status, tok.StringValue);
+        throw CreateErrorException(tok.Status, tok.StringValue);
       }
     }
     return Previous;

@@ -27,6 +27,11 @@ function setEleuError(l0, c0, l1, c1)
   }
   else
   {
+    if (marker != null)
+    { 
+      console.error("2nd marker!");
+      return;
+    }
     editor.scrollToLine(l0, true, true, function () { });
     //console.log(`${l0} ${c0} ${l1} ${c1}`);
     l0--; c0--; l1--; c1--;

@@ -58,10 +58,10 @@ document.addEventListener("keydown", fkey);
 function fkey(e)
 {
   //console.log(`pressed: ${e.keyCode} | ${e.ctrlKey} ${e.code} `);
-
-  if (e.code == "F5")
+  if (e.keyCode == 116) // F5
   {
     e.handled = true;
+    e.preventDefault();
     app.RunCode();
     return false;
   }

@@ -28,7 +28,7 @@ record struct Cmd(string Name, object Arg)
 
 public class EleuLanguageServer : IDisposable
 {
-  public const string Version = "24.4";
+  public const string Version = "24.5";
   BlockingCollection<Cmd> queue = new(new ConcurrentQueue<Cmd>());
   Action<string, object> responseAction;
   Thread? worker;
