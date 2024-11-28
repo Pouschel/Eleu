@@ -2,6 +2,7 @@
 using System.Threading;
 using Eleu.LangServer;
 using Eleu.Puzzles;
+using Eleu.Scanning;
 namespace EleuStudio;
 
 public class WasmExecuter
@@ -83,7 +84,11 @@ public class WasmExecuter
         break;
       case "err":
       case "i_err":
-        App.Println(text(), viewOptions.LogErrorColor);
+        var txt = text();
+        var (ips, msg) = InputStatus.ParseWithMessage(txt);
+        if (!ips.IsEmpty)
+          App.Println($"Fehler in Zeile {ips.LineStart}: {msg}", viewOptions.LogErrorColor);
+        else App.Println(txt, viewOptions.LogErrorColor);
         HUI.MoveToPosition(text());
         break;
       case "out": App.Println(text()); break;
