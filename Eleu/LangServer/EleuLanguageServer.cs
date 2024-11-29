@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Eleu.Interpret;
 using Eleu.Puzzles;
@@ -188,6 +189,7 @@ public class EleuLanguageServer : IDisposable
     }
   }
   void SendPuzzle(Puzzle puzzle) => Response("puzzle", puzzle);
+
 
   void EndCodeHandler(string fileName, string code)
   {

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using Eleu.Puzzles;
 using Eleu.Types;
@@ -8,6 +9,7 @@ using Ts;
 
 namespace Eleu.Puzzles;
 
+[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
 public class PuzzleFunctions : NativeFunctionBase
 {
   class PException : EleuRuntimeError

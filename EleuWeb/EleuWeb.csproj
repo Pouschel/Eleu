@@ -13,6 +13,10 @@
     <WasmExtraFilesToDeploy Include="index.html" />
     <WasmExtraFilesToDeploy Include="main.js" />
   </ItemGroup>
+  
+  <PropertyGroup>
+    <PublishTrimmed>true</PublishTrimmed>
+  </PropertyGroup>
 
   <ItemGroup>
     <None Include="wwwroot\ace\ace.js" />

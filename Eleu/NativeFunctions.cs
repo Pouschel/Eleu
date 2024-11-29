@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Eleu.Interpret;
@@ -14,6 +15,7 @@ public class EleuNativeError : EleuRuntimeError
   { }
 }
 
+[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
 public class NativeFunctionBase
 {
   private Interpreter? vm;
@@ -91,6 +93,7 @@ public class NativeFunctionBase
   }
 }
 
+[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
 public class NativeFunctions : NativeFunctionBase
 {
   Random rand = new();
