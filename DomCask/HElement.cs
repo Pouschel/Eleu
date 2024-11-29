@@ -76,6 +76,8 @@ public class HElement
   public void Focus() => CallMethod(Id, "focus");
   public void Remove() => CallMethod(Id, "remove");
 
+  public void Select()=> CallMethod(Id, "select");
+
   public void SetProperty(string name, string value) => Dom.SetProperty(Id, name, value);
 
   public event Action Change

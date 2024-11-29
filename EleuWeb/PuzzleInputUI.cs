@@ -25,6 +25,7 @@ class PuzzleInputUI
   {
     puzzInputDiv.Visible = true;
     puzzleInputText.Value = App.Options.Puzzle.Text;
+    puzzleInputText.Select();
     puzzleInputText.Focus();
   }
 

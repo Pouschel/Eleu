@@ -34,7 +34,7 @@ public class EleuLanguageServer : IDisposable
   Thread? worker;
 
   Interpreter? interpreter;
-  EEleuResult lastResult = EEleuResult.NextStep;
+  EEleuResult lastResult = NextStep;
   bool _outStateChanged = false;
   Stopwatch _watch = new Stopwatch();
   PuzzleBundle? _bundle;
@@ -77,25 +77,25 @@ public class EleuLanguageServer : IDisposable
   {
     responseAction(name, arg);
   }
-  void _sendString(string head, string s)
+  void SendString(string head, string s)
   {
     foreach (var element in s.Split("\n"))
     {
       Response(head, element.TrimEnd());
     }
   }
-  void _sendError(String msg) => _sendString("err", msg); // compiler and runtime errors
-  void _sendInternalError(String msg) => _sendString("i_err", msg);
-  void _sendInfo(String msg) => _sendString("info", msg); // information
-  void _sendOutput(String msg) => _sendString("out", msg); // normal output from print
+  void SendError(String msg) => SendString("err", msg); // compiler and runtime errors
+  void SendInternalError(String msg) => SendString("i_err", msg);
+  void SendInfo(String msg) => SendString("info", msg); // information
+  void SendOutput(String msg) => SendString("out", msg); // normal output from print
   /// send puzzle output
-  void _sendPuzzleInfo(String msg) => _sendString("pout", msg);
-  void _sendRunState(bool running) => Response("state", running);
+  void SendPuzzleInfo(String msg) => SendString("pout", msg);
+  void SendRunState(bool running) => Response("state", running);
   void SendEndProgram(bool noError) => Response("end", noError);
-  void _onErrorMsg(String s) => _sendError(s);
+  void _onErrorMsg(String s) => SendError(s);
   void _onOutput(String s)
   {
-    _sendOutput(s);
+    SendOutput(s);
     _outStateChanged = true;
   }
   void OnPuzzleStateChanged(Puzzle? puzzle)
@@ -124,7 +124,7 @@ public class EleuLanguageServer : IDisposable
           Response($"{sarg}Funcs", funcs);
           break;
         case "ping":
-          _sendInfo($"Eleu Sprachserver Version {Version} bereit.");
+          SendInfo($"Eleu Sprachserver Version {Version} bereit.");
           break;
         case "code":
           var fileName = ArgAtIndex<string>(0);
@@ -142,12 +142,12 @@ public class EleuLanguageServer : IDisposable
           EndPuzzleHandler(puzCode, puzIndex);
           break;
         case "stop": Stop(); break;
-        default: _sendInternalError($"Invalid cmd: {cmd}"); break;
+        default: SendInternalError($"Invalid cmd: {cmd}"); break;
       }
     }
     catch (Exception ex)
     {
-      _sendInternalError(ex.Message);
+      SendInternalError(ex.Message);
     }
 
     T ArgAtIndex<T>(int idx) => (T)((object[])arg)[idx];
@@ -164,10 +164,10 @@ public class EleuLanguageServer : IDisposable
   void Stop()
   {
     interpreter = null;
-    lastResult = EEleuResult.CompileError;
+    lastResult = CompileError;
     _outStateChanged = false;
-    _sendRunState(false);
-    _sendError("Programm abgebrochen!");
+    SendRunState(false);
+    SendError("Programm abgebrochen!");
   }
   void EndPuzzleHandler(string code, int puzIndex)
   {
@@ -184,7 +184,7 @@ public class EleuLanguageServer : IDisposable
     catch (PuzzleParseException ex)
     {
       _bundle = null;
-      _sendError(ex.Message);
+      SendError(ex.Message);
     }
   }
   void SendPuzzle(Puzzle puzzle) => Response("puzzle", puzzle);
@@ -199,15 +199,15 @@ public class EleuLanguageServer : IDisposable
     };
     _watch.Restart();
     var (result, interp) = Compile(code, fileName, opt);
-    _sendInfo($"Skript übersetzt in {_watch.ElapsedMilliseconds} ms");
+    SendInfo($"Skript übersetzt in {_watch.ElapsedMilliseconds} ms");
     lastResult = result;
-    if (result == EEleuResult.Ok)
+    if (result == Ok)
     {
       interpreter = interp!;
       foreach (var type in additionalNativeFunctions)
       {
         if (Activator.CreateInstance(type) is not NativeFunctionBase func)
-          _sendInternalError($"type {type.Name} is no native function type");
+          SendInternalError($"type {type.Name} is no native function type");
         else
           NativeFunctionBase.DefineAll(func, interpreter);
       }
@@ -218,33 +218,33 @@ public class EleuLanguageServer : IDisposable
       this.curCode = code;
       this.curFileName = fileName;
     }
-    _sendRunState(lastResult == EEleuResult.NextStep);
+    SendRunState(lastResult == NextStep);
     _watch.Stop();
     _watch.Reset();
   }
 
   void NextSteps(int maxSteps)
   {
-    if (interpreter == null || lastResult != EEleuResult.NextStep)
+    if (interpreter == null || lastResult != NextStep)
     {
-      _sendRunState(false);
+      SendRunState(false);
       return;
     }
     _watch.Start();
     _outStateChanged = false;
     var interp = interpreter!;
-    for (var i = 0; i < maxSteps && lastResult == EEleuResult.NextStep; i++)
+    for (var i = 0; i < maxSteps && lastResult == NextStep; i++)
     {
       lastResult = interp.Step();
       if (_outStateChanged) break;
     }
-    if (lastResult == EEleuResult.Ok)
+    if (lastResult == Ok)
     {
-      _sendInfo("Skriptausführung wurde normal beendet.");
+      SendInfo("Skriptausführung wurde normal beendet.");
       _watch.Stop();
       int statementCount = interpreter!.ExecutedInstructionCount;
       var speed = statementCount / _watch.Elapsed.TotalSeconds;
-      _sendInfo($"{statementCount:###,###,###} Befehle in {_watch.ElapsedMilliseconds} ms verarbeitet ({speed:###,###,###} Bef./s).");
+      SendInfo($"{statementCount:###,###,###} Befehle in {_watch.ElapsedMilliseconds} ms verarbeitet ({speed:###,###,###} Bef./s).");
       bool bwin = CheckPuzzleWin();
       interpreter = null;
       SendEndProgram(bwin);
@@ -259,19 +259,19 @@ public class EleuLanguageServer : IDisposable
         else
         {
           runAllTests = false;
-          _sendPuzzleInfo("Alle Tests bestanden!");
+          SendPuzzleInfo("Alle Tests bestanden!");
         }
       }
     }
-    else if (lastResult != EEleuResult.NextStep)
+    else if (lastResult != NextStep)
     {
-      _sendError("Bei der Skriptausführung sind Fehler aufgetreten.");
+      SendError("Bei der Skriptausführung sind Fehler aufgetreten.");
       interpreter = null;
       SendEndProgram(false);
       runAllTests = false;
     }
     _watch.Stop();
-    _sendRunState(lastResult == EEleuResult.NextStep);
+    SendRunState(lastResult == NextStep);
   }
 
   bool CheckPuzzleWin()
@@ -281,17 +281,17 @@ public class EleuLanguageServer : IDisposable
     var bwon = puzzle.CheckWin();
     if (bwon == null)
     {
-      _sendError($"Fehler beim Auswerten der Siegbedingung: '{puzzle.WinCond}'");
+      SendError($"Fehler beim Auswerten der Siegbedingung: '{puzzle.WinCond}'");
       return false;
     }
     if (bwon == true)
     {
       var score = interpreter!.PuzzleScore;
-      _sendPuzzleInfo(
+      SendPuzzleInfo(
           $"Puzzle (Test {puzzle.BundleIndex + 1}) gelöst (Energie: {puzzle.EnergyUsed}; Länge: {interpreter!.ProgramLength}; Anweisungen: {interpreter!.ExecutedInstructionCount}; Score: {score}).");
       return true;
     }
-    _sendError($"Das Puzzle (Test {puzzle.BundleIndex + 1}) wurde nicht gelöst.");
+    SendError($"Das Puzzle (Test {puzzle.BundleIndex + 1}) wurde nicht gelöst.");
     return false;
   }
 }
