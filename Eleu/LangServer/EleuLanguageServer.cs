@@ -248,13 +248,20 @@ public class EleuLanguageServer : IDisposable
       bool bwin = CheckPuzzleWin();
       interpreter = null;
       SendEndProgram(bwin);
-      if (bwin && runAllTests && puzzleIndex < this._bundle?.Count - 1 && this.curCode != null)
+      if (bwin && runAllTests && this.curCode != null)
       {
-        puzzleIndex++;
-        OnPuzzleSet(_bundle!.Code, puzzleIndex);
-        EndCodeHandler(this.curFileName ?? "", this.curCode);
+        if (puzzleIndex < this._bundle?.Count - 1)
+        {
+          puzzleIndex++;
+          OnPuzzleSet(_bundle!.Code, puzzleIndex);
+          EndCodeHandler(this.curFileName ?? "", this.curCode);   // run code with next puzzle
+        }
+        else
+        {
+          runAllTests = false;
+          _sendPuzzleInfo("Alle Tests bestanden!");
+        }
       }
-      else runAllTests = false;
     }
     else if (lastResult != EEleuResult.NextStep)
     {
