@@ -98,6 +98,7 @@ class Program
       DumpStackOnError = false,
       UseDebugger = true,
       ThrowOnAssert = true,
+      //OnlyFirstError = true,
     };
     var cres = Globals.CompileAndRunAst(source, path, opt, useVm);
     return cres == EEleuResult.Ok;

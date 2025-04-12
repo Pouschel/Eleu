@@ -171,7 +171,7 @@ internal class AstParser(EleuOptions options, List<Token> tokens)
   }
   private Stmt.Function Function(FunctionType kind)
   {
-    
+
     Token name = Consume(TokenIdentifier, "Expect " + kind + " name.");
     Consume(TokenLeftParen, "Expect '(' after " + kind + " name.");
     List<Token> parameters = new();
@@ -190,7 +190,7 @@ internal class AstParser(EleuOptions options, List<Token> tokens)
     string tmsg = kind == FunctionType.FunTypeFunction ? "function" : "method";
     Consume(TokenLeftBrace, "Expect '{' before " + tmsg + " body.");
     List<Stmt> body = Block();
-    return new Stmt.Function(kind, name.StringValue, parameters, body) { Status=name.Status};
+    return new Stmt.Function(kind, name.StringValue, parameters, body) { Status = name.Status };
   }
   private List<Stmt> Block()
   {
@@ -423,7 +423,13 @@ internal class AstParser(EleuOptions options, List<Token> tokens)
       return new Expr.Grouping(expr);
     }
     var lit = Literal();
-    return lit == null ? throw CreateErrorException(Previous.Status, "Hier wird ein Ausdruck erwartet.") : (Expr)lit;
+    if (lit == null)
+    {
+      if (Peek.Type == TokenElse)
+        throw CreateErrorException(Previous.Status.Union(Peek.Status), Else_Not_After_If);
+      throw CreateErrorException(Previous.Status, Expression_Expected);
+    }
+    return lit;
   }
 
   private Expr.Literal? Literal()
