@@ -2,6 +2,7 @@
 using System.Text;
 using Eleu;
 using Eleu.Scanning;
+using EleuTester.ParseComb;
 
 class Program
 {
@@ -211,7 +212,7 @@ class Program
   }
   public static void Main(string[] args)
   {
-    //CliTest.Test(); return;
+    TestCombinatorParser(); return;
     Console.WriteLine("Eleu Tester v2");
     Console.WriteLine(
 @"Arguments: 
@@ -261,6 +262,12 @@ class Program
     Console.WriteLine("Finished!");
     //Console.ReadLine();
   }
+
+  static void TestCombinatorParser()
+  {
+    ParserTester.TestOr();
+  }
+
 
   static void TestPrettyPrint(string fileName)
   {
