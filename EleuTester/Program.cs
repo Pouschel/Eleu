@@ -3,6 +3,7 @@ using System.Text;
 using Eleu;
 using Eleu.Scanning;
 using EleuTester.ParseComb;
+using Ts.Testing;
 
 class Program
 {
@@ -265,7 +266,10 @@ class Program
 
   static void TestCombinatorParser()
   {
-    ParserTester.TestOr();
+    ParserTester.TestBind();
+    Tester.Start();
+    Tester.TestAssemblyWithType(typeof(ParserTester));
+    Tester.End();
   }
 
 

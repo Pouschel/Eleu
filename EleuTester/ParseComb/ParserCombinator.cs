@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace EleuTester.ParseComb;
@@ -109,20 +110,30 @@ public struct InputStatus
 
 public struct Source
 {
-  int line, col;
-  string Text, FileName;
+  public int Line { get; private set; }
+  public int Col { get; private set; }
+
+  public readonly string Text, FileName;
   private int Index;
   public bool AtEnd() => Index >= Text.Length;
   public Source(string text, string fileName = "")
   {
     this.Text = text;
-    this.line = this.col = 1;
+    this.Line = this.Col = 1;
     this.FileName = fileName;
   }
 
+  public string NextText(int maxChars)
+  {
+    var result = Text[Index..Math.Min(maxChars + Index, Text.Length)];
+    if (Text.Length - Index > maxChars) result += "...";
+    return result;
+  }
+
+  public override string ToString() => $"({Line},{Col}): {NextText(20)}";
   public ParseResult<string>? Match(string s)
   {
-    InputStatus tokStat = new(FileName) { ColStart = col, ColEnd = col, LineStart = line, LineEnd = line };
+    InputStatus tokStat = new(FileName) { ColStart = Col, ColEnd = Col, LineStart = Line, LineEnd = Line };
     for (int i = 0; i < s.Length; i++)
     {
       if (i + Index >= Text.Length) return null;
@@ -130,11 +141,26 @@ public struct Source
       if (s[i] != c) return null;
       if (c != '\n') tokStat.ColEnd++; else { tokStat.NextLine(); }
     }
-    var cpy = this; cpy.line = tokStat.LineEnd; cpy.col = tokStat.ColEnd;
+    var cpy = this; cpy.Line = tokStat.LineEnd; cpy.Col = tokStat.ColEnd;
     cpy.Index += s.Length;
     return new(s, cpy, tokStat);
   }
 
+  public ParseResult<string>? MatchRegex(string s)
+  {
+    var opst = RegexOptions.Compiled | RegexOptions.Singleline;
+    var rex = new Regex("^" + s, opst);
+    var match = rex.Match(Text, Index, Text.Length - Index);
+    if (!match.Success) return null;
+    var val = match.Value;
+    var cpy = this;
+    for (int i = 0; i < val.Length; i++)
+    {
+      if (val[i] == '\n') { cpy.Line++; cpy.Col = 1; } else cpy.Col++;
+    }
+    cpy.Index += val.Length;
+    return new(val, cpy);
+  }
 }
 
 public class ParseResult<T>
@@ -152,52 +178,22 @@ public class ParseResult<T>
     this.Value = value;
     this.Source = source;
   }
+
+  public override string ToString() => $"{Value} | {Source.NextText(15)}";
 }
 
-public interface IParser<T>
-{
-  public ParseResult<T>? Parse(Source source);
-}
 
 class ParserError : Exception
 {
-
-}
-
-public class Parser<T> : IParser<T>
-{
-  Func<Source, ParseResult<T>?> parse;
-  public Parser(Func<Source, ParseResult<T>?> parse)
+  Source source;
+  string msg;
+  public ParserError(string msg, Source source)
   {
-    this.parse = parse;
+    this.msg = msg;
+    this.source = source;
   }
 
-  public static Parser<string> Match(string str) => new(source => source.Match(str));
-
-  public static Parser<U> Constant<U>(U value)
-  {
-    return new Parser<U>(source => new ParseResult<U>(value, source));
-  }
-
-  public Parser<T> Or(IParser<T> other)
-  {
-    return new(source =>
-    {
-      var res = this.Parse(source);
-      if (res != null) return res;
-      else return other.Parse(source);
-    });
-  }
-
-  public T ParseString(string str)
-  {
-    var source = new Source(str);
-    var result = this.Parse(source) ?? throw new ParserError();
-    if (!result.Source.AtEnd()) throw new ParserError();
-
-    return result.Value;
-  }
-
-  public ParseResult<T>? Parse(Source source) => parse(source);
+  public override string Message => $"{source.FileName}({source.Line},{source.Col}): {msg}";
+  public override string ToString() => Message;
 
 }
