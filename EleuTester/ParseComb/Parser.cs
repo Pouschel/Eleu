@@ -16,7 +16,7 @@ public class Parser<T> : IParser<T>
 
   public static Parser<string> Match(string str) => new(source => source.Match(str));
 
-  public static Parser<string> MatchRegex(string rex)=>new(source => source.MatchRegex(rex));
+  public static Parser<string> Regex(string rex) => new(source => source.Regex(rex));
 
   public static Parser<U> Constant<U>(U value)
   {
@@ -63,6 +63,21 @@ public class Parser<T> : IParser<T>
         var rsource = result.Source;
         return callback(value).Parse(rsource);
       }
+      else return null;
+    });
+  }
+
+  public Parser<U> And<U>(IParser<U> parser) => this.Bind(_ => parser);
+
+  public Parser<U> Map<U>(Func<T, U> callback)
+    => this.Bind(value => Constant(callback(value)));
+
+  public static Parser<U> MayBe<U>(IParser<U> parser)
+  {
+    return new(source =>
+    {
+      var res = parser.Parse(source);
+      if (res != null) return res;
       else return null;
     });
   }

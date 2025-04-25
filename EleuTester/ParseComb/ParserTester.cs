@@ -17,7 +17,7 @@ class SourceTester
   static void TestRex(string input, string rex)
   {
     var src = new Source(input);
-    var res = src.MatchRegex(rex);
+    var res = src.Regex(rex);
     Assert.IsNotNull(res);
     res!.Value.EqualExpected(input[..res.Value.Length]);
 
@@ -39,7 +39,7 @@ class ParserTester
   [Test]
   public static void TestOr2()
   {
-    var parser = MatchRegex("[a-z]+").Or(MatchRegex("[0-9]+"));
+    var parser = Regex("[a-z]+").Or(Regex("[0-9]+"));
     Assert.ExpectThrow<ParserError>(() => parser.ParseString("a7"));
     parser.ParseString("hallo").EqualExpected("hallo");
     parser.ParseString("1309").EqualExpected("1309");
@@ -49,11 +49,20 @@ class ParserTester
   public static void TestBind()
   {
     // pair <- [0-9]+ "," [0-9]+
-    var parser = MatchRegex("[0-9]+").Bind(first => Match(",").Bind(_ => MatchRegex("[0-9]+")
+    var parser = Regex("[0-9]+").Bind(first => Match(",").Bind(_ => Regex("[0-9]+")
     .Bind(second => Constant((first, second)))));
 
     var (f, s) = parser.ParseString("12,34");
     f.EqualExpected("12"); s.EqualExpected("34");
 
+  }
+
+  [Test]
+  public static void TestMap()
+  {
+    var parser = Regex("[0-9]+").Bind(
+      first => Match(",").And(Regex("[0-9]+")).Map(second => (first, second)));
+    var (f, s) = parser.ParseString("12,34");
+    f.EqualExpected("12"); s.EqualExpected("34");
   }
 }

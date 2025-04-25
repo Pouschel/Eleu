@@ -146,7 +146,7 @@ public struct Source
     return new(s, cpy, tokStat);
   }
 
-  public ParseResult<string>? MatchRegex(string s)
+  public ParseResult<string>? Regex(string s)
   {
     var opst = RegexOptions.Compiled | RegexOptions.Singleline;
     var rex = new Regex("^" + s, opst);
