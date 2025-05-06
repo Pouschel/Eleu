@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+  <title id="title">EleuStudio</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+     
+      font-family: sans-serif;
+      margin:0px;
+    }
+
+    .puzzTitle {
+      font-size: 130%;
+    }
+
+    .puzzText {
+    }
+
+
+
+    #puzzCanvasDiv {
+/*      	position: relative;
+	top: 5px;
+	bottom: 5px;
+	left: 5px;
+	right: 5px;*/
+ 
+      
+      width: 100%;
+      height: 70vh;
+      margin: auto;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="puzzDiv" style="margin-left:6px; padding-top:6px">Hallo!</div>
+  <div id="puzzCanvasDiv">
+    <canvas id="puzzCanvas" width="300" height="200">
+     &nbsp;
+    </canvas>
+  </div>
+
+  <div style="display:none;">
+    <img id="catImg" src="assets/Cat.png" />
+    <img id="wallImg" src="assets/Wall.png" />
+    <img id="bowlImg" src="assets/bowl.png" />
+    <img id="mouseImg" src="assets/Mouse.png" />
+  </div>
+
+  <script>
+    function evalCode(code)
+    {
+      // console.log(code);
+      return eval(code);
+    }
+    function getProp(elId, propName)
+    {
+      var el = document.getElementById(elId);
+      return el[propName];
+    }
+    function addListener(elId, eventName, callback)
+    {
+      var el = document.getElementById(elId);
+      el.addEventListener(eventName, callback);
+    }
+  </script>
+</body>
+
+</html>

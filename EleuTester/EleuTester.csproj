@@ -11,5 +11,15 @@
     <ProjectReference Include="..\..\OwnApps\Libs\Ts.StdLib\Ts.StdLib.csproj" />
     <ProjectReference Include="..\Eleu\Eleu.csproj" />
   </ItemGroup>
-
+  <ItemGroup>
+    <Content Include="..\EleuWeb\wwwroot\**\assets\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Puzzle.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 </Project>
