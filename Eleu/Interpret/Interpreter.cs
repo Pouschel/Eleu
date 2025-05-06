@@ -25,7 +25,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
   Stack<EleuEnvironment> envStack = new();
   readonly Stack<object> valueStack = new();
   public int InstructionCount = 0;
-  public int FrameTimeMs { get; set; }
+
   private bool doDumpVm = false;
   internal void NotifyPuzzleChange(Puzzle? newPuzzle, float animateState)
   {

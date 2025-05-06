@@ -18,25 +18,9 @@ public class PuzzleFunctions : NativeFunctionBase
     {
     }
   }
-
-  int FrameTime => Vm.FrameTimeMs;
-
   void Animate(Puzzle puzzle)
   {
-    Stopwatch watch = Stopwatch.StartNew();
     puzzle = puzzle.Copy();
-    const int steps = 10;
-    int aniTime = FrameTime / steps;
-    if (FrameTime > 0)
-    {
-      for (int i = 1; i < steps; i++)
-      {
-        Vm.NotifyPuzzleChange(puzzle, (float)i / steps);
-        int remainingTime = FrameTime - (steps - i) * aniTime - (int)watch.ElapsedMilliseconds;
-        if (remainingTime > 5)
-          Thread.Sleep(remainingTime);
-      }
-    }
     Vm.NotifyPuzzleChange(puzzle, 1);
   }
   private Puzzle CheckPuzzleActive([CallerMemberName] string name = "")

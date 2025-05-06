@@ -256,4 +256,17 @@ public class Puzzle
 		}
 		return true;
 	}
+	public bool EqualsContent(Puzzle other)
+	{
+		if (this.RowCount !=other.RowCount || this.ColCount!=other.ColCount) return false;
+		if (!this.Cat.Equals(other.Cat)) return false;
+		for (int iy = 0; iy < this.RowCount; iy++)
+		{
+			for (int ix = 0; ix < this.ColCount; ix++)
+			{
+				if (!this[iy,ix].Equals(other[iy,ix])) return false;	
+			}
+		}
+		return true;
+	}
 }

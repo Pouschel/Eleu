@@ -213,7 +213,7 @@ class Program
   }
   public static void Main(string[] args)
   {
-    TestCombinatorParser(); return;
+    //TestCombinatorParser(); return;
     Console.WriteLine("Eleu Tester v2");
     Console.WriteLine(
 @"Arguments: 
