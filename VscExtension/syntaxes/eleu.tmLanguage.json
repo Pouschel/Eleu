@@ -1,0 +1,103 @@
+{
+    "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+    "name": "eleu",
+    "scopeName": "source.eleu",
+    "patterns": [
+        {
+            "include": "#keywords"
+        },
+        {
+            "include": "#strings"
+        },
+        {
+            "include": "#numbers"
+        },
+        {
+            "include": "#comments"
+        }
+    ],
+    "repository": {
+        "keywords": {
+            "patterns": [
+                {
+                    "name": "keyword.control.eleu",
+                    "match": "\\b(else|for|if|while|break|continue|return|repeat)\\b"
+                },
+				{
+                    "name": "keyword.other.eleu",
+                    "match": "\\b(assert)\\b"
+                },
+                {
+                    "name": "keyword.operator.eleu",
+                    "match": "\\b(and|or|\\!)\\b"
+                },
+                {
+                    "name": "constant.language.null.eleu",
+                    "match": "\\b(nil)\\b"
+                },
+                {
+                    "name": "constant.language.boolean.eleu",
+                    "match": "\\b(true|false)\\b"
+                },
+                {
+                    "name": "variable.language.super.eleu",
+                    "match": "\\b(super)\\b"
+                },
+                {
+                    "name": "variable.language.this.eleu",
+                    "match": "\\b(this)\\b"
+                },
+				{
+                    "name": "support.constant.eleu",
+                    "match": "\\b(PI)\\b"
+                },
+				{
+                    "name": "variable.function.builtin.eleu",
+                    "match": "\\b(clock|sqrt|abs|acos|asin|ceil|cos|floor|log10|sin|pow|random|typeof|toString|print|toFixed|parseInt|parseFloat|parseNum|parseNumber|len|charAt|at|setAt|substr|indexOf|lastIndexOf|toLowerCase|toUpperCase)\\b"
+                },              {
+                    "name": "support.function.eleu",
+                    "match": "\\b(_puzzle|_isSolved|move|push|take|drop|turn|paint|setShape|color|seeing|read|readNumber|write)\\b"
+                },
+                {
+                    "name": "storage.type.class.eleu",
+                    "match": "\\b(class)\\b"
+                },
+                {
+                    "name": "storage.type.function.eleu",
+                    "match": "\\b(function|fun)\\b"
+                },
+                {
+                    "name": "storage.type.eleu",
+                    "match": "\\b(var)\\b"
+                }
+            ]
+        },
+        "numbers": {
+            "patterns": [
+                {
+                    "match": "\\b[0-9]+(?:.[0-9]+)?\\b",
+                    "name": "constant.numeric.eleu"
+                }
+            ]
+        },
+        "strings": {
+            "name": "string.quoted.double.eleu",
+            "begin": "\"",
+            "end": "\"",
+            "patterns": [
+                {
+                    "name": "constant.character.escape.eleu",
+                    "match": "\\\\."
+                }
+            ]
+        },
+        "comments": {
+            "patterns": [
+                {
+                    "name": "comment.line.double-slash.eleu",
+                    "match": "\\/\\/.*"
+                }
+            ]
+        }
+    }
+}

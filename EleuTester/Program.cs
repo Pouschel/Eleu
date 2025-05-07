@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Text;
 using Eleu;
+using Eleu.Puzzles;
 using Eleu.Scanning;
 using EleuTester.ParseComb;
 using Ts.Testing;
@@ -214,6 +215,7 @@ class Program
   public static void Main(string[] args)
   {
     //TestCombinatorParser(); return;
+    PrintFunctionNames();
     Console.WriteLine("Eleu Tester v2");
     Console.WriteLine(
 @"Arguments: 
@@ -272,6 +274,11 @@ class Program
     Tester.End();
   }
 
+  static void PrintFunctionNames()
+  {
+    Console.WriteLine(string.Join('|', new NativeFunctions().GetFunctions().Select(mi => mi.name)));
+    Console.WriteLine(string.Join('|', new PuzzleFunctions().GetFunctions().Select(mi => mi.name)));
+  }
 
   static void TestPrettyPrint(string fileName)
   {

@@ -1,0 +1,36 @@
+{
+  "name": "eleu-lsp",
+  "displayName": "Eleu Syntax Highlight",
+  "description": "Syntax highlighting for Eleu.",
+  "icon": "assets/eleu.png",
+  "publisher": "tst",
+  "version": "25.1.0",
+  "engines": {
+    "vscode": "^1.76.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [
+      {
+      "id": "eleu",
+      "icon": {
+        "light": "./assets/eleu.png",
+        "dark": "./assets/eleu.png"
+      },
+      "aliases": ["Eleu", "eleu"],
+      "extensions": [".eleu"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "eleu",
+      "scopeName": "source.eleu",
+      "path": "./syntaxes/eleu.tmLanguage.json"
+    }]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Pouschel/Eleu"
+  }
+}
