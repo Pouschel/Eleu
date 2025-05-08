@@ -27,7 +27,7 @@ public class PuzzleFunctions : NativeFunctionBase
   {
     var puz = Vm.Puzzle;
     if (puz == null)
-      throw new PException($"Die Funktion '{name}' kann nur bei einem aktivem Puzzle verwendet werden.");
+      throw new PException($"Die Funktion '{name}' kann nur bei einem aktiven Puzzle verwendet werden.");
     if (!puz.IsFuncAllowed(name))
       throw new PException($"Die Funktion '{name}' darf bei diesem Puzzle nicht verwendet werden.");
     return puz;

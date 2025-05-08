@@ -1,4 +1,5 @@
-﻿using Eleu.LangServer;
+﻿using System.Diagnostics;
+using Eleu.LangServer;
 
 namespace Eleu.Cli;
 
@@ -45,6 +46,12 @@ file       file to run
       DumpFileName = dumpFile,
       InputStatusFormatter = inp => $"{inp.FileName}:{inp.LineStart}:{inp.ColStart}"
     };
+    Stopwatch stopwatch = Stopwatch.StartNew();
     var result = Globals.CompileAndRunAst(path, opt, useVm);
+    stopwatch.Stop();
+    if (result == EEleuResult.Ok)
+    {
+      Console.WriteLine($"Script [{path}] run in {stopwatch.ElapsedMilliseconds} ms");
+    }
   }
 }

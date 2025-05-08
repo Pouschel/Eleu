@@ -109,7 +109,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
   private void RuntimeExHandler(EleuRuntimeError ex)
   {
     var stat = ex.Status ?? currentStatus;
-    var msg = $"{stat.Message}: {ex.Message}";
+    var msg = $"{options.InputStatusFormatter(stat)}: {ex.Message}";
     options.Err.WriteLine(msg);
     Trace.WriteLine(msg);
     if (!options.DumpStackOnError) return;

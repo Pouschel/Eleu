@@ -2,7 +2,7 @@
   "profiles": {
     "eleu-cli": {
       "commandName": "Project",
-      "commandLineArgs": "C:\\Code\\OwnApps\\EleuStudio\\EleuSrc\\Examples\\Ex2.eleu"
+      "commandLineArgs": "C:\\Code\\OwnApps\\EleuStudio\\EleuSrc\\Examples\\Ex4.eleu"
     }
   }
 }
