@@ -35,7 +35,7 @@ public delegate object NativeFn(object[] args);
 
 public class Globals
 {
-  internal static EEleuResult CompileAndRunAst(string fileName, EleuOptions options, bool useVm)
+  public static EEleuResult CompileAndRunAst(string fileName, EleuOptions options, bool useVm)
   {
     var source = File.ReadAllText(fileName);
     return CompileAndRunAst(source, fileName, options, useVm);

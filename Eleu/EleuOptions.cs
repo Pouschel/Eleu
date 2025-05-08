@@ -15,9 +15,10 @@ public class EleuOptions
   /// </summary>
   public string DumpFileName = "";
 
+  public Func<InputStatus, string> InputStatusFormatter = inp => inp.Message;
   public void WriteCompilerError(in InputStatus status, string message)
   {
-    var msg = string.IsNullOrEmpty(status.FileName) ? message : $"{status.Message}: Cerr: {message}";
+    var msg = string.IsNullOrEmpty(status.FileName) ? message : $"{InputStatusFormatter(status)}: Cerr: {message}";
     Err.WriteLine(msg);
     System.Diagnostics.Trace.WriteLine(msg);
   }
