@@ -64,7 +64,16 @@ internal class AstParser(EleuOptions options, List<Token> tokens)
     else if (Match(TokenWhile)) stmt = WhileStatement();
     else if (Match(TokenRepeat)) stmt = RepeatStatement();
     else if (Match(TokenContinue, TokenBreak)) stmt = BreakContinueStatement();
-    else stmt = ExpressionStatement();
+    else
+    {
+      var sex = ExpressionStatement();
+      var exp = sex.expression;
+      if (!(exp is Expr.Assign || exp is Expr.Call || exp is Expr.Set))
+      {
+        //throw CreateErrorException(exp.Status, Messages.Invalid_Stmt_Expr);
+      }
+      stmt = sex;
+    }
     stmt.Status = curStat.Union(Previous.Status);
     return stmt;
   }
@@ -125,7 +134,7 @@ internal class AstParser(EleuOptions options, List<Token> tokens)
     Stmt? elseBranch = null;
     if (Match(TokenElse))
     {
-      CheckIllegalContinuation(Peek, TokenVar, TokenFun, TokenClass);
+      CheckIllegalContinuation(Peek, TokenVar, TokenFun, TokenClass, TokenLeftParen);
       elseBranch = Statement();
     }
     return new Stmt.If(condition, thenBranch, elseBranch);

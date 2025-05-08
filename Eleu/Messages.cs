@@ -9,4 +9,5 @@ internal class Messages
 
   public static string Else_Not_After_If => "Ein else folgt immer direkt der Anweisung bzw. {dem Block} nach dem if.";
   public static string Expression_Expected => "Hier wird ein Ausdruck erwartet.";
+  public static string Invalid_Stmt_Expr = "Nur Variablenzuweiungen 'name=...' oder Funktionsaufrufe 'name(...)' dürfen als Anweisungen verwendet werden.";
 }
