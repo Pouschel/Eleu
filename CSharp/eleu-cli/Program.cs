@@ -45,7 +45,7 @@ file       file to run
       Out = Console.Out,
       Err = Console.Error,
       DumpFileName = dumpFile,
-      InputStatusFormatter = inp => $"{inp.FileName}:{inp.LineStart}:{inp.ColStart}"
+      InputStatusFormatter = inp => $"{inp.FileName}:{inp.LineStart}:{inp.ColStart}:{inp.LineEnd}:{inp.ColEnd}"
     };
     Stopwatch stopwatch = Stopwatch.StartNew();
     var result = Globals.CompileAndRunAst(path, opt, useVm);

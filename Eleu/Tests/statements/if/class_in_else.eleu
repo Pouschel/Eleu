@@ -1,2 +1,3 @@
 //Cerr: 'class' ist hier nicht erlaubt.
-if (true) "ok"; else class Foo {}
+var x;
+if (true) x="ok"; else class Foo {}

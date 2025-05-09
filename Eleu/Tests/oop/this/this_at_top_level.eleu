@@ -1,1 +1,1 @@
-this; //Cerr: Can't use 'this' outside of a class.
+var x= this; //Cerr: Can't use 'this' outside of a class.

@@ -1,1 +1,1 @@
-true.foo; // expect runtime error: Only instances have properties.
+var x=true.foo; // expect runtime error: Only instances have properties.

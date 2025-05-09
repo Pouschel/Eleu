@@ -1,0 +1,9 @@
+var x;
+class Bar {}
+fun e1() {var x=!Bar;}
+fun e2() {var x=!Bar();}
+
+_catch(e1,"Operand muss vom Typ boolean sein.");
+_catch(e2,"Operand muss vom Typ boolean sein.");
+
+  

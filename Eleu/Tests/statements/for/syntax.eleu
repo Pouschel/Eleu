@@ -44,7 +44,10 @@ for (var i = 0; i < 2;) {
 // expect: 0
 // expect: 1
 
+var xx;
 // Statement bodies.
-for (; false;) if (true) 1; else 2;
-for (; false;) while (true) 1;
-for (; false;) for (;;) 1;
+for (; false;) if (true) xx=1; else xx=2;
+for (; false;) while (true) xx=1;
+for (; false;) for (;;) xx=1;
+
+print(xx); //? nil

@@ -1,0 +1,4 @@
+//Rerr: Operand muss vom Typ boolean sein.      
+
+var x= !"Puschel";      
+

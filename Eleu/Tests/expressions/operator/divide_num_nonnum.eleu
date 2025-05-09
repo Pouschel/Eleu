@@ -1,1 +1,1 @@
-1 / "1"; // expect runtime error: Beide Operanden müssen Zahlen sein.
+var x=1 / "1"; // expect runtime error: Beide Operanden müssen Zahlen sein.

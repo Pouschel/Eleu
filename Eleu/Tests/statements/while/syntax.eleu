@@ -16,6 +16,8 @@ while (a < 3) {
 // expect: 2
 
 // Statement bodies.
-while (false) if (true) 1; else 2;
-while (false) while (true) 1;
-while (false) for (;;) 1;
+var xx;
+while (false) if (true) xx=1; else xx=2;
+while (false) while (true) xx=1;
+while (false) for (;;) xx=1;
+print(xx); //? nil

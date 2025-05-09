@@ -1,1 +1,1 @@
-1 >= "1"; // expect runtime error: Unterschiedliche Datentypen können nicht verglichen werden.
+var x= 1 >= "1"; // expect runtime error: Unterschiedliche Datentypen können nicht verglichen werden.

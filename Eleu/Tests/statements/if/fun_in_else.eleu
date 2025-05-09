@@ -1,2 +1,3 @@
+var x;
 //Cerr: 'fun' ist hier nicht erlaubt.
-if (true) "ok"; else fun foo() {}
+if (true) x="ok"; else fun foo() {}

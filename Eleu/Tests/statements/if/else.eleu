@@ -3,4 +3,6 @@ if (true) print("good"); else print("bad"); // expect: good
 if (false) print("bad"); else print("good"); // expect: good
 
 // Allow block body.
-if (false) nil; else { print("block"); } // expect: block
+var x;
+if (false) x=1; else { print("block"); } // expect: block
+print(x); //? nil

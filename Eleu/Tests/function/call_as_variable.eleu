@@ -12,4 +12,7 @@ fun c2() { f; }
 c1();
 c2();
 
-//? Beim Aufruf von 'parseNum' fehlen die Klammern ().
+//Cerr: Nur Variablenzuweiungen 'name=...' oder Funktionsaufrufe 'name(...)' dürfen als Anweisungen verwendet werden.
+//Cerr: Nur Variablenzuweiungen 'name=...' oder Funktionsaufrufe 'name(...)' dürfen als Anweisungen verwendet werden.
+//Cerr: Nach einem Block wird '}' erwartet.
+//Cerr: Nach einem Block wird '}' erwartet.

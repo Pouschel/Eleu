@@ -1,2 +1,2 @@
-super.foo("bar"); //Cerr: Can't use 'super' outside of a class.
-super.foo; 
+var x=super.foo("bar"); //Cerr: Can't use 'super' outside of a class.
+var y=super.foo; 

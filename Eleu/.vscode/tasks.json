@@ -36,11 +36,13 @@
                 ],
                 "source": "eleu-cli",
                 "pattern": {
-                    "regexp": "^(.*):(\\d+):(\\d+):\\s+(.*)$",
+                    "regexp": "^(.*):(\\d+):(\\d+):(\\d+):(\\d+):\\s+(.*)$",
                     "file": 1,
                     "line": 2,
                     "column": 3,
-                    "message": 4
+                    "endLine": 4,
+                    "endColumn": 5,
+                    "message": 6
                 }
             }
         },

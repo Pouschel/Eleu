@@ -1,7 +1,7 @@
 class Base {
   foo() {
-    super.doesNotExist; //Cerr: Can't use 'super' in a class with no superclass.
+    var y=super.doesNotExist; //Cerr: Can't use 'super' in a class with no superclass.
   }
 }
 
-Base().foo();
+var x= Base().foo();

@@ -68,9 +68,9 @@ internal class AstParser(EleuOptions options, List<Token> tokens)
     {
       var sex = ExpressionStatement();
       var exp = sex.expression;
-      if (!(exp is Expr.Assign || exp is Expr.Call || exp is Expr.Set))
+      if (!(exp==NilLiteral || exp is Expr.Assign || exp is Expr.Call || exp is Expr.Set))
       {
-        //throw CreateErrorException(exp.Status, Messages.Invalid_Stmt_Expr);
+        throw CreateErrorException(sex.Status, Messages.Invalid_Stmt_Expr);
       }
       stmt = sex;
     }
@@ -173,10 +173,10 @@ internal class AstParser(EleuOptions options, List<Token> tokens)
   private Stmt.Expression ExpressionStatement()
   {
     if (Match(TokenSemicolon))
-      return new Stmt.Expression(NilLiteral);
+      return new Stmt.Expression(NilLiteral) { Status = Previous.Status };
     Expr expr = Expression();
     Consume(TokenSemicolon, "Ein ';' wird hier erwartet.");
-    return new Stmt.Expression(expr);
+    return new Stmt.Expression(expr) { Status = expr.Status };
   }
   private Stmt.Function Function(FunctionType kind)
   {

@@ -1,0 +1,5 @@
+
+
+var x= !nil; //Rerr: Operand muss vom Typ boolean sein.         
+
+ 
