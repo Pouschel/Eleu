@@ -1,10 +1,7 @@
 ﻿using System.Diagnostics;
-using System.Text;
 using Eleu;
 using Eleu.Puzzles;
 using Eleu.Scanning;
-using EleuTester.ParseComb;
-using Ts.Testing;
 
 class Program
 {
@@ -248,7 +245,8 @@ class Program
         case "-dump":
           dumpFile = args[++i];
           break;
-        case "-pp": prettyPrint = true;
+        case "-pp":
+          prettyPrint = true;
           break;
         default: file = arg; break;
       }
@@ -266,14 +264,6 @@ class Program
     //Console.ReadLine();
   }
 
-  static void TestCombinatorParser()
-  {
-    ParserTester.TestBind();
-    Tester.Start();
-    Tester.TestAssemblyWithType(typeof(ParserTester));
-    Tester.End();
-  }
-
   static void PrintFunctionNames()
   {
     Console.WriteLine(string.Join('|', new NativeFunctions().GetFunctions().Select(mi => mi.name)));
@@ -282,9 +272,9 @@ class Program
 
   static void TestPrettyPrint(string fileName)
   {
-    var text=File.ReadAllText(fileName);
-    var pp=new PrettyPrinter(text);
-    var ftext= pp.Format();
+    var text = File.ReadAllText(fileName);
+    var pp = new PrettyPrinter(text);
+    var ftext = pp.Format();
     Console.WriteLine("------- start pp -------");
     Console.WriteLine(ftext);
     Console.WriteLine("-------- end pp --------");
