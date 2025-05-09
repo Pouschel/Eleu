@@ -26,6 +26,7 @@ repeat(5) { print("Hello Eleu"); }
 |  |- Eleu: the interpreter
 |  |- eleu-cli: a command line interface for the interpreter
 |  |- EleuTester: a tool to run the tests
+|  |- EleuWeb: Code for the Website eleu.app
 |  |- GenerateAst: a utility program to generate the code for the abstract syntax tree
 |- Eleu (Eleu code part)  
 |- VscExtension: the extension for Visual Studio Code to handle .eleu files

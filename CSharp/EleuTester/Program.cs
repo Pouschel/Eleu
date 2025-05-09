@@ -175,7 +175,7 @@ class Program
   {
     var fcol = Console.ForegroundColor;
     testDirLen = dir.Length;
-    Console.WriteLine($"Start Testing dir: {dir}");
+    Console.WriteLine($"Start Testing dir: {dir}; useVm: {this.useVm}");
     var watch = Stopwatch.StartNew();
     RunActionInDirParallel(dir, TestFile);
     //RunActionInDir(dir, TestFile);
