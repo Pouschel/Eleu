@@ -1,0 +1,31 @@
+var p="
+:def
+c=Cat
+m=Mouse
+h=Bowl
+:grid
+.
+.cm  h.
+.
+:meta
+win=MiceInBowls
+name=Maus fangen
+hash=1ae3c6242d
+funcs=move take drop turn
+:info
+Fange die Maus und bringe sie zum Napf.
+";
+
+assert _puzzle(p);
+fun t1() { turn("1");}
+_catch(t1,"'1' ist keine gültige Drehrichtung.");
+fun tm() { take("Mouse");}
+_catch(tm,"Die Funktion 'take' erwartet genau 0 Argumente.");
+
+take();
+move(); move(); move();
+fun dm() { drop("Mouse");}
+_catch(dm,"Die Funktion 'drop' erwartet genau 0 Argumente.");
+
+drop();
+assert _isSolved(); 

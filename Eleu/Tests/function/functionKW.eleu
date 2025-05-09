@@ -1,0 +1,10 @@
+
+function f()
+{
+  print("In F");
+} 
+
+f();  // expect: In F
+   
+   
+

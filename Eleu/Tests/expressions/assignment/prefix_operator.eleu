@@ -1,0 +1,2 @@
+var a = "a";
+!a = "value"; //Cerr: Diesem Ausdruck kann kein Wert zugewiesen werden.

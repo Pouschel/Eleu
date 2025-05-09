@@ -1,0 +1,7 @@
+class Foo {
+  Foo() {
+    this = "value"; //Cerr: Diesem Ausdruck kann kein Wert zugewiesen werden.
+  }
+}
+
+Foo();

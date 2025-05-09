@@ -1,0 +1,4 @@
+fun foo() {}
+print(foo); //? Funktion foo()
+
+print(print); //? Interne Funktion print()

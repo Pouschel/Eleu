@@ -1,0 +1,8 @@
+var s = "Puschel";
+assert charAt(s, 0) == "P";
+
+charAt(s, -1);
+charAt(s, len(s));
+
+//Rerr: Der Index -1 liegt außerhalb des Strings.
+

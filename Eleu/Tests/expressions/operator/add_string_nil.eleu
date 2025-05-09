@@ -1,0 +1,1 @@
+var x="s" + nil; // expect runtime error: Die Operation '"s" + nil' ist ungültig.

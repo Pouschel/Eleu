@@ -1,0 +1,44 @@
+var p = "
+:def
+c=Cat
+g=Green Square
+a=3
+b=4
+d=5
+e=7
+:grid
+.
+cda g.
+ eb g
+.
+:meta
+win = Val 4 1 2, Val 4 2  3
+name = Produkt berechnen
+funcs = move read write turn
+:info
+Lies die Zahlen ein und schreibe in das grüne Feld
+die Differenz der beiden Zahlen.
+:meta
+hash = 4146b33a6d
+";
+
+_puzzle(p, 0);
+
+var x;
+var y;
+repeat(2)  // Lücke 1
+{
+	x = parseInt(read());  // Lücke 2
+	move();
+	y = parseInt(read());  // Lücke 3
+	var differenz = x - y; // Lücke 4
+	move(); move();
+	write(differenz); // Lücke 5
+	move("S");
+	repeat(3) move("W");
+}
+
+assert _isSolved();
+
+
+

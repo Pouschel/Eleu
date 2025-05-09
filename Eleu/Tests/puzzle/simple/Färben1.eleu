@@ -1,0 +1,42 @@
+var p="
+:def
+c=Cat
+b=Red Diamond
+:grid
+. 
+.cbbbbbbbbbb.
+.
+:meta
+win=CC Blue Diamond 10, CC None None 29
+name=Färben 1
+hash=c4bc258c98
+funcs=move paint 
+:info
+Färbe die 10 Rauten blau ein. 
+Die Katze steht am Anfang auf einem leeren Feld.
+";
+
+fun s1()
+{
+  assert _puzzle(p);
+ 
+  for (var i=0; i<10; i=i+1)
+  {
+    move();
+    paint("blue");
+  }
+  assert _isSolved(); 
+}
+//s1();
+
+fun s2()
+{
+  assert _puzzle(p);
+  repeat(10)
+  {
+    move();
+    paint("blue");
+  }
+  assert _isSolved(); 
+}
+s2();

@@ -1,0 +1,23 @@
+print(typeof("Puschel")); 
+print(typeof(1.23));
+print(typeof(true));
+print(typeof(nil));
+var x;
+print(typeof(x));
+
+// expect: string
+// expect: number
+// expect: boolean
+// expect: undefined
+// expect: undefined
+class Foo {}
+var foo = Foo();
+fun f() {}
+
+print(typeof(Foo));
+print(typeof(foo)); 
+print(typeof(f));
+
+// expect: metaclass Foo
+// expect: class Foo
+// expect: function

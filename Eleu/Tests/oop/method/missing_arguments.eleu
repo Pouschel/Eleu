@@ -1,0 +1,5 @@
+class Foo {
+  method(a, b) {}
+}
+
+Foo().method(1); //? method erwartet 2 Argumente, übergeben wurden aber 1.

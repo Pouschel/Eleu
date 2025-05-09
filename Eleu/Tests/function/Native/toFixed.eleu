@@ -1,0 +1,6 @@
+assert toFixed(1.95632, 2)=="1.96"; 
+assert toFixed(-1.7, 17) =="-1.69999999999999996";
+
+toFixed(-1.7, 1.2);
+//Rerr: Argument 2 muss eine ganze Zahl sein. 
+

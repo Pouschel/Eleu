@@ -1,0 +1,2 @@
+//Cerr: Das Schlüsselwort 'this' ist kein gültiger Variablenname.
+var this = "value";

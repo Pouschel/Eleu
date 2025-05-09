@@ -1,0 +1,15 @@
+
+// Return the first true argument.
+
+print(false or false or true); // expect: true
+
+// Return the last argument if all are false.
+print(false or false); // expect: false
+print(false or false or false); // expect: false
+
+// Short-circuit at the first true argument.
+var a = "before";
+var b = "before";
+var x;
+print( x= (a = false) or (b = true)); //? true
+

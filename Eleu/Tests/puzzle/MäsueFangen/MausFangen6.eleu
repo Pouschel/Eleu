@@ -1,0 +1,29 @@
+var p="
+:def
+c=Cat
+m=Mouse
+h=Bowl
+:grid
+.
+cmh mh mh mh mh.
+.
+:meta
+win=MiceInBowls
+name=Maus fangen (mit Wiederholungen)
+hash=927d07a0d2
+funcs=move turn take drop
+:info
+Fange die Mäuse und bringe sie zu den Näpfen.
+";
+
+assert _puzzle(p);
+repeat(5)
+{
+  take();
+  move();
+  drop();
+  move();move();
+}
+assert _isSolved(); 
+
+

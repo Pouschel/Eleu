@@ -1,0 +1,4 @@
+fun foo(arg,
+        arg) { //Cerr: Eine Variable mit dem Namen 'arg' existiert in diesem Geltungsbereich schon!
+  arg="body";
+}

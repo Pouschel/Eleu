@@ -1,0 +1,4 @@
+
+repeat (true) print("Hallo");
+// expect: Es wird eine natürliche Zahl erwartet.
+

@@ -1,0 +1,9 @@
+class Foo {
+  method(a, b) {
+    print(a);
+    print(b);
+  }
+}
+
+Foo().method(1, 2, 3, 4); 
+//? method erwartet 2 Argumente, übergeben wurden aber 4.

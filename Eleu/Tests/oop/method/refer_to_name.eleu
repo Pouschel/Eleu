@@ -1,0 +1,7 @@
+class Foo {
+  method() {
+    print(method); // expect runtime error: Variable nicht definiert 'method'.
+  }
+}
+
+Foo().method();

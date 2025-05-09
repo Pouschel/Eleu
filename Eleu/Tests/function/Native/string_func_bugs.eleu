@@ -1,0 +1,13 @@
+var s = "Der Puschel ist Puschel.";
+var idx = indexOf(s, "Puschel");
+print (idx); //? 4
+var p = substr(s, idx, 4);
+print(p);  //? Pusc
+idx = lastIndexOf(s, "Puschel");
+print (idx); //? 16
+idx = indexOf(s, "Merle");
+print (idx); //? -1
+idx = lastIndexOf(s, "Merle");
+print (idx); //? -1
+
+

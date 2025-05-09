@@ -1,0 +1,15 @@
+fun f()
+{
+  return 1;
+}  
+
+fun c1()
+{
+  parseNum;   
+}
+fun c2() { f; }
+
+c1();
+c2();
+
+//? Beim Aufruf von 'parseNum' fehlen die Klammern ().

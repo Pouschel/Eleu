@@ -1,0 +1,50 @@
+var p = "
+:def
+c=Cat
+m=Mouse
+h=Bowl
+w=Wall
+:grid
+.w.w...h
+..w...w
+.w
+....w
+  .....w
+..w...w
+cm...w.w
+:meta
+win=MiceInBowls
+name=Maus fangen 3
+hash=ebec0828a5
+funcs=move take drop turn
+:info
+Fange die Maus und bringe sie zum Napf.
+";
+
+// unter den vierecken:
+// Energieverbrauch: 43; Programmlänge: 21; Anweisungsanzahl: 67; Score: 869
+//assert _puzzle(p);
+//take();
+//move();  move();
+//repeat(5)
+//{
+//	move(); move("N");
+//}
+//turn("left");
+//drop();
+//assert _isSolved();
+
+//  oben lang
+// Energieverbrauch: 43; Programmlänge: 20; Anweisungsanzahl: 64; Score: 873
+assert _puzzle(p);
+take();
+move(); move("N"); 
+repeat(5)
+{
+  move("N"); move(); 
+}
+
+drop();
+assert _isSolved();
+
+

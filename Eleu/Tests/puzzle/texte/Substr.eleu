@@ -1,0 +1,39 @@
+var p = "
+:def
+c=CatW
+p='Puschel ist süß.
+pres='Merle ist süß.
+m='Kater Puschel schläft.
+mres='Kater Merle schläft.
+g=Green Square
+:grid
+pcg
+:meta
+win = Val 2 0 'pres
+name = A57 - Textersetzung
+funcs = move read write turn
+:info
+Lies den String ein und ersetze 'Puschel' durch 'Merle'.
+Schreibe das Ergebnis in das grüne Feld.
+
+:grid
+mcg
+:meta
+win = Val 2 0 'mres
+:meta
+hash = 85689e632e
+";
+
+fun s(idx)
+{
+	_puzzle(p, idx);
+	var s = read();
+	var pos = indexOf(s, "Puschel");
+	s = substr(s, 0, pos) +  "Merle" + substr(s, pos + 7);
+	turn("around");
+	write(s);
+
+	assert _isSolved();
+}
+s(0);s(1);
+

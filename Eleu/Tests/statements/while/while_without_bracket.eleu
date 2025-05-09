@@ -1,0 +1,6 @@
+while x<3 ;
+
+while (x<4 ;
+
+//Cerr: Nach 'while' wird '(' erwartet.
+//Cerr: Nach der 'while'-Bedingung wird ')' erwartet.

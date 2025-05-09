@@ -1,0 +1,9 @@
+class Foo {
+  init(a, b) {
+    this.a = a;
+    this.b = b;
+  }
+}
+
+var foo = Foo(1, 2, 3, 4); 
+//? Foo erwartet 2 Argumente, übergeben wurden aber 4.

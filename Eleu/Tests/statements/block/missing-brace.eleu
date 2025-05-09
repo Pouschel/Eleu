@@ -1,0 +1,5 @@
+while (true)
+{
+  print(1);
+
+//Cerr: Nach einem Block wird '}' erwartet.

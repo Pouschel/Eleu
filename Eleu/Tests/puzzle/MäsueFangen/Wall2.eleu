@@ -1,0 +1,32 @@
+var p = "
+:def
+c=Cat
+m=Mouse
+h=Bowl
+w=Wall
+:grid
+.w.....h
+..w.....
+...w
+.
+.....w
+......w
+cm.....w
+:meta
+win=MiceInBowls
+name=Maus fangen 3
+hash=2bf473ab3a
+funcs=move take drop turn
+:info
+Fange die Maus und bringe sie zum Napf.
+";
+
+assert _puzzle(p);
+take();
+repeat(4) move(); 
+turn("left");
+repeat(6) move();
+turn("right");
+move(); move();
+drop();
+assert _isSolved();

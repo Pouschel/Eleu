@@ -1,0 +1,9 @@
+var n=3;
+repeat (n) print(n);
+
+// expect: 3
+// expect: 3
+// expect: 3
+
+repeat (-1) print("Hallo");
+//gibt nix aus

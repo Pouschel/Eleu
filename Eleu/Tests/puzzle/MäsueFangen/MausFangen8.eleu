@@ -1,0 +1,36 @@
+var p="
+:def
+c=Cat
+m=Mouse
+h=Bowl
+:grid
+
+  m......h.
+  m......h
+  m......h
+  m......h
+  m......h
+c
+:meta
+win=MiceInBowls
+name=Maus fangen (mit Wiederholungen) 2
+hash=2a22ba68fa
+funcs=move moveDir take drop
+:info
+Fange die Mäuse und bringe sie zu den Näpfen.
+Benutze die repeat-Anweisung.
+";
+
+assert _puzzle(p);
+move();
+repeat(5)
+{
+  move("N"); 
+  take();
+  repeat(7) move();
+  drop();
+  repeat(7) move("W");
+}
+assert _isSolved(); 
+
+

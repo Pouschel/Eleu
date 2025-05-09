@@ -1,0 +1,39 @@
+var p = "
+:def
+c=Cat
+g=Green Square
+seed=2
+a=3
+b=4
+d=5
+:grid
+.
+cabd g.
+.
+:meta
+win = Val 5 1 60       
+name = Produkt berechnen
+funcs = move read write turn
+:info
+Lies die Zahlen ein und schreibe in das grüne Feld das Produkt der Zahlen.
+:meta
+hash = 4146b33a6d
+";
+
+_puzzle(p, 0);
+
+var produkt = 1; // Lücke 1
+var x;
+repeat(3)  // Lücke 2
+{
+  x = parseInt(read());  // Lücke 3
+  produkt = produkt * x; // Lücke 4
+  move(); 
+}
+move();
+write(produkt); // Lücke 5
+
+assert _isSolved();
+
+
+

@@ -1,0 +1,15 @@
+{
+  // classes are scope local
+  class A
+  {
+    f()
+    {
+      return "in A";
+    }
+  }
+  var a=A();
+  print(a.f()); // expect: in A
+}
+// expect runtime error: Variable nicht definiert 'A'.
+var b=A();
+

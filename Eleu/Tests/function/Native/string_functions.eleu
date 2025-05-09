@@ -1,0 +1,13 @@
+var pk = "Puschel ist ein Kater";
+print(indexOf(pk, "Puschel"));     //? 0
+print(indexOf(pk, "Puschel", 1));  //? -1
+print(indexOf(pk, "Kater"));       //? 16
+
+print(substr(pk, 8, 3)); //? ist
+print(substr(pk, 16)); //? Kater
+
+pk = "Puschel ist ein Puschel";
+print(lastIndexOf(pk, "Puschel"));        //? 16
+print(lastIndexOf(pk, "Puschel", 10));    //? 0
+print(lastIndexOf(pk, "Merle"));     //? -1
+

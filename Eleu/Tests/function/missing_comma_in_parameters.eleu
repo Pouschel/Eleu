@@ -1,0 +1,2 @@
+//Cerr: Nach den Parametern wird ')' erwartet.
+fun foo(a, b c, d, e, f) {}

@@ -1,0 +1,12 @@
+var n = 3;
+while (n > 0)
+{
+  n = n - 1;
+  if (n == 2)
+    continue;
+  print(n);
+}
+assert n == 0;
+
+// expect: 1
+// expect: 0

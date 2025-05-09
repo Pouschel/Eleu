@@ -1,0 +1,5 @@
+
+var n=1.2;
+repeat (n) print("Hallo");
+// expect: Es wird eine natürliche Zahl erwartet.
+

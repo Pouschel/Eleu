@@ -1,0 +1,15 @@
+var pk = "Mein Kater ist keine Katze.";
+print(lastIndexOf(pk, "Puschel")); // -1 Puschel wird nicht gefunden
+print(lastIndexOf(pk, "Kater")); // Kater an Position 5
+print(lastIndexOf(pk, "Katze")); // Katze an Position 21
+print(lastIndexOf(pk, "ein")); // ein an Position 16 (im Wort keine)
+print(indexOf(pk, "ein")); // ein (von vorne) an Position 1 (im Wort Mein)
+
+//? -1
+//? 5
+//? 21
+//? 16
+//? 1
+
+print(lastIndexOf(pk, "Puschel", -1)); 
+//Rerr: lastIndexOf: -1 liegt außerhalb des zulässigen Bereichs.

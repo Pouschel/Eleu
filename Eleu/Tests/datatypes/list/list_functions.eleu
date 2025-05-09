@@ -1,0 +1,15 @@
+var empty =[];
+var a =[1];
+var l =[true,nil,"Hallo",3];
+
+assert typeof(a)== "list";
+assert typeof(empty)== "list";
+
+assert len(empty)== 0;
+assert len(a)== 1;
+assert len(l)==4;
+
+assert at(l,0);
+assert at(l,3)==3;
+
+

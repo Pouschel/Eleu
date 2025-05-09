@@ -1,0 +1,86 @@
+var p = "
+:def
+c=Cat
+k=Mouse
+h=Bowl
+w=Wall
+:grid
+wwwwwwwww
+w.......w
+w.......w
+w..wwwh.w
+w..wwwwww
+w.......w
+w.......w
+w.......w
+wwwwww..w
+w..www..w
+wck.....w
+w. ...  w
+wwwwwwwww
+:meta
+win=MiceInBowls
+name=Mäuse schieben (1)
+hash=24c897c7ed
+funcs=move turn push
+:info
+Schiebe die Mäuse in die Näpfe.
+";
+
+//Energieverbrauch: 150; Programmlänge: 45; Anweisungsanzahl: 189; Score: 616
+//assert _puzzle(p);
+//repeat(2)
+//{
+//	repeat(4)
+//	{
+//		push();
+//	}
+//	turn("right");  move();
+//	turn("left");  move();
+//	turn("left");
+//}
+//repeat(2)
+//{
+//	repeat(4)
+//	{
+//		push();
+//	}
+//	turn("left");  move();
+//	turn("right");  move();
+//	turn("right");
+//}
+//repeat(4) push();
+//move("N"); move();
+//turn("right");
+//push();
+//
+//assert _isSolved();
+
+
+// schlechter
+//Energieverbrauch: 150; Programmlänge: 42; Anweisungsanzahl: 200; Score: 608
+
+assert _puzzle(p);
+
+function schleife(first, snd)
+{
+	repeat(2)
+	{
+		repeat(4)
+		{
+			push();
+		}
+		turn(first); move();
+		turn(snd); move();
+		turn(snd);
+	}
+}
+ 
+schleife("right", "left");
+schleife("left", "right");
+repeat(4) push();
+move("N"); move();
+turn("right");
+push();
+
+assert _isSolved();

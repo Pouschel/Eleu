@@ -1,0 +1,2 @@
+//Cerr: 'fun' ist hier nicht erlaubt.
+for (;;) fun foo() {}

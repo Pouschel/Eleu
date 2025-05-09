@@ -1,0 +1,38 @@
+var p = "
+:def
+c=Cat
+k=Mouse
+h=Bowl
+w=Wall
+:grid
+wwwwwwwww
+w.......w
+wk      w
+wh .....w
+wwwwww..w
+w..www..w
+wc......w
+w. ...  w
+wwwwwwwww
+:meta
+win=MiceInBowls
+name=Mäuse schieben (1)
+hash=cde02f6a65
+funcs=move turn push
+:info
+Schiebe die Mäuse in die Näpfe.
+";
+
+assert _puzzle(p);
+repeat(3)
+{
+  repeat(5)
+  {
+    move();
+  }
+  turn("left");
+}  
+push();
+assert _isSolved();
+
+

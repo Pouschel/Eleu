@@ -1,0 +1,3 @@
+var x=random();
+//print(x);
+print(typeof(x)); // expect: number

@@ -1,0 +1,4 @@
+class Foo {}
+
+var foo = Foo(1, 2, 3); 
+//? Foo erwartet 0 Argumente, übergeben wurden aber 3.

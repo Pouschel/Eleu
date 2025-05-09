@@ -1,0 +1,61 @@
+var p = "
+:def
+c=Cat
+r=Red Diamond
+:grid
+.
+..rr.rrrr.rr.rr.
+c.r..r.r..r..r
+.
+:meta
+win=ColorCount Blue Diamond 15, ColorCount none none 49
+name=Färben mit Funktionen
+hash=419aac5c44
+funcs=move turn paint
+:info
+Färbe die Rauten blau ein.
+Benutze dazu eine Funktion, die das Muster zeichnet und rufe diese mehrfach auf.
+
+Die Katze steht am Anfang auf einem leeren Feld.
+";
+
+fun s2()
+{
+  assert _puzzle(p);
+  function färbe3()
+  {
+    paint("blue"); move("N");
+    paint("blue"); move();
+    paint("blue"); move("S");
+  }
+  move(); move(); färbe3();
+  move(); move(); färbe3();
+  move(); färbe3();
+  move(); move(); färbe3();
+  move(); move(); färbe3();
+  assert _isSolved();
+}
+s2(); // 726
+//Energieverbrauch: 63; Programmlänge: 80; Anweisungsanzahl: 172; Score: 685).
+
+fun s3()
+{
+  assert _puzzle(p);
+  function färbe3()
+  {
+    paint("blue"); move("N");
+    paint("blue"); move();
+    paint("blue"); move("S");
+  }
+  for (var i = 0; i < 5; i=i+1)
+  {
+    if (i != 2) move();
+    move();
+    färbe3();
+  }
+  assert _isSolved();
+}
+//s3(); 
+//Energieverbrauch: 63; Programmlänge: 80; Anweisungsanzahl: 249; Score: 608
+
+

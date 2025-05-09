@@ -1,0 +1,3 @@
+repeat(3) ;
+
+//Cerr: Ein Semikolon direkt hinter einen repeat ist nicht erlaubt.

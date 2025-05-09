@@ -1,0 +1,22 @@
+var p="
+:def
+c=Cat
+b=Red Diamond
+:grid
+. 
+.cbbbbbb.
+.
+:meta
+win=CC Blue Diamond 6, CC None None 21
+name=Beispiel Rauten färben
+funcs=move paint 
+:info
+Färbe die 6 Rauten blau ein. 
+Die Katze steht am Anfang auf einem leeren Feld.
+";
+
+assert _puzzle(p);
+move("0");
+
+//? '0' ist keine gültige Richtung
+

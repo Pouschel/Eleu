@@ -1,0 +1,39 @@
+var p = "
+:def
+c=CatW
+p='Puschel ist süß.
+m='Der Kater Puschel
+s=verPuscheln 
+g=Green Square
+:grid
+pcg
+:meta
+win = Val 2 0 0
+name = A56 - Anwendung von indexOf
+funcs = move read write turn
+:info
+Lies den String ein und schreibe die Position (indexOf) des Wortes 
+Puschel in das grüne Feld
+
+:grid
+mcg
+:meta
+win = Val 2 0 10
+:grid
+scg
+:meta
+win = Val 2 0 3
+hash = 4b7adf265d
+";
+
+_puzzle(p, 0);
+
+var s = read();
+var pos = indexOf(s,"Puschel");
+turn("around");
+write(pos);
+
+assert _isSolved();
+
+
+

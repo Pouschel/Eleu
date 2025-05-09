@@ -1,0 +1,42 @@
+var p = "
+:def
+c=Cat
+b=Red Diamond
+5 = 5
+7 = 7
+:grid
+.
+.c5bbbbb.
+.
+:meta
+win = ColorCount Blue Diamond 5, ColorCount Blue None 0
+name = Färben mit Variablen (Test 1)
+hash = c77c7acb49
+funcs = move paint read
+:info
+Lese den Wert ein und färbe die Anzahl der Rauten ein.
+Dein Programm sollte für alle Testfälle arbeiten.
+:grid
+.
+.c7bbbbbbb.
+.
+:meta
+name = Färben mit Variablen (Test 2)
+win = ColorCount Blue Diamond 7, ColorCount Blue None 0
+hash = 663558922c
+";
+
+fun s2(ti)
+{
+	assert _puzzle(p, ti);
+	var n = parseInt(read());
+	move();
+	repeat(n)
+	{
+		move();
+		paint("blue");
+	}
+	assert _isSolved();
+}
+s2(0);
+//s2(1);

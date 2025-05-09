@@ -1,0 +1,3 @@
+{
+  class Foo < Foo {} //Cerr: A class can't inherit from itself.
+}

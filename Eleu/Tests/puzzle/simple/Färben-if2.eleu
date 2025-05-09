@@ -1,0 +1,31 @@
+var p="
+:def
+c=Cat
+b=Red Diamond
+:grid
+. 
+  bb b bbb  b. 
+c bb b bbb  b. 
+.
+:meta
+win=ColorCount Blue Diamond 14, ColorCount None None 42
+name=Färben mit if (2)
+hash=01c32c36b4
+funcs=move paint color
+:info
+Färbe die Rauten blau ein. 
+";
+  
+assert _puzzle(p);
+
+move();
+repeat(11)
+{
+  move(); 
+  if (color()=="Red")
+  {
+    paint("Blue"); move("N");
+    paint("Blue"); move("S");
+  }
+}
+assert _isSolved(); 

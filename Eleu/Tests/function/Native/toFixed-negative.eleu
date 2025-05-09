@@ -1,0 +1,3 @@
+
+toFixed(-1.7, -1);
+//Rerr: Die Anzahl der Nachkommastellen muss eine ganze Zahl zwischen 0 und 20 sein.

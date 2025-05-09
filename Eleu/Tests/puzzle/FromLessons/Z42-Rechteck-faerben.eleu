@@ -1,0 +1,55 @@
+var p = "
+:def
+c=Cat
+b=Red Diamond
+3=3
+4=4
+5=5
+6=6
+:grid
+.
+c35
+  bbbbb.
+  bbbbb.
+  bbbbb.
+.
+:meta
+win = ColorCount Blue Diamond 15, CC none none 33
+name = Z42 - Rechteck färben (Test 1)
+funcs = move paint read turn
+:info
+Lese die Werte ein das Rechteck mit diesen Seitenlängen.
+Dein Programm muss für alle Testfälle funktionieren.
+:grid
+ .
+c46
+  bbbbbb.
+  bbbbbb.
+  bbbbbb.
+  bbbbbb.
+.
+:meta
+name = Z42 - Rechteck färben (Test 2)
+win = ColorCount Blue Diamond 24, CC none none 39
+hash = 167f25659b
+";
+
+fun s2(ti)
+{
+  assert _puzzle(p, ti);
+  var rows = parseInt(read()); move();
+  var cols = parseInt(read()); move();
+  repeat(rows)
+  {
+    move("S");
+    repeat(cols)
+    {
+      paint("blue");
+      move();
+    }
+    turn("around");move();
+  }
+  assert _isSolved();
+}
+s2(0);
+s2(1);

@@ -1,0 +1,2 @@
+//Cerr: Das Schlüsselwort 'false' ist kein gültiger Variablenname.
+var false = "value";

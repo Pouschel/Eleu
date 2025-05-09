@@ -1,0 +1,2 @@
+//Cerr: Das Schlüsselwort 'nil' ist kein gültiger Variablenname.
+var nil = "value";

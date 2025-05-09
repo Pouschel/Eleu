@@ -1,0 +1,2 @@
+//Cerr: 'class' ist hier nicht erlaubt.
+while (true) class Foo {}

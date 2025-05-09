@@ -1,0 +1,3 @@
+fun f(a, b) {}
+
+f(1); //? f erwartet 2 Argumente, übergeben wurden aber 1.

@@ -1,0 +1,17 @@
+var x = parseFloat("10.24");
+print(typeof(x)); //? number
+print(x / 2); //? 5.12
+
+
+assert parseFloat("123456.7890123") == 123456.7890123;
+
+fun rt()
+{
+  print(parseFloat("-1.2e2"));  
+}
+_catch(rt,"Die Zeichenkette '-1.2e2' kann nicht in eine Zahl umgewandelt werden.");
+
+parseFloat("1,2");
+
+//Rerr: Die Zeichenkette '1,2' kann nicht in eine Zahl umgewandelt werden.
+

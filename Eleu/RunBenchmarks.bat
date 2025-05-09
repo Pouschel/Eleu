@@ -1,0 +1,1 @@
+C:\Code\Eleu\EleuTester\bin\Release\net6.0\EleuTester.exe -benchmark C:\Code\Eleu\EleuSrc\Benchmarks

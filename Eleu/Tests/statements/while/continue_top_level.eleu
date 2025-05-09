@@ -1,0 +1,5 @@
+var a=7;
+assert a==7;
+continue;
+a = 8;
+//Cerr: 'continue' ist hier nicht erlaubt.

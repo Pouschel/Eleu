@@ -1,0 +1,3 @@
+while(true) ;
+
+//Cerr: Ein Semikolon direkt hinter einen while ist nicht erlaubt.

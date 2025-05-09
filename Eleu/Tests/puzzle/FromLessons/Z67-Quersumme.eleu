@@ -1,0 +1,46 @@
+var p = "
+:def
+c=CatS
+x=1234
+g=Green Square
+:grid
+.c
+ xg.
+.
+:meta
+win = Val 2 1 10
+name = Z67 - Quersumme
+funcs = move read write turn
+:info
+Lies die Zahl ein und schreibe in das Feld rechts daneben
+ihre Quersumme (=Summe der Ziffern).
+:def
+x=76303
+:grid
+.c
+ xg.
+.
+:meta
+win = Val 2 1 19
+
+";
+
+
+_puzzle(p, 1);
+
+var a = readNumber();
+move("E");
+var qsum = 0;
+repeat(1000)
+{
+	var ziffer = a % 10;
+	qsum = qsum + ziffer;
+	a =(a - ziffer)/ 10;
+	if (a==0) {break;}
+}
+write(qsum);
+
+assert _isSolved();
+
+
+

@@ -1,0 +1,236 @@
+--- 12/23/2021 09:42:22 ---
+binary_trees      :  6,218 ms
+equality          : 15,953 ms
+fib               :  5,563 ms
+instantiation     :  1,920 ms
+invocation        :  1,842 ms
+method_call       :  1,124 ms
+properties        :  3,166 ms
+trees             : 12,908 ms
+zoo               :  1,998 ms
+zoo_batch         : 10,001 ms
+            Total :   60.7 s
+// Benchmark complexity reduced
+--- 12/23/2021 10:00:05 ---
+binary_trees      :    544 ms
+equality          :    758 ms
+fib               :    461 ms
+instantiation     :    389 ms
+invocation        :    361 ms
+method_call       :  1,083 ms
+properties        :    572 ms
+string_equality   :  1,086 ms
+trees             :  1,112 ms
+zoo               :    192 ms
+            Total :   6.57 s
+--- 12/24/2021 10:35:30 ---
+binary_trees      :    601 ms
+equality          :    779 ms
+fib               :    497 ms
+instantiation     :    396 ms
+invocation        :    338 ms
+method_call       :  1,081 ms
+properties        :    549 ms
+string_equality   :  1,054 ms
+trees             :  1,157 ms
+zoo               :    193 ms
+            Total :   6.76 s
+--- 12/24/2021 10:35:58 ---
+binary_trees      :    715 ms
+equality          :  1,026 ms
+fib               :    611 ms
+instantiation     :    445 ms
+invocation        :    441 ms
+method_call       :  1,313 ms
+properties        :    718 ms
+string_equality   :  1,211 ms
+trees             :  1,287 ms
+zoo               :    215 ms
+            Total :   7.99 s
+
+--- 12/28/2021 21:34:15 ---
+binary_trees      :    724 ms
+equality          :  1,094 ms
+fib               :    637 ms
+instantiation     :    448 ms
+invocation        :    404 ms
+method_call       :  1,299 ms
+properties        :    635 ms
+string_equality   :  1,409 ms
+trees             :  1,309 ms
+zoo               :    233 ms
+            Total :    8.2 s
+--- 01/03/2022 20:58:45 ---
+// AST Parser
+binary_trees      :    695 ms
+equality          :  1,104 ms
+fib               :    594 ms
+instantiation     :    436 ms
+invocation        :    409 ms
+method_call       :  1,325 ms
+properties        :    674 ms
+string_equality   :  1,322 ms
+trees             :  1,306 ms
+zoo               :    231 ms
+            Total :   8.14 s
+--- 01/15/2022 20:49:21 ---
+// vm
+binary_trees      :    717 ms
+equality          :  1,081 ms
+fib               :    587 ms
+instantiation     :    420 ms
+invocation        :    410 ms
+method_call       :  1,312 ms
+properties        :    633 ms
+string_equality   :  1,217 ms
+trees             :  1,295 ms
+zoo               :    223 ms
+            Total :   7.98 s
+--- 01/15/2022 20:50:15 ---
+// interpreter
+binary_trees      :  1,591 ms
+equality          :  1,789 ms
+fib               :  1,684 ms
+instantiation     :    935 ms
+invocation        :    840 ms
+method_call       :  2,925 ms
+properties        :  1,541 ms
+string_equality   :  1,646 ms
+trees             :  2,736 ms
+zoo               :    524 ms
+            Total :  16.22 s
+--- 01/15/2022 23:19:49 ---
+// removed value fluff
+binary_trees      :  1,734 ms
+equality          :  1,376 ms
+fib               :  1,771 ms
+instantiation     :    851 ms
+invocation        :    832 ms
+method_call       :  2,921 ms
+properties        :  1,390 ms
+string_equality   :    615 ms
+trees             :  2,765 ms
+zoo               :    510 ms
+            Total :  14.78 s
+--- 01/16/2022 09:33:08 ---
+binary_trees      :  1,712 ms
+equality          :  1,583 ms
+fib               :  1,860 ms
+instantiation     :    805 ms
+invocation        :    745 ms
+method_call       :  3,008 ms
+properties        :  1,379 ms
+string_equality   :  1,495 ms
+trees             :  2,720 ms
+zoo               :    513 ms
+            Total :  15.87 s
+--- 01/16/2022 11:01:56 ---
+// InputStatus support
+binary_trees      :  1,730 ms
+equality          :  1,650 ms
+fib               :  1,862 ms
+instantiation     :    831 ms
+invocation        :    755 ms
+method_call       :  3,126 ms
+properties        :  1,483 ms
+string_equality   :  1,383 ms
+trees             :  2,722 ms
+zoo               :    559 ms
+            Total :  16.11 s
+--- 01/16/2022 18:14:16 ---
+// different release - debug execute
+binary_trees      :  1,734 ms
+equality          :  1,600 ms
+fib               :  1,810 ms
+instantiation     :    835 ms
+invocation        :    766 ms
+method_call       :  3,009 ms
+properties        :  1,464 ms
+string_equality   :  1,403 ms
+trees             :  2,826 ms
+zoo               :    586 ms
+            Total :  16.04 s
+--- 29.04.2022 12:26:28 ---
+binary_trees      :  2.139 ms
+equality          :  1.816 ms
+fib               :  2.334 ms
+instantiation     :    985 ms
+invocation        :    877 ms
+method_call       :  3.564 ms
+properties        :  1.650 ms
+string_equality   :  1.460 ms
+trees             :  3.400 ms
+zoo               :    624 ms
+            Total :  18,93 s
+--- 08.03.2024 14:20:57 ---
+binary_trees      :  3.282 ms
+equality          :  6.219 ms
+fib               :  3.893 ms
+instantiation     :  1.955 ms
+invocation        :  1.946 ms
+method_call       :  6.516 ms
+properties        :  3.138 ms
+string_equality   :  4.025 ms
+trees             :  5.633 ms
+zoo               :  1.192 ms
+            Total :  38,05 s
+--- 08.03.2024 14:21:25 ---
+binary_trees      :  1.824 ms
+equality          :  2.337 ms
+fib               :  1.307 ms
+instantiation     :    936 ms
+invocation        :    849 ms
+method_call       :  2.833 ms
+properties        :  1.391 ms
+string_equality   :  1.469 ms
+trees             :  2.785 ms
+zoo               :    507 ms
+            Total :  16,25 s
+--- 08.03.2024 14:22:31 ---
+binary_trees      :  1.950 ms
+equality          :  3.255 ms
+fib               :  1.818 ms
+instantiation     :  1.044 ms
+invocation        :  1.073 ms
+method_call       :  3.499 ms
+properties        :  1.477 ms
+string_equality   :  2.140 ms
+trees             :  3.199 ms
+zoo               :    581 ms
+            Total :  20,04 s
+--- 08.03.2024 14:24:36 ---
+binary_trees      :  1.906 ms
+equality          :  3.145 ms
+fib               :  1.654 ms
+instantiation     :  1.027 ms
+invocation        :    993 ms
+method_call       :  3.377 ms
+properties        :  1.425 ms
+string_equality   :  1.900 ms
+trees             :  3.226 ms
+zoo               :    537 ms
+            Total :   19,2 s
+--- 25.07.2024 13:21:07 ---
+binary_trees      :    937 ms
+equality          :  1.272 ms
+fib               :    658 ms
+instantiation     :    512 ms
+invocation        :    510 ms
+method_call       :  1.324 ms
+properties        :    645 ms
+string_equality   :    870 ms
+trees             :  1.414 ms
+zoo               :    261 ms
+            Total :   8,47 s
+--- 25.07.2024 13:21:59 ---
+binary_trees      :    908 ms
+equality          :    972 ms
+fib               :    585 ms
+instantiation     :    435 ms
+invocation        :    429 ms
+method_call       :  1.224 ms
+properties        :    588 ms
+string_equality   :    699 ms
+trees             :  1.291 ms
+zoo               :    224 ms
+            Total :   7,36 s

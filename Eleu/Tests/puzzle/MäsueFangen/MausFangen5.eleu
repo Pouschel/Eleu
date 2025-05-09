@@ -1,0 +1,25 @@
+var p="
+:def
+c=Cat
+m=Mouse
+h=Bowl
+:grid
+.
+mc h
+.
+:meta
+win=MiceInBowls
+name=Maus fangen 5 
+hash=3f5eb208ad
+funcs=move take drop turn
+:info
+Fange die Maus und bringe sie zum Napf.
+";
+
+assert _puzzle(p);
+turn("Around");
+take();
+turn("Around");
+move();
+drop();
+assert _isSolved(); 

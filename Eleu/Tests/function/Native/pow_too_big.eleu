@@ -1,0 +1,5 @@
+
+pow(331.2,1000);
+
+//Rerr: Das Ergebnis von 'pow(331.2,1000)' ist zu groß (oder klein) für den unterstützten Zahlentyp.
+ 

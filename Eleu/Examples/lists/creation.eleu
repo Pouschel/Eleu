@@ -1,0 +1,8 @@
+var l=[1,"Ups",true,false];
+print(l); // expect: [1,Ups,true,false]
+print(len(l)); // expect: 4
+
+l=[];
+print(l); // expect: []
+print(len(l)); // expect: 0
+

@@ -1,0 +1,34 @@
+var p = "
+:def
+c=Cat
+x='Puschel
+y=98
+z='P76
+b=Blue Diamond
+m=Mouse
+
+:grid
+.
+cbxy..
+.
+:meta
+win=Val 4 1 P76
+name=read write Tests
+funcs=move color read write paint take drop turn
+:info
+Test Puzzle
+";
+
+assert _puzzle(p);
+
+var x = read(); move();
+assert x == "";
+x = read(); move();
+assert x == "Puschel";
+var y = read();
+assert y == "98";
+y = readNumber(); move();
+assert y == 98;
+write("P76");
+
+assert _isSolved();

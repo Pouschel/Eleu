@@ -1,0 +1,55 @@
+var p = "
+:def
+c=Cat
+g=Green Square
+seed=2
+r=rnd 1 13
+:grid
+.
+crrrrrrrrrr g.
+.
+:meta
+win = Max 1 1 10 1 12 1
+name = Maximum finden
+funcs = move read write turn
+:info
+Lies die Zahlen ein und schreibe auf das grüne Feld die größte der Zahlen.
+Das Programm muss für alle Testfälle funktionieren.
+:grid
+.
+crrrrrrrrrr g.
+.
+:meta
+:def
+r=rnd 0 15
+:grid
+.
+crrrrrrrrrr g.
+.
+:meta
+:def
+r=rnd 0 17
+:grid
+.
+crrrrrrrrrr g.
+.
+:meta
+hash = 7e5b46ca32
+";
+
+fun s2(ti)
+{
+	assert _puzzle(p, ti);
+	var max = 0;
+	repeat(10)
+	{
+		var num = parseInt(read());
+		move();
+		if (num > max) max = num;
+	}
+	move(); write(max);
+	assert _isSolved();
+}
+//s2(0);
+for (var i = 0; i < 4; i = i + 1) s2(i);
+

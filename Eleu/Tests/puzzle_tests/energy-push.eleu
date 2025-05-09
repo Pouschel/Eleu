@@ -1,0 +1,38 @@
+var p="
+:def
+c=Cat
+m=Mouse
+h=Bowl
+:grid
+.
+.c mh.
+.
+:meta
+win=True
+name=Error Tests
+hash=58557e58f6
+funcs=move push
+:info
+Fange die Maus und bringe sie zum Napf.
+";
+
+fun ce(num)
+{
+  var e =_energyUsed();
+  if (e != num)
+    print("Erwartet: " + num + "; Real: " + e);
+  assert _energyUsed()== num;
+}
+
+_puzzle(p); ce(0);
+move();ce(1);
+move();ce(2);
+
+//push(); //Napf nicht verschieben
+
+move("W"); ce(6);
+push(); ce(12);
+
+push(); // Napf mit Maus darf nicht geschoben werden
+
+//Rerr: Das Objekt (Napf mit Maus) kann nicht verschoben werden.

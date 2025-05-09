@@ -1,0 +1,5 @@
+assert 0 < 1 ; // ok
+assert "a" == "a" "String vergleich";
+
+assert 0<1 true; //Cerr: Nach der Bedingung wird eine Zeichenkette oder ein ';' erwartet.
+

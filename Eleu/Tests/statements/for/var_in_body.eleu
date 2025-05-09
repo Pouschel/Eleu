@@ -1,0 +1,2 @@
+//Cerr: 'var' ist hier nicht erlaubt.
+for (;;) var foo;

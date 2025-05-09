@@ -1,0 +1,64 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "eleurun",
+            "command": "C:\\Code\\Eleu\\eleu-cli\\bin\\Debug\\net9.0\\eleu-cli.exe",
+            "args": [
+                "${file}"
+            ],
+            "type": "shell",
+            "presentation": {
+                "echo": false,
+                "showReuseMessage": false,
+                "close": false,
+                "panel": "shared",
+                "focus": false
+            }
+        },
+        {
+            "label": "build",
+            "command": "C:\\Code\\Eleu\\eleu-cli\\bin\\Debug\\net9.0\\eleu-cli.exe",
+            "args": [
+                "${file}"
+            ],
+            "presentation": {
+                "echo": false,
+                "showReuseMessage": false,
+                "close": false,
+                "panel": "shared",
+                "focus": false
+            },
+            "problemMatcher": {
+                "owner": "eleu",
+                "fileLocation": [
+                    "absolute"
+                ],
+                "source": "eleu-cli",
+                "pattern": {
+                    "regexp": "^(.*):(\\d+):(\\d+):\\s+(.*)$",
+                    "file": 1,
+                    "line": 2,
+                    "column": 3,
+                    "message": 4
+                }
+            }
+        },
+        {
+            "label": "EleuTests",
+            "command": "C:\\Code\\Eleu\\EleuTester\\bin\\Debug\\net9.0\\eleutester.exe",
+            "args": [
+                "-test",
+                "C:\\Code\\OwnApps\\EleuStudio\\EleuSrc\\Tests"
+            ],
+            "presentation": {
+                "echo": false,
+                "showReuseMessage": false,
+                "close": false,
+                "panel": "shared",
+                "focus": false
+            },
+            "problemMatcher": []
+        }
+    ]
+}

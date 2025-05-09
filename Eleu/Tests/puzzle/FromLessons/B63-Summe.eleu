@@ -1,0 +1,47 @@
+var p = "
+:def
+c=CatS
+g=Green Square
+b=Blue Square 3
+seed=2
+r=rnd 1 13
+0=0
+:grid
+.c
+ rrr0.
+.
+:meta
+win = Sum 1 1 3 1 4 1       
+name=B63 - Summe berechnen (Unbekannte Länge)
+funcs = move read write turn
+:info
+Lies die Zahlen ein und berechne ihre Summe.
+Wenn du eine 0 einliest, beende das Summieren und schreibe
+die Summe in das Feld mit der 0.
+:def
+r=rnd 3 33
+:grid
+.c
+ rrrrrr0.
+.
+:meta
+win = Sum 1 1 6 1 7 1 
+:meta
+";
+
+_puzzle(p, 1);
+
+var sum = 0;
+repeat(1000)
+{
+  var n = readNumber();
+  if (n==0) break;
+  sum=sum+n;
+  move("E");
+}
+write(sum);
+
+assert _isSolved();
+
+
+

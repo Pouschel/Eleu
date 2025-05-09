@@ -1,0 +1,47 @@
+var p="
+:def
+c=Cat
+m=Mouse
+b=Bowl
+:grid
+.
+.....b..m
+..m........b
+.m......b
+.....m....b
+...b....m
+....b......m.
+cm.......b
+:meta
+win=MiceInBowls
+name=Maus fangen 3
+hash=b901946d9b
+score=3000
+funcs=move take drop seeing turn
+:info
+Fange die Maus und bringe sie zum Napf.
+";
+
+fun s1()
+{
+  assert _puzzle(p);
+  repeat(7)
+  {
+    repeat(11)
+    {
+      if (seeing()=="Mouse")
+        take();
+      move();  
+    }
+    repeat(11)
+    {
+      if (seeing()=="Bowl")
+        drop();
+      move("W");
+    }
+    move("N");
+  }
+  assert _isSolved(); 
+}
+s1();
+  

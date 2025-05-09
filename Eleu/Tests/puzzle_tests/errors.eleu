@@ -1,0 +1,45 @@
+var p="
+:def
+c=Cat
+m=Mouse
+h=Bowl
+:grid
+.
+.c mh.
+.
+:meta
+win=True
+name=Error Tests
+hash=cb7e3557f7
+funcs=move take drop _isSolved
+:info
+Fange die Maus und bringe sie zum Napf.
+";
+
+assert _puzzle(p);
+move("N");
+fun mn() { move("N");}
+_catch(mn,"Die Katze ist bei den Koordinaten (1|-1) gegen folgendes Hindernis gelaufen: Wand.");
+ 
+fun m2() {move(-2);}
+_catch(m2,"In der Funktion move muss das 1. Argument vom Typ 'string' sein.");
+
+_puzzle(p);
+_catch(take,"Die Katze kann das Objekt (leeres Feld) nicht aufnehmen.");
+_catch(drop,"Die Katze kann nichts ablegen, da sie kein Objekt trägt.");
+
+_puzzle(p);
+move();
+take();
+move();
+_catch(take,"Die Katze trägt bereits ein Objekt (Napf).");
+drop();
+_catch(drop,"Die Katze kann nichts ablegen, da sie kein Objekt trägt.");
+assert _isSolved(); 
+
+// Napf darf nicht aufgenommen werden
+_puzzle(p);
+move();move();
+_catch(take,"Die Katze kann das Objekt (Napf) nicht aufnehmen.");
+
+

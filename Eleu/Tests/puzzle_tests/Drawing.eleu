@@ -1,0 +1,42 @@
+var p = "
+:def
+c=Cat
+r=Red Diamond
+b=Blue Square
+g=Green Circle
+n=Bowl
+m=Mouse
+i=BowlWithMouse
+u=Red Diamond Bowl
+v=Blue Square Bowl
+w=Green Circle Bowl
+j=Red Diamond 10
+k=Blue Square  23
+l=Green Circle  45
+x=Red Diamond Bowl 67
+y=Blue Square BowlWithMouse  89
+z=Green Circle Bowl 123
+#=Wall
+:grid
+rgb.#
+jkl
+cmni
+uvw.
+xyz
+:meta
+win=True
+name=Error Tests
+hash=e95b847956
+funcs=move color read write paint take
+:info
+Test Puzzle
+";
+
+fun t1()
+{
+	_puzzle(p);
+	take();
+	repeat(4) move();
+	assert _isSolved();
+}
+t1();

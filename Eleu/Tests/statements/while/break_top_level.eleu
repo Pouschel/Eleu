@@ -1,0 +1,5 @@
+var a=7;
+assert a==7;
+break;
+a = 8;
+//Cerr: 'break' ist hier nicht erlaubt.

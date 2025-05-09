@@ -1,0 +1,4 @@
+{
+  var a = "value";
+  var a = "other"; //Cerr: Eine Variable mit dem Namen 'a' existiert in diesem Geltungsbereich schon!
+}

@@ -1,0 +1,2 @@
+//Cerr: 'fun' ist hier nicht erlaubt.
+if (true) "ok"; else fun foo() {}

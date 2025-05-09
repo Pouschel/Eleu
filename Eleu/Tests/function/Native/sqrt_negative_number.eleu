@@ -1,0 +1,4 @@
+sqrt(-4);
+
+// expect: Das Ergebnis von 'sqrt(-4)' ist nicht definiert.
+

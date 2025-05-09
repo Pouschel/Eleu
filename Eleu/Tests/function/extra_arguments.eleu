@@ -1,0 +1,6 @@
+fun f(a, b) {
+  print(a);
+  print(b);
+}
+
+f(1, 2, 3, 4); //? f erwartet 2 Argumente, übergeben wurden aber 4.

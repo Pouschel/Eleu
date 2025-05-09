@@ -1,0 +1,16 @@
+class B  {}
+class C  {}
+class A < B
+{
+  f()
+  {
+    return "in A";
+  }
+}
+
+class A < C
+{
+}
+
+// expect runtime error: Super class must be the same (B vs. C)
+

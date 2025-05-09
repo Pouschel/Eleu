@@ -1,0 +1,50 @@
+var p = "
+:def
+w=Wall
+c=Cat
+g=Green
+r=Red
+b=Blue
+:grid
+
+  wwwww                         wwwww
+ wwwwwww                       wwwwwww
+ wwwwwwwww                   wwwwwwwww
+  wwwwwwwwww               wwwwwwwwww
+  wwww   wwwww           wwww   wwwww
+   ww       www         ww       www
+    www  wwww ww  wcw  ww wwww  www
+    www   w    ww www ww   w    www
+     www  w    wwwwwwwww   .   www
+     www   ww   wwwwwww  ww    www
+     www     w  wwwwwww w      www
+      www  wwwwwwwwwwww.wwww  www
+      wwwwwwwww   wwwg  wwwww.www
+          wwww    www    wwww
+       www  w     www     w  ww
+      ww  w  w    www    w w   w       
+      ww   w  w  wwwwww w  w   ww
+      ww  ww   ww www ww  ww   ww
+      ww  ww    w www ww  ww   ww  
+       ww   w  ww www ww   w  www        
+       www   www   w   ww    w w
+       ww   www         ww   www
+        ww  www         www  ww
+        wwwwww           wwwwww
+        wwww               wwww
+        www                 www
+
+:meta
+win=CatAt 5 3
+name=Einführung
+funcs=move
+hash=f2371c19b2
+:info
+Bewege die Katze auf das grüne Feld, ohne die Wände zu berühren.
+
+";
+
+assert _puzzle(p);
+
+  
+

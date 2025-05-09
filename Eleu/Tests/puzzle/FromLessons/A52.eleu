@@ -1,0 +1,52 @@
+var p = "
+:def
+c=Cat
+r=r=
+u=u=
+A=A=
+v=6.2
+g=Green Square
+seed=2
+b=Blue Square Merle
+:grid
+.
+ r uA.
+cv   g
+.
+:meta
+win = Val 3 2 38.96, Val 4 2 120.76, CatAt 5 2
+name = A52 - Berechnung am Kreis
+funcs = move read write turn
+:info
+Lies den Wert von r ein und schreibe unter u bzw. A die Werte für
+Umfang und Flächeninhalt des Kreises.
+
+Am Schluss steht die Katze auf dem grünen Feld.
+:def
+v=3
+:grid
+.
+ r uA.
+cv   g
+. 
+:meta
+win = Val 3 2 18.85, Val 4 2 28.27
+hash = 2b3ab3f7ad
+";
+
+
+_puzzle(p, 1);
+
+
+var r = parseFloat(read());
+var u = 2 * PI * r;
+var A = PI*r*r;
+
+move();move();write(toFixed(u,2));
+move();write(toFixed(A,2));
+move();move();
+
+assert _isSolved();
+
+
+

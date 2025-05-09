@@ -1,0 +1,7 @@
+var x = 0;
+var y = 1;
+
+//print(y/x);
+print(y%x);
+
+//? Das Ergebnis von '1 % 0' ist nicht definiert.

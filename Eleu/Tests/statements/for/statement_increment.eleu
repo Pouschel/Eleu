@@ -1,0 +1,2 @@
+//Cerr: Hier wird ein Ausdruck erwartet.
+for (var a = 1; a < 2; {}) {}

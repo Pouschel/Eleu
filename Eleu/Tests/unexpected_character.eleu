@@ -1,0 +1,2 @@
+//Cerr: Unerwartetes Zeichen: '|'
+foo(a | b);

@@ -1,0 +1,45 @@
+var p = "
+:def
+c=CatW
+p=Puschel
+m=Merle
+s=Spot
+g=Green Square
+b=Blue Square
+:info
+Lies die Strings ein, schreibe in die grünen Felder jeweils den ersten
+Buchstaben und in blauen Felder den letzten Buchstaben des Wortes.
+:grid
+.
+ pcgb.
+.
+:meta
+win = Val 3 1 P, Val 4 1 l
+name = B52 - Einzelne Zeichen bestimmen
+funcs = move read write turn
+:grid
+.
+ mcgb
+.
+:meta
+win =  Val 3 1 M, Val 4 1 e
+";
+
+fun f(idx)
+{
+_puzzle(p, idx);
+
+	var a = read();
+	turn("around");
+	write(charAt(a, 0));
+	move();
+	write(charAt(a, len(a) - 1));
+	
+  assert _isSolved();
+}
+
+f(0); 
+//f(1);
+
+
+

@@ -1,0 +1,2 @@
+//Cerr: 'class' ist hier nicht erlaubt.
+for (;;) class Foo {}

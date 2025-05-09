@@ -1,0 +1,1 @@
+1 > "1"; // expect runtime error: Unterschiedliche Datentypen können nicht verglichen werden.

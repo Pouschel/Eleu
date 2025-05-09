@@ -1,0 +1,17 @@
+fun fib(n) {
+  if (n < 2) return n;
+  return fib(n - 2) + fib(n - 1);
+}
+
+var start = clock();
+print(fib(20));
+print(clock() - start);
+
+// Python needs 2.804 s
+// After chapter 24: 5.358 s double the time of my python program
+// After some optimizations at the end: 5.002 s
+// dart interpreter vm version: 2.69 s
+// dart exe: 1.71 s
+// new vm with objects in cs: 0.065 s
+
+

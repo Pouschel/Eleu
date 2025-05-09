@@ -1,0 +1,20 @@
+var x = parseNumber("10.24");
+print(typeof(x)); //? number
+print(x / 2); //? 5.12
+assert parseNumber("123456.7890123") == 123456.7890123;
+assert parseNum("1234567890123456789") == 1234567890123456789;   
+
+fun rt()
+{
+  print(parseFloat("-1.2e2"));  
+}
+
+_catch(rt,"Die Zeichenkette '-1.2e2' kann nicht in eine Zahl umgewandelt werden.");
+
+parseNum(1.2);
+//Rerr: In der Funktion parseNumber muss das 1. Argument vom Typ 'string' sein.
+
+
+
+  
+

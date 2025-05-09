@@ -1,0 +1,52 @@
+var p = "
+:def
+c=Cat
+r=Red Diamond  1
+b=Blue Square  2
+g=Green Circle 3
+y=Yellow Circle 4
+m=Magenta Circle 5
+n=Cyan Square 6
+:grid
+.
+.crgb.
+  ymn
+.
+:meta
+win=True
+name=Error Tests
+funcs=move color read write paint
+:info
+Test Puzzle
+";
+
+fun t1()
+{
+  _puzzle(p);
+  assert color()== "None";
+  move();
+  assert color()== "Red";
+  move();
+  assert color()== "Green";
+  move();
+  assert color()== "Blue";
+  move("S");
+  assert color()=="Cyan";
+  move("W");
+  assert color()=="Magenta";
+  move("W");
+  assert color()=="Yellow";
+  move("W");
+  assert _isSolved();
+}
+t1();
+
+_puzzle(p);
+move();
+paint("Blue");
+fun p() {paint("puschel");}
+_catch(p,"'puschel' ist keine gültige Farbe.");
+move("N");
+fun p1() {paint("red");}
+_catch(p1,"Das Feld (2|0) enthält kein Muster.");
+

@@ -1,0 +1,51 @@
+var p = "
+:def
+c=Cat
+r=Red Diamond
+b=Blue Square
+g=Green Circle
+:grid
+.
+.crbg.
+.
+:meta
+win=True
+name=Error Tests
+funcs=move color read write paint
+:info
+Test Puzzle
+";
+
+fun t1()
+{
+	_puzzle(p);
+	assert color()== "None";
+	move();
+	assert color()== "Red";
+	move();
+	assert color()== "Blue";
+	move();
+	assert color()== "Green";
+	
+	assert _isSolved();
+}
+t1();
+
+fun t2()
+{
+	assert _puzzle(p);
+	write(5);
+	assert read()== "5";
+	move(); move();
+	paint("Red");
+	assert color()== "Red";
+	assert _isSolved();
+}
+t2();
+
+_puzzle(p);
+move(-2);
+
+//Rerr: In der Funktion move muss das 1. Argument vom Typ 'string' sein.
+
+

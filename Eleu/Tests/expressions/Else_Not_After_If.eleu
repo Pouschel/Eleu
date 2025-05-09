@@ -1,0 +1,7 @@
+if (1<2) print("ups");
+
+; 
+
+else print("Weg")
+
+//Cerr: Ein else folgt immer direkt der Anweisung bzw. {dem Block} nach dem if.

@@ -1,0 +1,10 @@
+var l;
+
+l=[ ;    
+l=[1 ;
+l=];
+
+//Cerr: Hier wird ein Ausdruck erwartet.
+//Cerr: Expect ']' at list end
+//Cerr: Hier wird ein Ausdruck erwartet.
+

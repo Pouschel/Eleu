@@ -1,0 +1,5 @@
+class Bar {}
+!Bar;  //Rerr: Operand muss vom Typ boolean sein.
+!Bar();
+
+  

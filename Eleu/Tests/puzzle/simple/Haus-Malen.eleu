@@ -1,0 +1,40 @@
+var p="
+:def
+c=Cat
+r=Red Diamond
+:grid
+. 
+....rr
+...r..r.
+..r....r
+.r......r
+.r......r
+.r..rr..r
+.r..rr..r
+.rrrrrrrr.
+c
+:meta
+win=ColorCount Blue Diamond 26, ColorCount None None 74
+name=Haus malen
+hash=c16521c4a7
+funcs=move paint color turn
+score=2000
+:info
+Färbe die Rauten blau ein. 
+";
+  
+assert _puzzle(p);
+
+move("N"); 
+repeat(8)
+{
+  repeat(9)
+  {
+    if (color()=="Red") 
+      paint("Blue");
+    move();
+  }
+  turn("Around");
+  move("N");
+}
+assert _isSolved(); 

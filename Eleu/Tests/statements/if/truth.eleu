@@ -1,0 +1,13 @@
+
+if (false) print("bad"); else print("false"); // expect: false
+if (true) print("bad"); else print("nil"); //? bad
+
+
+if (true) print(true); //? true
+
+fun f1() { if (0) print(0); }
+fun f2() { if ("puschel") print("empty");  }
+
+_catch(f1,"Die if-Bedingung '0' ist nicht vom Typ boolean");
+_catch(f2,"Die if-Bedingung 'puschel' ist nicht vom Typ boolean");
+

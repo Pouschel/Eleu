@@ -1,0 +1,49 @@
+var p = "
+:def
+w=Wall
+c=Cat
+g=Green Square
+:grid
+wwwwwww
+wwwwgww
+wc    w
+wwwwwww
+:meta
+win=CatAt 4 1
+name=B62 - Lücke finden
+funcs=move turn seeing 
+:info
+Bewege die Katze zum grünen Feld, 
+ohne die Wände zu berühren.
+Das grüne Feld befindet sich immer oberhalb.
+
+Das Programm muss für alle Testfälle funktionieren.
+:grid
+wwwwwwwww
+wwwwwwgww
+wc      w
+wwwwwwwww
+:meta
+win=CatAt 6 1
+hash=101bb4da5d
+";
+
+fun solve(idx)
+{
+	_puzzle(p, idx);
+	move(); move(); move();
+	repeat(1000)
+	{
+		turn("left");
+		if (seeing()!="Wall")
+		{
+		  move(); break;
+		}  
+		turn("right");
+		move(); move();
+	}
+	assert _isSolved();
+}
+
+solve(0);
+solve(1);

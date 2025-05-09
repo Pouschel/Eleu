@@ -1,0 +1,281 @@
+var p = "
+:def
+w=Wall
+c=Cat
+g=Green Square
+:grid
+wwwwwwwwwwwww
+wwwwwww.wwwww
+wwwwwww.wwwww
+wwwwwww.ww...g
+wwwwwww....ww
+wwwwwww.wwwww
+wwwwwww.wwwww
+wwwwwww.wwwww
+c...........w
+wwwwwww.wwwww
+wwwwwww.wwwww
+wwwwwwwwwwwww
+:meta
+win=CatAt 13 3
+name=Labyrinth (Test 1)
+funcs=move turn seeing paint color setShape
+score=3000
+:info
+Bewege die Katze auf das grüne Feld, ohne die Wände zu berühren.
+
+Die Katze muss jede Art von Labyrinth meistern.
+
+:grid
+wwwwwwwwwwwww
+w...w.w.....w
+www.w.w.www.w
+w.w.w.....w..g
+w...w.www.www
+www.........w
+w.w.w.w.www.w
+w.w.www.w...w
+c.....w.w.w.w
+w.www.....w.w
+w..w..wwwww.w
+wwwwwwwwwwwww
+:meta
+name=Labyrinth (Test 2)
+score=4000
+:grid
+wwwwwwwwwwwww
+w...........w
+w.wwwwwwwww.w
+w.w.......w..g
+w.w.ww.ww.w.w
+w...w...w...w
+w.w.w...w.w.w
+w.w.ww.ww.w.w
+c.w.......w.w
+w.wwwwwwwww.w
+w...........w
+wwwwwwwwwwwww
+:meta
+name=Labyrinth (Test 3)
+hash=9cb52b65c9
+";
+
+// kann mit der rechte Hand an Wand Regel gelöst werden!
+fun s(nr)
+{
+	assert _puzzle(p, nr);
+	
+	function wall()
+	{
+		return seeing()== "Wall";
+	}
+	
+	function onCrossing()
+	{
+		var n = 0;
+		if (!wall()) n = n + 1;
+		turn("left");
+		if (!wall()) n = n + 1;
+		turn("around");
+		if (!wall()) n = n + 1;
+		turn("left");
+		return n > 1;
+	}
+	
+	// Summe der Markierungen an einer Kreuzung
+	function markSum()
+	{
+		var sum = 0;
+		repeat(4)
+		{
+			var r = read();
+			if (r != nil)
+				sum = sum + r;
+			turn("left");
+		}
+		return sum;
+	}
+
+	// Gang aus dem man gekommen ist markieren
+	function markPrev(num)
+	{
+		turn("around");
+		write(num);
+		turn("around");
+	}
+	
+	function selectDirC()
+	{
+		// Richtung ohne Markierung suchen
+		repeat(4)
+		{
+			var r = read();
+			if (!wall() and r == nil) return true;
+			turn("left");
+		}
+		turn("around");
+	}
+
+	function selectDirN()
+	{
+		// nicht auf Kreuzung - sollte nur eine Richtung geben
+		if (!wall()) return ;
+		turn("left");
+		if (!wall()) return ;
+		turn("around");
+		if (!wall()) return ;
+		turn("right");
+	}
+	
+	var prevCrossing = false;
+	while (color()!= "Green")
+	{
+//		if (prevCrossing)
+//			markPrev(1); // stop setzen
+		var onc = onCrossing();
+		var msum = markSum();
+		if (onc and msum == 0)
+			markPrev(2);  // zuletzt markieren
+		
+		if (onc) selectDirC();
+		else selectDirN();
+
+		paint("blue");
+		if (onc) write(1);
+		move();
+		prevCrossing = onc;
+	}
+	assert _isSolved();
+}
+
+
+fun s2(nr)
+{
+	assert _puzzle(p, nr);
+	
+	function wall()
+	{
+		return seeing()== "Wall";
+	}
+	
+	function dirCount()
+	{
+		var n = 0;
+		if (!wall()) n = n + 1;
+		turn("left");
+		if (!wall()) n = n + 1;
+		turn("around");
+		if (!wall()) n = n + 1;
+		turn("left");
+		return n;
+	}
+	
+	function findDir()
+	{
+		if (!wall()) return true;
+		turn("left");
+		if (!wall()) return true;
+		turn("around");
+		if (!wall()) return true;
+		turn("right");
+		return false;
+	}
+	
+	var d = 0;
+	function followWay()
+	{
+		d = d + 1;
+		print("depth: " + d);
+		function doMove()
+		{
+			paint("blue");
+			move();
+			return color()== "Green";
+		}
+		
+		var steps = 1;
+		while (true)
+		{
+			var dc = dirCount();
+			if (dc == 0) // nur zurück
+				break;
+			if (dc == 1)
+			{
+				findDir();
+				if (doMove()) return true;
+				steps = steps + 1;
+				continue;
+			}
+			// Kreuzung
+			repeat(4)
+			{
+				if(!wall())
+				{
+					if (doMove()) return true;
+					if (followWay()) return true;
+				}
+				turn("left");
+			}
+			print("should not be here");
+			break;
+		}
+		print("go back: " + steps);
+		turn("around");
+		repeat(steps)
+		{
+			findDir();
+			paint("white");
+			move();
+		}
+	}
+	
+	followWay();
+	assert _isSolved();
+}
+//s2(0);
+
+fun s3(nr)
+{
+	assert _puzzle(p, nr);
+	function doMove()
+	{
+		setShape("blue","circle");
+		move();
+	}
+	
+	function wall()
+	{
+		return seeing()== "Wall";
+	}
+	
+	function rhWall()
+	{
+		turn("right");
+		var wall = seeing()== "Wall";
+		turn("left");
+		return wall;
+	}
+	
+	while (color()!= "Green")
+	{
+		var rhw = rhWall();
+		var w = wall();
+		if (rhw)
+		  if (!w) doMove();
+		  else
+		  {
+		    turn("left");
+		    if (wall())
+		      turn("left");
+		    else doMove();  
+		  }
+	  else
+	  {
+	    turn("right");
+	    doMove();
+	  }
+	}
+	
+	assert _isSolved();
+}
+s3(1);

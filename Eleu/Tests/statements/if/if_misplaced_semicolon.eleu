@@ -1,0 +1,6 @@
+//Cerr: Ein Semikolon direkt hinter einen if ist nicht erlaubt.
+var x = 4;
+if (x > 5) ;
+  print("inif");  
+
+print("exif");  

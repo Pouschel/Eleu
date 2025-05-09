@@ -1,0 +1,38 @@
+var p="
+:def
+c=Cat
+b=Red Diamond
+:grid
+. 
+c bb
+   bb
+    bb
+     bb
+      bb.
+       bb
+        bb
+         bb.
+.
+:meta
+win=CC Blue Diamond 16, CC None None 104
+name=Färben 1
+hash=b345bd17be
+funcs=move turn paint 
+:info
+Färbe die Rauten blau ein. 
+Die Katze steht am Anfang auf einem leeren Feld.
+";
+
+fun s2()
+{
+  assert _puzzle(p);
+  move();move();
+  repeat(8)
+  {
+    paint("blue"); 
+    move(); paint("blue"); 
+    move("S");
+  }
+  assert _isSolved(); 
+}
+s2();

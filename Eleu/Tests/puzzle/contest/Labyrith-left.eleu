@@ -1,0 +1,40 @@
+var p="
+:def
+w=Wall
+c=Cat
+g=Green Square
+:grid
+wwwwwwwwwwwww
+w..w.....w..w.
+w.ww.www.ww.w
+w            g
+w.w.w.ww.w.ww
+w.w.w..w.w..w
+w.w.ww.w.ww.w
+www.wwww.w..w
+c........w.ww
+w.wwwwwwww..w
+w........ww.w
+wwwwwwwwwwwww
+:meta
+win=CatAt 13 3
+name=Labyrinth links
+funcs=move turn seeing paint color setShape
+hash=c0c5a65789
+score=2000
+:info
+Bewege die Katze auf das grüne Feld, ohne die Wände zu berühren.
+
+Wenn die Katze ein Hindernis erreicht, muss sie links abbiegen.
+";
+
+assert _puzzle(p);
+while (color()!="Green")
+{
+  setShape("blue","diamond");
+  if (seeing()=="Wall")
+    turn("Left");
+  else 
+    move();
+}
+assert _isSolved(); 

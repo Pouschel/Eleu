@@ -1,0 +1,9 @@
+var x = parseInt("1024");
+print(typeof(x)); //? number
+print(x / 2); //? 512
+
+assert parseInt("1234567890123456789") == 1234567890123456789; 
+parseInt("1.2");
+
+//Rerr: Die Zeichenkette '1.2' kann nicht in ganze eine Zahl umgewandelt werden.
+

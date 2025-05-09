@@ -1,0 +1,47 @@
+var p = "
+:def
+c=Cat
+g=Green Square
+b=Blue Square
+:grid
+.
+c 34321 g.
+  53221 g
+  28463 g
+  47214 g
+  13729 g
+.       b
+.
+:meta
+win = Nums 8 1 13 . + 13 . + 23 . + 18 . + 22 . + 89, MinReadCount 25
+name = Zahlen addieren (2)
+hash = 285d5eff15
+funcs = move read write turn
+:info
+Lies die Zahlen in Spalte 2 und 6 ein, addiere sie und schreibe das Ergebnis in Spalte 8.
+Schreibe die Summe aller Zahlen in das blaue Feld.
+";
+
+fun s2(ti)
+{
+  assert _puzzle(p, ti);
+  move();
+  var summe = 0;
+  repeat(5)
+  {
+    var num = 0;
+    repeat(5)
+    {
+      num = num + parseInt(read());  move();
+    }
+    summe = summe + num;
+    move(); write(num);
+    move("S"); write(summe);
+    turn("around");
+    repeat(6) move();
+    turn("around");
+  }
+  assert _isSolved();
+}
+s2(0);
+

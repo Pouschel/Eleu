@@ -1,0 +1,47 @@
+var p = "
+:def
+w=Wall
+c=Cat
+g=Green Square
+:grid
+wwwwwww
+wwwwgww
+wc    w
+wwwwwww
+:meta
+win=CatAt 4 1
+name=Labyrinth links
+funcs=move turn seeing color
+:grid
+wwwwwwwww
+wwwwwwgww
+wc      w
+wwwwwwwww
+:meta
+win=CatAt 6 1
+hash=101bb4da5d
+:info
+Bewege die Katze zum grünen Feld, ohne die Wände zu berühren.
+
+Du musst mit alle Testfällen zurechtkommen!
+";
+
+fun solve(idx)
+{
+	_puzzle(p, idx);
+	move(); move(); move();
+	while (true)
+	{
+		turn("left");
+		if (seeing()!="Wall")
+		{
+		  move(); break;
+		}  
+		turn("right");
+		move(); move();
+	}
+	assert _isSolved();
+}
+
+solve(0);
+solve(1);

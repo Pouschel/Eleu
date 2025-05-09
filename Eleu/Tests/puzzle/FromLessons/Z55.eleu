@@ -1,0 +1,41 @@
+var p = "
+:def
+c=CatS
+m=Maus
+k=Kater
+g=Green Square
+:grid
+c
+m....
+:meta
+win = Val 1 1 M, Val 2 1 a, Val 3 1 u, Val 4 1 s
+name = Z55 (Wörter in Buchstaben zerlegen)
+funcs = move read write turn
+:info
+Lies das Wort ein und schreibe eine rechts daneben die
+einzelnen Buchstaben, pro Feld ein Buchstabe.
+:grid
+c
+k.....
+:meta
+win = Val 1 1 K, Val 2 1 a, Val 3 1 t, Val 4 1 e, Val 5 1 r
+";
+
+_puzzle(p, 1);
+
+var s = read();
+var länge = len(s);
+var erg = "";
+var n = 0;
+repeat(länge)
+{
+	move("E");
+	write(charAt(s,n));
+	n = n + 1;
+}
+
+
+assert _isSolved();
+
+
+

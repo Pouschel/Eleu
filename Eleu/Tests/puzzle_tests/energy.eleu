@@ -1,0 +1,79 @@
+var p="
+:def
+c=Cat
+r=Red Diamond
+b=Blue
+g=Green Circle
+m=Mouse
+h=Bowl
+:grid
+.
+.cm.
+.
+:meta
+win=True
+name=Error Tests
+hash=1ef9919010
+funcs=move color read write paint take drop turn
+:info
+Test Puzzle
+";
+
+
+fun ce(num)
+{
+  var e=_energyUsed();
+  if (e!=num)
+    print("Erwartet: " + num + "; Real: " +e);
+  assert _energyUsed()==num;
+}
+
+fun t4() // take - drop
+{
+  assert _puzzle(p); ce(0);
+  take(); ce(5);
+  drop(); ce(7);
+}
+t4();
+
+
+fun t3() // Drehungen
+{
+  _puzzle(p); ce(0);
+  turn("left"); ce(1);
+  turn("around"); ce(2);
+  turn("right"); ce(3);
+  turn("around"); ce(4);
+  take(); ce(9);
+  turn("left"); ce(11);
+  turn("around"); ce(13);
+  turn("right"); ce(15);
+  turn("around"); ce(17);
+
+}
+t3();
+
+fun t2() // Bewegungen mit Maus
+{
+  _puzzle(p); ce(0);
+  take();  ce(5);
+  move(); ce(7);
+  move("N"); ce(11);
+  move("S"); ce(15);
+  move("W"); ce(21);
+  drop(); ce(23);
+}  
+t2();
+
+fun t1() // Bewegungen
+{
+  _puzzle(p);
+  ce(0);
+  move();
+  ce(1);
+  move("N"); ce(3);
+  move("S"); ce(5);
+  move("W"); ce(9);
+}  
+t1();
+

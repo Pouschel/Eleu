@@ -1,0 +1,36 @@
+var p = 
+":def
+w=Wall
+c=Cat
+g=Green
+:grid
+wwwwwwwwwwwwwwwww
+w...............w
+w.........www...w
+w..www...wwwww..w
+w.w.w.w.ww.wwww.w
+w.wwwww.wwwwwww.w
+w.  cww....gwww.w
+w.wwwww.  .www..w
+w.w w.w...www...w
+w...............w
+wwwwwwwwwwwwwwwww
+:meta
+win=CatAt 11 6
+name=PacMan 
+funcs=move 
+hash=892e5ae4b8
+:info
+Bewege die Katze auf das grüne Feld, ohne die Wände zu berühren.
+
+";
+
+assert _puzzle(p);
+repeat(3) move("W");
+repeat(3) move("S");
+repeat(8) move("E");
+repeat(3) move("N");
+repeat(2) move("E");
+
+assert _isSolved();
+

@@ -1,0 +1,2 @@
+//Cerr: Expect '{' before function body.
+fun f() 123;

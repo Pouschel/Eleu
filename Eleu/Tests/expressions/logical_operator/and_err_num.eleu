@@ -1,0 +1,4 @@
+
+var x = false and 1; 
+
+//Rerr: Der Operator 'and' kann nicht auf '1' angewendet werden.

@@ -1,0 +1,22 @@
+class A
+{
+  f()
+  {
+    return "in A";
+  }
+}
+
+class A
+{
+}
+
+var a=A();
+print(a.f());  // expect: in A
+
+class A
+{
+  f() { return "3rd A";}
+}
+
+print(a.f());  // expect: 3rd A
+

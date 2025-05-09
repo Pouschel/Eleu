@@ -1,0 +1,3 @@
+var c="K";
+print (c >= "a" and c <= "z"); //? false
+print (c >= "A" and c <= "Z"); //? true

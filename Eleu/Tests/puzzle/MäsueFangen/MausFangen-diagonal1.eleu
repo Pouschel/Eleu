@@ -1,0 +1,41 @@
+var p = "
+:def
+c=Cat
+m=Mouse
+h=Bowl
+:grid
+.
+...........h
+..........h
+.........h
+........h
+.
+.
+.
+....m
+...m
+..m
+.m
+c
+:meta
+win=MiceInBowls
+name=Mäuse diagonal fangen
+hash=a733cfb2ab
+funcs=move turn take drop
+:info
+Fange die Maus und bringe sie zum Napf.
+";
+
+assert _puzzle(p);
+move("N");
+
+for (var n = 10; n > 3; n = n - 2)
+{
+	take();
+	repeat(n) {move("N"); move();}
+	drop();
+	if (n == 4) break;
+	repeat(n - 1) {move("W"); move("S"); }
+}
+
+assert _isSolved();

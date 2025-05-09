@@ -1,0 +1,54 @@
+var p = "
+:def
+c=Cat
+a=a=
+b=b=
+d=c=
+A=A=
+x=6
+y=8
+g=Green Square
+:grid
+.
+cax by d A.
+.
+:meta
+win = Val 8 1 10.00, Val 10 1 24.00
+name = A54 - Berechnung am rechtwinkligen Dreieck
+funcs = move read write turn
+:info
+Lies die Werte von a und b ein und berechne c und A für
+das rechtwinklige Dreieck. Gib die Werte auf zwei
+Nachkommastellen gerundet aus.
+
+:def
+x=1.2
+y=1.5
+:grid
+.
+cax by d A.
+.
+:meta
+win = Val 8 1 1.92, Val 10 1 0.90
+hash = 1fe442dd65
+";
+
+
+_puzzle(p, 0);
+
+move();
+var a = parseFloat(read());
+repeat(3) move();
+var b = parseFloat(read());
+var c =sqrt(a*a+b*b);
+var A =a*b/2;
+repeat(3) move();
+write(toFixed(c,2));
+move();move();
+write(toFixed(A,2));
+//move("N");
+
+assert _isSolved();
+
+
+

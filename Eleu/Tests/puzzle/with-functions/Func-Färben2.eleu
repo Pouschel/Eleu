@@ -1,0 +1,48 @@
+var p = "
+:def
+c=Cat
+r=Red Diamond
+:grid
+.
+..r...r....r..r
+..rr..rr...rr.rr.
+..r...r....r..r.
+..r...r....r..r.
+c.r...r....r..r.
+.
+:meta
+win=ColorCount Blue Diamond 24, ColorCount none none 95
+name=Färben mit Funktionen (2)
+hash=b284817ae6
+funcs=move turn paint
+:info
+Färbe die Rauten blau ein.
+Benutze dazu eine Funktion, die das Muster zeichnet und rufe diese mehrfach auf.
+
+Die Katze steht am Anfang auf einem leeren Feld.
+";
+
+fun s2()
+{
+  assert _puzzle(p);
+  function färbe()
+  {
+    turn("Left");
+    repeat(4)
+    {
+      paint("blue"); move();
+    }
+    paint("blue");
+    turn("right"); move();
+    turn("right"); move();
+    paint("blue");
+    repeat(3) move();
+    turn("left");
+  }
+  move(); move(); färbe();
+  move(); move(); move(); färbe();
+  repeat(4) move();  färbe();
+  move(); move();  färbe();
+  assert _isSolved();
+}
+s2(); // 726

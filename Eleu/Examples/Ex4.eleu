@@ -1,0 +1,5 @@
+repeat(10)
+{
+	move();
+	paint("blue");
+}

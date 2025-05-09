@@ -1,0 +1,31 @@
+var p="
+:def
+c=Cat
+b=Red Diamond
+y=Black Diamond
+:grid
+. 
+cbybybbyb. 
+.
+:meta
+win=ColorCount Blue Diamond 5, ColorCount Green Diamond 3, ColorCount None None 22
+name=A61 - Färben mit if
+funcs=move paint color
+:info
+Färbe die roten Rauten blau ein und die schwarzen grün.
+:grid
+. 
+cbyybbbby. 
+.";
+  
+assert _puzzle(p,1);
+
+repeat(8)
+{
+  move(); 
+  if (color()=="Red")
+    paint("Blue");
+  else paint("Green");  
+}
+move();
+assert _isSolved(); 

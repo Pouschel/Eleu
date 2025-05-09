@@ -1,0 +1,32 @@
+var p="
+:def
+w=Wall
+c=Cat
+g=Green
+:grid
+wwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwwww..gw
+wwwwwwwwwwww....www
+wwwwwwwwww...wwwwww
+wwwwwww....wwwwwwww
+wwwwww..wwwwwwwwwww
+www....wwwwwwwwwwww
+wc..wwwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwww
+:meta
+win=CatAt 17 1
+name=Z65 - Labyrinth 1
+funcs=move turn seeing
+score=1000
+:info
+Bewege die Katze auf das grüne Feld, ohne die Wände zu berühren.
+";
+
+assert _puzzle(p);
+repeat(22)
+{
+  if (seeing()=="Wall")
+    move("N");
+  else move();
+}
+assert _isSolved(); 

@@ -1,0 +1,3 @@
+fun foo(a) {
+  var a; //Cerr: Eine Variable mit dem Namen 'a' existiert in diesem Geltungsbereich schon!
+}

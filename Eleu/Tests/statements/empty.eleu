@@ -1,0 +1,5 @@
+
+;;;
+
+print("empty");
+// expect: empty

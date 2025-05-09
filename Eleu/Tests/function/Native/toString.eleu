@@ -1,0 +1,18 @@
+var x = toString(5);
+assert typeof(x)== "string";
+assert x == "5";
+
+x = toString("5");
+assert typeof(x)== "string";
+assert x == "5";
+
+x = toString(nil);
+assert typeof(x)== "string";
+assert x == "nil";
+
+x = toString(true);
+assert typeof(x)== "string";
+assert x == "true";
+x = toString(false);
+assert typeof(x)== "string";
+assert x == "false";

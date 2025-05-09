@@ -1,0 +1,4 @@
+class Foo {}
+
+//Cerr: Expect superclass name.
+class Bar < (Foo) {}

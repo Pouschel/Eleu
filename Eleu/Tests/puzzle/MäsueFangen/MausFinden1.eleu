@@ -1,0 +1,32 @@
+var p="
+:def
+c=Cat
+m=Mouse
+h=Bowl
+:grid
+.
+cm hm h mhm hmh.
+.
+:meta
+win=MiceInBowls
+name=Maus finden 1
+hash=a1c5414781
+funcs=move take drop seeing
+:info
+Fange die Maus und bringe sie zum Napf.
+";
+
+fun s1()
+{
+  assert _puzzle(p);
+  repeat(14)
+  {
+    if (seeing()=="Mouse")
+      take();
+    if (seeing()=="Bowl")
+      drop();
+    move();
+  }
+  assert _isSolved(); 
+}
+s1();

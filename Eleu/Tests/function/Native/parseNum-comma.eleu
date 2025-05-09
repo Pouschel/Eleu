@@ -1,0 +1,3 @@
+parseNumber("10,24");
+
+//Rerr: Die Zeichenkette '10,24' kann nicht in eine Zahl umgewandelt werden.

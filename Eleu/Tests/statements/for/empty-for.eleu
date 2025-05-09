@@ -1,0 +1,4 @@
+for (; ;)
+;
+
+//Cerr: Ein Semikolon direkt hinter einen for ist nicht erlaubt.

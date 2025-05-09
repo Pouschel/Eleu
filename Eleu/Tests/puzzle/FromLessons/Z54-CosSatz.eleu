@@ -1,0 +1,61 @@
+var p = "
+:def
+c=Cat
+a=a=
+b=b=
+d=c=
+A=A=
+x=6
+y=8
+w=γ=
+z=60°
+g=Green Square
+v=Blue Square
+:grid
+.
+cax by
+ wz d g
+.
+:meta
+win = Val 5 2 7.21, CatAt 6 2
+name = Z54 - Anwendung Kosinussatz
+funcs = move read write
+:info
+Lies die Werte von a und b und γ ein und berechne c
+mit Hilfe des Kosinussatzes. Bewege die Katze dann
+auf das grüne Feld.
+
+Gib die Werte auf zwei Nachkommastellen gerundet aus.
+
+:def
+y=5.5
+z=100°
+:grid
+ .
+cax by
+ wz d g
+.
+:meta
+win = Val 5 2 8.82, CatAt 6 2
+";
+
+
+_puzzle(p, 0);
+
+move();
+var a = parseNum(read());
+repeat(3) move();
+var b = parseNum(read());
+move("S");
+repeat(3) move("W");
+var gamma = read(); //String, ° muss entfernt werden
+gamma = substr(gamma, 0, len(gamma)- 1);
+//print(gamma);
+var gammaZahl = parseNumber(gamma)/ 180 * PI;
+var c = sqrt( a * a + b * b - 2 * a * b * cos(gammaZahl));
+repeat(3) move();
+write(toFixed(c, 2));
+move(); move();
+
+assert _isSolved();
+

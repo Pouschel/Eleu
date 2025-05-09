@@ -1,0 +1,2 @@
+//Rerr: In der Funktion len muss das Argument ein String oder eine Liste sein.
+len(3);

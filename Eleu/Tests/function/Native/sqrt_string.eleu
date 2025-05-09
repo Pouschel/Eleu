@@ -1,0 +1,3 @@
+sqrt("pu");
+
+// expect: In der Funktion sqrt muss das 1. Argument vom Typ 'number' sein.

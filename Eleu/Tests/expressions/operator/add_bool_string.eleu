@@ -1,0 +1,1 @@
+var x=true + "s"; // expect runtime error: Die Operation 'true + "s"' ist ungültig.

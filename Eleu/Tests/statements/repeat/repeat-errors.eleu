@@ -1,0 +1,8 @@
+repeat 3 print("Hallo"); 
+//Cerr: Nach 'repeat' wird '(' erwartet.
+
+repeat (3 print("Hallo");
+//Cerr: Nach der Anzahl wird ')' erwartet.
+
+
+  

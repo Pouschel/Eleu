@@ -1,0 +1,57 @@
+var p = "
+:def
+w=Wall
+c=Cat
+g=Green Square
+:grid
+wwwwwww
+wwww ww
+wc    w
+ww wgww
+wwwwwww
+:meta
+win=CatAt 4 3
+name=Z64 - Lücken finden: oben und unten
+funcs=move turn seeing color
+:info
+Bewege die Katze zum grünen Feld, ohne die Wände zu berühren.
+:grid
+wwwwwwwwww
+www.wwgwww
+wc.......w
+wwww w.www
+wwwwwwwwww
+:meta
+win=CatAt 6 1
+";
+
+fun solve(idx)
+{
+	_puzzle(p, idx);
+	move();
+	while (true)
+	{
+		turn("left");
+		if (seeing()!= "Wall")
+		{
+			move();
+			if (color()== "Green")
+				break;
+			move("S");
+		}
+		turn("around");
+		if (seeing()!= "Wall")
+		{
+			move();
+			if (color()== "Green")
+				break;
+      move("N");
+		}
+		turn("left");
+		move(); move();
+	}
+	assert _isSolved();
+}
+
+solve(0);
+solve(1);

@@ -1,0 +1,66 @@
+var p = "
+:def
+c=Cat
+r=Red Diamond
+b=Blue
+g=Green Circle
+m=Mouse
+h=Bowl
+:grid
+.
+.cr.
+.
+:meta
+win=True
+name=Error Tests
+hash=71cdff2413
+funcs=move color read write paint take drop turn setShape
+:info
+Test Puzzle
+";
+
+fun ce(num)
+{
+	var e =_energyUsed();
+	if (e != num)
+		print("Erwartet: " + num + "; Real: " + e);
+	assert _energyUsed()== num;
+}
+
+function t3()
+{
+	_puzzle(p); ce(0);
+	setShape("green","circle"); ce(2);
+	move(); ce(3);
+	setShape("none","none");  ce(5);
+	assert color()=="None";
+}
+t3();
+
+function t2()
+{
+	_puzzle(p); ce(0);
+	write("x"); ce(2);
+	read(); ce(3);
+	write(0); ce(5);
+}
+t2();
+
+function t1()
+{
+	_puzzle(p); ce(0);
+	move(); ce(1);
+	color(); ce(2);
+}
+t1();
+
+function tErr()
+{
+  _puzzle(p); ce(0);
+  setShape("green","circle"); ce(2);
+  move(); ce(3);
+  setShape("blue","none"); 
+}
+tErr();
+
+//Rerr: Das Feld (2|1) enthält kein Muster.

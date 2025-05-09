@@ -1,0 +1,2 @@
+move(3); 
+// expect: Die Funktion 'move' kann nur bei einem aktiven Puzzle verwendet werden.

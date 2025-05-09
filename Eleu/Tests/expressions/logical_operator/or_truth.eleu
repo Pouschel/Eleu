@@ -1,0 +1,8 @@
+
+print(false or "ok");
+print(nil or "ok"); 
+print(true or "ok"); 
+print(0 or "ok");  
+print("s" or "ok"); 
+
+//Rerr: Der Operator 'or' kann nicht auf 'ok' angewendet werden.

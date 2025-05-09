@@ -1,0 +1,12 @@
+var s="Puschel";
+print(len(s)); // expect: 7
+
+var cat="cat ";
+print(len(cat)); // expect: 4
+
+var catPuschel=cat+s;
+print(len(catPuschel)); // expect: 11
+
+print(len(cat+10)); // expect: 6
+
+print(len("")); // expect: 0

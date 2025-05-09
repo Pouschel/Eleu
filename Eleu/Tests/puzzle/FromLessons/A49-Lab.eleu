@@ -1,0 +1,68 @@
+var p = "
+:def
+c=Cat
+k=Mouse
+h=Bowl
+w=Wall
+g=Green Square
+:grid
+wwwwwwwwwwwww
+wc          w
+wwwwwwwwwww w
+  w... ...w.w
+ .w.wwwww.w w
+  w.w. .w.w.w
+ .w.w.wgw.w w
+  w.w.www.w.w
+ .w.w. ...w w
+  w.wwwwwww.w
+  w         w
+  wwwwwwwwwww
+:meta
+win=CatAt 7 6
+name=A49 - Spirale
+hash=b49da14d5c
+funcs=move turn
+:info
+Bewege die Katze auf das grüne Feld.
+Benutze maximal 2 repeat Anweisungen.
+";
+
+assert _puzzle(p);
+
+
+var m = 10;
+repeat(10)
+{
+	repeat(m)
+	{
+		move();
+	}
+	turn("right");
+	m = m - 1;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+assert _isSolved();
+
+
+
+
+
+
+
+
+
+
+
+

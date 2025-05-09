@@ -1,0 +1,36 @@
+var p = "
+:def
+c=Cat
+g=Green
+:grid
+.
+c 34 g.
+  53 g
+  28 g
+  47 g
+  13 g
+.
+:meta
+win = Nums 5 1 7 . + 8 . + 10 . + 11 . + 4, MinReadCount 10
+name = Zahlen addieren
+hash = e005c2f618
+funcs = move read write turn
+:info
+Lies die Zahlen in Spalte 2 und 3 ein, addiere sie und schreibe das Ergebnis in Spalte 5. 
+";
+
+fun s2(ti)
+{
+  assert _puzzle(p, ti);
+  move(); 
+  repeat(5)
+  {
+    var num = parseInt(read());  move();
+    num = num + parseInt(read());  move();
+    move(); write(num);
+    move("S"); move("W"); move("W");move("W");
+  }
+  assert _isSolved();
+}
+s2(0);
+

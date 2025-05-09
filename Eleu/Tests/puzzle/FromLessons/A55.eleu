@@ -1,0 +1,38 @@
+var p = "
+:def
+c=CatW
+p=Puschel
+m=Merle
+s=Spot
+g=Green Square
+:grid
+.
+ pcg.
+ m g
+ s g
+.
+:meta
+win = Val 3 1 7, Val 3 2 5, Val 3 3 4, MinReadCount 3
+name = A55 - Bestimmung von String-Längen
+funcs = move read write turn
+:info
+Lies die Strings ein, berechne ihre Länge und schreibe in die grünen Felder
+rechts neben ihnen ihre Länge.
+:meta
+hash = 90be2d4398
+";
+
+_puzzle(p, 0);
+
+repeat (3)
+{
+  var a = read();
+  turn("around");
+  write(len(a));
+  move("S");turn("around");
+}
+
+assert _isSolved();
+
+
+

@@ -1,0 +1,24 @@
+repeat (3) print("Hallo");
+// expect: Hallo
+// expect: Hallo
+// expect: Hallo
+
+repeat(3)
+{
+	print("Ballo");
+	break;
+}
+// expect: Ballo
+
+var b = false;
+repeat(4)
+{
+  b =! b;
+  if (b) continue; 
+  print("Ups");
+}
+
+// expect: Ups
+// expect: Ups
+
+repeat(0) print("Nichts"); 

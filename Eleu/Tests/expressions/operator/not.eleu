@@ -1,0 +1,13 @@
+print(!true);     // expect: false
+print(!false);    // expect: true
+print(!!true);    // expect: true
+
+ !123; //Rerr: Operand muss vom Typ boolean sein.      
+ !0;        
+
+ !nil;     
+
+ !"";      
+
+fun foo() {}
+!foo;     

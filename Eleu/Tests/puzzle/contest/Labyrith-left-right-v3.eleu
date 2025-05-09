@@ -1,0 +1,50 @@
+var p = "
+:def
+w=Wall
+c=Cat
+g=Green Square
+:grid
+wwwwwwwwwwwwwwwwwww
+wwwwwwwwwwwwww...ww
+www...wwwwwww..w..w
+ww..w.....www.www.w
+w..wwwwww..ww.www.w
+w.wwwwwwww.ww.www.w
+w.wwwwwwww.ww..ww.w
+w.w...wwww.www.w..w
+w.w.w..ww..www.w.ww
+w.w.ww.w..wwww.w.ww
+w.w.ww.w.wwwww.w.ww
+w...ww.w.wwww..w.ww
+wwwwww.w..ww..ww.ww
+wwwww..ww....ww..ww
+wwww..wwwwwwwwg.www
+wc...wwwwwwwwwwwwww
+wwwwwwwwwwwwwwwwwww
+:meta
+win=CatAt 14 14
+name=Labyrinth - links oder rechts
+funcs=move turn seeing paint color setShape
+hash=8cca559e3b
+score=2000
+:info
+Bewege die Katze auf das grüne Feld, ohne die Wände zu berühren.
+
+Wenn die Katze ein Hindernis erreicht, muss sie links oder rechts abbiegen.
+Nur eine Richtung ist möglich.
+";
+
+assert _puzzle(p);
+while (color()!= "Green")
+{
+  setShape("blue", "diamond");
+  if (seeing()== "Wall")
+  {
+    turn("Left");
+    if (seeing()== "Wall")
+      turn("around");
+    continue;
+  }
+  move();
+}
+assert _isSolved();

@@ -1,0 +1,1 @@
+"1" - 1; // expect runtime error: Beide Operanden müssen Zahlen sein.

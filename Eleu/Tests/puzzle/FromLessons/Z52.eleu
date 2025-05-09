@@ -1,0 +1,46 @@
+var p = "
+:def
+c=CatW
+p=LEBEN
+m=PUSCHEL
+s=RentneR
+g=Green Square
+:grid
+pcg
+:meta
+win = Val 2 0 NEBEL
+name = Z52 - Strings umkehren
+funcs = move read write turn
+:info
+Lies den String ein und schreibe eine umgekehrte Variante in das grüne Feld.
+
+z.B.: aus PAUSE wird ESUAP.
+:grid
+mcg
+:meta
+win = Val 2 0 LEHCSUP
+:grid
+scg
+:meta
+win = Val 2 0 RentneR
+hash = 36edb1c588
+";
+
+_puzzle(p, 0);
+
+var s = read();
+var länge = len(s);
+var erg = "";
+var n = 0;
+repeat(länge)
+{
+	erg = substr(s, n, 1) + erg;
+	n = n + 1;
+}
+turn("around");
+write(erg);
+
+assert _isSolved();
+
+
+

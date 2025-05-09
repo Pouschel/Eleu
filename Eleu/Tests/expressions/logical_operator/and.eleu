@@ -1,0 +1,10 @@
+// Note: These tests implicitly depend on ints being truthy.
+
+print(true and true); //? true
+print(true and false); //? false
+
+var a = "before";
+var b = "before";
+var x= (a = true) and   (b = false) ;
+print(x); //? false
+

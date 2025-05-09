@@ -1,0 +1,8 @@
+//Cerr: Nach den Argumenten wird ')' erwartet.
+//Cerr: Nicht abgeschlossene Zeichenkette.
+
+print("Puschel fängt pro Monat" + (53/12) + "Vögel") ;
+print(parseInt("print("Puschel fängt pro Monat" + (53/12) + "Vögel")));
+
+
+

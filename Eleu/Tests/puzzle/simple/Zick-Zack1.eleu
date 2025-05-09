@@ -1,0 +1,27 @@
+var p="
+:def
+w=Wall
+c=Cat
+g=Green
+:grid
+wwwwwwwwwwwwwww
+ww...w...w...ww
+wc.w...w...w.gw
+wwwwwwwwwwwwwww
+:meta
+win=CatAt 13 2
+name=Labyrinth 1
+funcs=move 
+hash=8590b443d2
+:info
+Bewege die Katze auf das grüne Feld, ohne die Wände zu berühren.
+";
+
+assert _puzzle(p);
+repeat(3)
+{
+  move();move("N");
+  move();move();
+  move("S");move();
+}
+assert _isSolved(); 
