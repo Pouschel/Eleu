@@ -1,16 +1,2 @@
-
-var a = 3; // Variablen a,b,x,t,f werden deklariert
-var b = 8;
-var x = 5;
-var t = true;
-var f = false;
-
-
-if (true) 
-{
-  print("In if"); //schreibe true
-}
-else x > b and x < a; // wenn folgende Bedingungen zutreffen 
-{
-  print("In fake else"); //schreib false
-}
+var F="b";
+var x= F==!"weiß";

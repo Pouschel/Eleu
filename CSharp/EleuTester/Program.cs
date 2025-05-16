@@ -211,8 +211,7 @@ class Program
   }
   public static void Main(string[] args)
   {
-    //TestCombinatorParser(); return;
-    PrintFunctionNames();
+    //PrintFunctionNames();
     Console.WriteLine("Eleu Tester v2");
     Console.WriteLine(
 @"Arguments: 

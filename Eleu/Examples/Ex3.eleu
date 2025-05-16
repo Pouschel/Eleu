@@ -10,7 +10,6 @@ h=Bowl
 :meta
 win=MiceInBowls
 name=Maus fangen 3
-hash=7d09abfa1b
 funcs=move take drop
 :info
 Fange die Maus und bringe sie zum Napf.
@@ -46,4 +45,4 @@ function sol2()
   c1();
   assert _isSolved(); 
 }
-sol2();
+//sol2();

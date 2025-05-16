@@ -68,7 +68,7 @@ internal class AstParser(EleuOptions options, List<Token> tokens)
     {
       var sex = ExpressionStatement();
       var exp = sex.expression;
-      if (!(exp==NilLiteral || exp is Expr.Assign || exp is Expr.Call || exp is Expr.Set))
+      if (!(exp == NilLiteral || exp is Expr.Assign || exp is Expr.Call || exp is Expr.Set))
       {
         throw CreateErrorException(sex.Status, Messages.Invalid_Stmt_Expr);
       }
@@ -213,42 +213,55 @@ internal class AstParser(EleuOptions options, List<Token> tokens)
   }
   private Expr Assignment()
   {
-    Expr expr = Or();
-    if (Match(TokenEqual))
+    Expr Helper()
     {
-      Token equals = Previous;
-      Expr value = Assignment();
-      if (expr is Expr.Variable variable)
+      Expr expr = Or();
+      if (Match(TokenEqual))
       {
-        var name = variable.Name;
-        return new Expr.Assign(name, value);
+        Token equals = Previous;
+        Expr value = Assignment();
+        if (expr is Expr.Variable variable)
+        {
+          var name = variable.Name;
+          return new Expr.Assign(name, value);
+        }
+        else if (expr is Expr.Get get)
+        {
+          return new Expr.Set(get.Obj, get.Name, value);
+        }
+        throw CreateErrorException(expr.Status.IsEmpty ? equals.Status : expr.Status, "Diesem Ausdruck kann kein Wert zugewiesen werden.");
       }
-      else if (expr is Expr.Get get)
-      {
-        return new Expr.Set(get.Obj, get.Name, value);
-      }
-      throw CreateErrorException(expr.Status.IsEmpty ? equals.Status : expr.Status, "Diesem Ausdruck kann kein Wert zugewiesen werden.");
+      return expr;
     }
+    return FixInputStatus(Helper);
+  }
+
+  Expr FixInputStatus(Func<Expr> parseFunc)
+  {
+    var status = CurrentInputStatus;
+    var expr = parseFunc();
+    if (expr.Status.IsEmpty)
+      expr.Status = status.Union(CurrentInputStatus);
     return expr;
   }
   private Expr Or()
   {
-    Expr expr = And();
+    Expr expr = FixInputStatus(And);
     while (Match(TokenOr))
     {
       Token _operator = Previous;
-      Expr right = And();
+      Expr right = FixInputStatus(And);
       expr = new Expr.Logical(expr, _operator, right);
     }
     return expr;
   }
   private Expr And()
   {
-    Expr expr = Equality();
+    Expr expr = FixInputStatus(Equality);
     while (Match(TokenAnd))
     {
       Token _operator = Previous;
-      Expr right = Equality();
+      Expr right = FixInputStatus(Equality);
       expr = new Expr.Logical(expr, _operator, right);
     }
     return expr;
@@ -319,46 +332,46 @@ internal class AstParser(EleuOptions options, List<Token> tokens)
   }
   private Expr Equality()
   {
-    Expr expr = Comparison();
+    Expr expr = FixInputStatus( Comparison);
     while (Match(TokenBangEqual, TokenEqualEqual))
     {
       Token _operator = Previous;
-      Expr right = Comparison();
+      Expr right = FixInputStatus(Comparison);
       expr = new Expr.Binary(expr, _operator, right);
     }
     return expr;
   }
   private Expr Comparison()
   {
-    Expr expr = Term();
+    Expr expr = FixInputStatus(Term);
 
     while (Match(TokenGreater, TokenGreaterEqual, TokenLess, TokenLessEqual))
     {
       Token _operator = Previous;
-      Expr right = Term();
+      Expr right = FixInputStatus(Term);
       expr = new Expr.Binary(expr, _operator, right);
     }
     return expr;
   }
   private Expr Term()
   {
-    Expr expr = Factor();
+    Expr expr = FixInputStatus(Factor);
     while (Match(TokenMinus, TokenPlus))
     {
       Token _operator = Previous;
-      Expr right = Factor();
+      Expr right = FixInputStatus(Factor);
       expr = new Expr.Binary(expr, _operator, right);
     }
     return expr;
   }
   private Expr Factor()
   {
-    Expr expr = Unary();
+    Expr expr = FixInputStatus(Unary);
 
     while (Match(TokenSlash, TokenStar, TokenPercent))
     {
       Token _operator = Previous;
-      Expr right = Unary();
+      Expr right = FixInputStatus(Unary);
       expr = new Expr.Binary(expr, _operator, right);
     }
     return expr;
@@ -375,7 +388,7 @@ internal class AstParser(EleuOptions options, List<Token> tokens)
   }
   private Expr Call()
   {
-    Expr expr = Primary();
+    Expr expr = FixInputStatus(Primary);
     while (true)
     {
       if (Match(TokenLeftParen))
@@ -443,6 +456,14 @@ internal class AstParser(EleuOptions options, List<Token> tokens)
 
   private Expr.Literal? Literal()
   {
+    var stat = CurrentInputStatus;
+    var lit = LiteralWithoutStatus();
+    if (lit == null) return null;
+    lit.Status = stat;
+    return lit;
+  }
+  private Expr.Literal? LiteralWithoutStatus()
+  {
     if (Match(TokenFalse)) return FalseLiteral;
     if (Match(TokenTrue)) return TrueLiteral;
     if (Match(TokenNil)) return NilLiteral;
@@ -459,6 +480,7 @@ internal class AstParser(EleuOptions options, List<Token> tokens)
       return ListLiteral();
     }
     return null;
+
   }
   private Expr.Literal ListLiteral()
   {

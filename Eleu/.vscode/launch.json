@@ -8,7 +8,7 @@
       "type": "node",
       "name": "Eleu Release",
       "request": "launch",
-      "preLaunchTask": "eleurun",
+      "preLaunchTask": "build",
       "program": "c:/temp/dummy.js",
     }
   ]
