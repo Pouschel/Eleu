@@ -1,7 +1,7 @@
 print(!true);     // expect: false
 print(!false);    // expect: true
-print(!!true);    // expect: true
+print(! !true);    // expect: true
 
- var x=!123; //Rerr: Operand muss vom Typ boolean sein.      
+ var x= !123; //Rerr: Operand muss vom Typ boolean sein.      
 
 

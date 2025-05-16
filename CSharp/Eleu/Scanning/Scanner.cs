@@ -26,7 +26,7 @@ internal ref struct Scanner
     char c = Advance();
     if (IsAlpha(c)) return Identifier();
     if (IsDigit(c)) return Number();
-    return c switch
+    var tok = c switch
     {
       '(' => MakeToken(TokenLeftParen),
       ')' => MakeToken(TokenRightParen),
@@ -49,11 +49,45 @@ internal ref struct Scanner
       '"' => ScanString(),
       _ => ErrorToken($"Unerwartetes Zeichen: '{c}'"),
     };
+    tok = CheckInvalidOpToken(tok);
+    return tok;
+  }
+
+  Token CheckInvalidOpToken(Token token)
+  {
+    var tt = token.Type;
+    if (tt <= TokenSemicolon || tt >= TokenIdentifier) return token;
+    var txt = token.StringValue;
+    while (true)
+    {
+      char ch = Peek();
+      if (!"+-*/=<>!%.".Contains(ch)) break;
+      txt += ch;
+      Advance();
+    }
+    if (txt == token.StringValue) return token;
+    var msg = $"Ungültiger Operator '{txt}'";
+    token = new()
+    {
+      Type = TokenError,
+      Start = 0,
+      End = msg.Length,
+      Source = msg,
+      Status = new(token.Status.FileName)
+      {
+        LineStart = token.Status.LineStart,
+        ColStart = token.Status.ColStart,
+        LineEnd = line,
+        ColEnd = col
+      }
+    };
+    return token;
+
   }
   Token Comment()
   {
     // A comment goes until the end of the line.
-    while (Peek() != '\n' && Peek()!='\r' && !IsAtEnd) Advance();
+    while (Peek() != '\n' && Peek() != '\r' && !IsAtEnd) Advance();
     return MakeToken(TokenComment);
   }
 

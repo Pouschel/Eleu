@@ -212,6 +212,7 @@ class Program
   public static void Main(string[] args)
   {
     //PrintFunctionNames();
+    //var x = true ==!false;
     Console.WriteLine("Eleu Tester v2");
     Console.WriteLine(
 @"Arguments: 

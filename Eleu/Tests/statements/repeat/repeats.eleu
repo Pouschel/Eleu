@@ -13,7 +13,7 @@ repeat(3)
 var b = false;
 repeat(4)
 {
-  b =! b;
+  b = !b;
   if (b) continue; 
   print("Ups");
 }
