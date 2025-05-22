@@ -10,6 +10,13 @@
       "request": "launch",
       "preLaunchTask": "build",
       "program": "c:/temp/dummy.js",
+    },
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "Eleu on Chrome",
+      "url": "https://localhost:7268/Index.html?file=${file}",
+      "webRoot": "${workspaceFolder}"
     }
   ]
 }

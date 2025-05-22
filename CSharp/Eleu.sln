@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenerateAst", "GenerateAst\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eleu-cli", "eleu-cli\eleu-cli.csproj", "{99AE0EDD-765A-4D14-A685-A89989409638}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EleuServer", "EleuServer\EleuServer.csproj", "{B28CADDF-AFA9-4439-BA9E-915A8B47D419}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{99AE0EDD-765A-4D14-A685-A89989409638}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{99AE0EDD-765A-4D14-A685-A89989409638}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{99AE0EDD-765A-4D14-A685-A89989409638}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B28CADDF-AFA9-4439-BA9E-915A8B47D419}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B28CADDF-AFA9-4439-BA9E-915A8B47D419}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B28CADDF-AFA9-4439-BA9E-915A8B47D419}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B28CADDF-AFA9-4439-BA9E-915A8B47D419}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
