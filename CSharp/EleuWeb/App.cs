@@ -64,15 +64,9 @@ class App
   }
   static void AutoSave()
   {
-    GetSaveCode();
+    EditorApp.GetSaveCode(); // saves code to local storage
     SaveOptions();
     //Console.WriteLine("autosave!");
     BrowserApp.SetTimeout(AutoSave, 10_000);
-  }
-  internal static string GetSaveCode()
-  {
-    var code = EditorApp.GetText();
-    LocalStoragSet("code", code);
-    return code;
   }
 }

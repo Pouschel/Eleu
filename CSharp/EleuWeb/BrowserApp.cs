@@ -56,9 +56,9 @@ public partial class BrowserApp
 public partial class EditorApp
 {
 
-  public static string GetText()
+  public static string GetSaveCode()
   {
-    return JsEvalWithResult($"editor.getValue();");
+    return JsEvalWithResult($"getSaveCode();");
   }
 
   public static void SetText(string text)
@@ -86,7 +86,7 @@ public partial class EditorApp
   public static void PrettyPrintCode()
   {
 //    var (row, col) = GetCursor();
-    var text = GetText();
+    var text = GetSaveCode();
     var pp = new PrettyPrinter(text);
     var ftext = pp.Format();
     SetText(ftext);

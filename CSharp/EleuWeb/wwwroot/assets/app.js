@@ -46,3 +46,13 @@ function getEditorCursor()
 }
 //window.addEventListener("keydown", fkey);
 
+
+function getSaveCode()
+{
+  let text = editor.getValue();
+  window.localStorage.setItem('code', text);
+  // send text for save
+
+  return text;
+}
+

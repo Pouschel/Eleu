@@ -1,6 +1,8 @@
 ﻿using EmbedIO.Files;
 using EmbedIO;
 using System.Reflection;
+using EmbedIO.Routing;
+using EmbedIO.WebApi;
 
 namespace EleuServer;
 
@@ -20,7 +22,7 @@ internal class Program
     }
     dir = Path.Combine(dir!, "EleuWeb");
     var d1 = Path.Combine(dir, "wwwroot");
-    var d2 = Path.Combine(dir, @"bin\release\net9.0\wwwroot\_framework");
+    var d2 = Path.Combine(dir, @"bin\debug\net9.0\wwwroot\_framework");
     //var d2 = Path.Combine(dir, @"bin\Release\net9.0");
     Start(1754,  "/_framework", d2, "/", d1);
     Console.ReadLine();
@@ -42,7 +44,7 @@ internal class Program
         .WithUrlPrefix(url)
         .WithMode(mode));
 
-    //server.WithWebApi("/api", m => m.WithController<ImageProvideApi>());
+    server.WithWebApi("/api", m => m.WithController<WebApi>());
     for (int i = 0; i < webDirs.Length; i+=2)
     {
       string srvDir=webDirs[i];
@@ -61,4 +63,12 @@ internal class Program
     //start the web server
     server.Start();
   }
+}
+
+class WebApi : WebApiController
+{
+
+  [Route(HttpVerbs.Get, "/HandleSource/{fileName}/{text}")]
+  public string HandleSource(string fileName, string text) { return ""; }
+
 }

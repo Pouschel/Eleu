@@ -73,8 +73,8 @@ class HUI
   {
     var popt = App.Options.Puzzle;
     eleuEngine.SendPuzzleText(popt.Text, all ? 0 : popt.TestIndex);
-    var code = EditorApp.GetText();
-    LocalStoragSet("code", code); App.SaveOptions();
+    var code = EditorApp.GetSaveCode();
+    App.SaveOptions();
     App.Log.Clear();
     ClearError();
     eleuEngine.Start(code, all);
