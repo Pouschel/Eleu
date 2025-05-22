@@ -2,7 +2,7 @@
   "profiles": {
     "eleu-cli": {
       "commandName": "Project",
-      "commandLineArgs": "C:\\Code\\Eleu\\Eleu\\Tests\\function\\call_as_variable.eleu"
+      "commandLineArgs": "C:\\Code\\Eleu\\Eleu\\Examples\\Ex1.eleu"
     }
   }
 }

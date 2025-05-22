@@ -1,4 +1,27 @@
+_puzzle("
+:def
+w=Wall
+c=Cat
+g=Blue Square
+r=Red
+b=Blue
+:grid
+wwwwwwww
+w      w 
+w  ww  w 
+w  w g w 
+w cw w w 
+w      w 
+wwwwwwww
+:meta
+win=CatAt 5 3
+name=A11 - Einführung 2
+funcs=move turn
+:info
+Bewege die Katze auf das blaue Feld, ohne die Wände zu berühren.
+");
 
-var x= true ==! false;
-
-//var y= true ==! false;
+move("S");move(); move();
+move("N"); move("N");
+move(); 
+assert _isSolved(); 
