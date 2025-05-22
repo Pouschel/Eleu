@@ -24,20 +24,23 @@ class App
     Dom.SetProvider(new WasmDom());
     //Thread.Sleep(5000);
     Log = new("log");
-    Log.AddLine("Eleu Studio (Web) gestartet.", Options.View.LogInfoColor);
+
     LoadOptions();
     eleuEngine = new();
     eleuEngine.Restart();
     eleuEngine.SendPing();
 
-    var code = LocalStoragGet("code") ?? "";
+    //var code = LocalStoragGet("code") ?? "";
     Ui = new();
-    EditorApp.SetText(code);
+    //EditorApp.SetText(code);
+    BrowserApp.JsEval("loadFile();");
     Ui.SetPuzzleText(Options.Puzzle.Text, Options.Puzzle.TestIndex);
 
     Ui.EnableButtons();
     Ui.SetModeLoaded();
+    Log.AddLine("Eleu Studio (Web) gestartet.", Options.View.LogInfoColor);
     SetProperty("title", "innerText", $"EleuStudio {EleuLanguageServer.Version}");
+    
     BrowserApp.SetTimeout(AutoSave, 10_000);
   }
 

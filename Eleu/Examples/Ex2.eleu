@@ -2,17 +2,15 @@ var jaNein = "nein";
 var G = "W";
 var F = "grau";
 var KS = "K";
-if (G=="M" and F=="weiß" or F=="braun" and KS=="K")
+if (G == "M" and F == "weiß" or F == "braun" and KS == "K") 
 {
   var jaNein = "ja";
-  print (jaNein);
-}
-else
-print (jaNein);
-if (G=="W" and F==!"weiß" and KS=="K")
+  print(jaNein);
+} 
+else print(jaNein);
+if (G == "W" and F != "weiß" and KS == "K") 
 {
   var jaNein = "ja";
-  print (jaNein);
+  print(jaNein);
 }
-else
-print (jaNein);
+else print(jaNein);

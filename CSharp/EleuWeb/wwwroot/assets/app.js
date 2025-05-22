@@ -28,7 +28,7 @@ function setEleuError(l0, c0, l1, c1)
   else
   {
     if (marker != null)
-    { 
+    {
       console.error("2nd marker!");
       return;
     }
@@ -46,13 +46,62 @@ function getEditorCursor()
 }
 //window.addEventListener("keydown", fkey);
 
+function setSourceCallback(s)
+{
+  s = s.substr(1, s.length - 2);
+  if (s.length == 0) return false;
+  editor.setValue(s, -1);
+  return true;
+}
 
 function getSaveCode()
 {
   let text = editor.getValue();
   window.localStorage.setItem('code', text);
   // send text for save
-
+  if (location.hostname == "localhost" && location.search.length > 0)
+    callAjax("HandleSource", setSourceCallback, location.search, text);
   return text;
 }
 
+function loadFile()
+{
+  if (location.hostname == "localhost" && location.search.length > 0)
+    callAjax("LoadFile", s =>
+    {
+      if (!setSourceCallback(s))
+      {
+        let code = window.localStorage.getItem('code');
+        editor.setValue(code, -1);
+      }
+    }, location.search);
+  else
+  {
+    let code = window.localStorage.getItem('code');
+    editor.setValue(code, -1);
+  }
+}
+
+function readAjax(url, callback, ...args)
+{
+  for (let i = 0; i < args.length; i++)
+  {
+    url += "/" + encodeURIComponent(args[i]);
+  }
+  fetch(url, {
+    method: "GET",
+  }).then(response => response.text()).then(t => callback(t));
+}
+function callAjax(func, callback, ...args)
+{
+  let url = "/api/" + func;
+  readAjax(url, callback, ...args);
+}
+function callAjaxJson(func, callback, ...args)
+{
+  callAjax(func, s =>
+  {
+    let sysState = JSON.parse(s);
+    callback(sysState);
+  }, ...args);
+}
