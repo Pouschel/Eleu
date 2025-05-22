@@ -15,7 +15,7 @@
       "type": "chrome",
       "request": "launch",
       "name": "Eleu on Chrome",
-      "url": "https://localhost:7268/Index.html?file=${file}",
+      "url": "http://localhost:1754/Index.html?f=${file}",
       "webRoot": "${workspaceFolder}"
     }
   ]

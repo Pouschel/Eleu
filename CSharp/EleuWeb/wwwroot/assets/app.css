@@ -187,3 +187,9 @@ button {
 	/*	width: 100% !important;*/
 	/*	left: 0 !important;*/
 }
+
+
+
+.ace_variable.ace_language {
+	color: red !important;
+}
