@@ -1,7 +1,7 @@
 var s="bbb
 afda
 last line
-"
+";
 
 var produkt = 1; // Lücke 1
 var x;

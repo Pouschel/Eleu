@@ -111,7 +111,16 @@ public class WasmExecuter
         App.Ui.SetPuzzle(arg as Puzzle);
         puzzleDelay = App.Options.Puzzle.FrameTime;
         break;
-      //TODO case "_pcall": App.Mvu.EnqueueMessage(new HandlePCallMsg(text())); break;
+      case "_pcall":
+        if (arg is PuzzCode pcode)
+        {
+          var lines=pcode.Compressed.Split('\n');
+          foreach (var line in lines)
+          {
+            App.Println(line, viewOptions.LogTeacherColor);
+          }
+        }
+        break;
 
       default:
         Log("Unknown response: " + cmd, "red");
