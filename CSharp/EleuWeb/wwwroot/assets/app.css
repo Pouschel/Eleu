@@ -206,6 +206,14 @@ button {
 	color: rgb(175, 0, 219) !important;
 }
 
+.ace_keyword.ace_operator {
+	color: black !important;
+}
+
 .ace_storage.ace_type {
 	color: rgb(0, 48, 255) !important;
+}
+
+.ace_comment {
+	color: rgb(0, 128, 00) !important;
 }
