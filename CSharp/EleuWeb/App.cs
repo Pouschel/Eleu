@@ -40,7 +40,7 @@ class App
     Ui.SetModeLoaded();
     Log.AddLine("Eleu Studio (Web) gestartet.", Options.View.LogInfoColor);
     SetProperty("title", "innerText", $"EleuStudio {EleuLanguageServer.Version}");
-    
+
     BrowserApp.SetTimeout(AutoSave, 10_000);
   }
 
@@ -49,8 +49,8 @@ class App
     try
     {
       var otext = LocalStoragGet("options");
-      Options = JsonLoadString<OptionsModel>(otext);
-      Options.Puzzle.Text = LocalStoragGet("puzzle");
+      Options = otext == null ? new OptionsModel() : JsonLoadString<OptionsModel>(otext);
+      Options.Puzzle.Text = LocalStoragGet("puzzle") ?? "";
     }
     catch (Exception ex)
     {

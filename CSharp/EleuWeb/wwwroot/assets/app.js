@@ -78,7 +78,7 @@ function loadFile()
   else
   {
     let code = window.localStorage.getItem('code');
-    editor.setValue(code, -1);
+    if (code != null) editor.setValue(code, -1);
   }
 }
 

@@ -3,7 +3,6 @@ using Eleu.Puzzles;
 using Eleu.Scanning;
 using EleuStudio;
 
-
 class HUI
 {
   WasmExecuter eleuEngine => App.eleuEngine;

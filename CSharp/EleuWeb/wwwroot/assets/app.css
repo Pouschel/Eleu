@@ -15,6 +15,11 @@ td {
 	padding: 4px;
 }
 
+tr 
+{
+	vertical-align:top;
+
+}
 button {
 	background-color: transparent;
 	/*border: 1px solid yellow;*/
