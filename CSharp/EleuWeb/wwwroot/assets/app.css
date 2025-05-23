@@ -191,5 +191,21 @@ button {
 
 
 .ace_variable.ace_language {
-	color: red !important;
+	color: rgb(16, 90, 180) !important;
+}
+
+.ace_string {
+	color: rgb(163, 21, 21) !important;
+}
+
+.ace_support.ace_function { /* puzzle function */
+	color: rgb(147, 102, 38) !important;
+}
+
+.ace_keyword {
+	color: rgb(175, 0, 219) !important;
+}
+
+.ace_storage.ace_type {
+	color: rgb(0, 48, 255) !important;
 }

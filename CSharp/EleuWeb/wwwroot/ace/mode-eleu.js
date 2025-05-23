@@ -96,16 +96,12 @@ ace.define("ace/mode/javascript_highlight_rules", ["require", "exports", "module
     this.$rules = {
       "no_regex": [
         DocCommentHighlightRules.getStartRule("doc-start"),
-        comments("no_regex"),
         {
-          token: "string",
-          regex: "'(?=.)",
-          next: "qstring"
-        }, {
-          token: "string",
-          regex: '"(?=.)',
-          next: "qqstring"
-        }, {
+          token: "string", start: '"', end: '"', next: [
+            { token: "constant.language.escape", regex: '""' }
+          ]
+        },
+        {
           token: "constant.numeric", // hexadecimal, octal and binary
           regex: /0(?:[xX][0-9a-fA-F]+|[oO][0-7]+|[bB][01]+)\b/
         }, {
