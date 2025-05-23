@@ -2,104 +2,103 @@
 <html lang="de">
 
 <head>
-	<title id="title">EleuStudio</title>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="icon" href="assets/EleuStudio.png" />
-	<link rel="stylesheet" href="/assets/app.css" />
-	<link rel="modulepreload" href="./main.js" />
-	<link rel="modulepreload" href="./_framework/dotnet.js" />
-	<script src="/ace/ace.js" type="text/javascript" charset="utf-8"></script>
+  <title id="title">EleuStudio</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="assets/EleuStudio.png" />
+  <link rel="stylesheet" href="/assets/app.css" />
+  <link rel="modulepreload" href="./main.js" />
+  <link rel="modulepreload" href="./_framework/dotnet.js" />
+  <script src="/ace/ace.js" type="text/javascript" charset="utf-8"></script>
 </head>
 
 <body>
-	<div id="waitDiv">
-		<div class="loader"></div>
-		<div>
-			Bitte Warten!<br />
-			EleuStudio wird geladen. <br />
-			Da die App sehr groß ist, kann es etwas dauern.
-		</div>
-	</div>
-	<div id="mainDiv" style="display:none">
-		<!--Main view-->
-		<table style="height:98vh;width:98vw">
-			<tr style="height:9%;">
-				<td colspan="2" style="height:100%; vertical-align:middle">
-					<!--Menue bar-->
-					<div id="menuBar">
-						<div style="position:relative;height:100%">
-							<button id="btnRun" title="Programm ausführen">  <img class="tbbImage" src="assets/Run.png" /></button>
-							<button disabled id="btnStop" title="Laufendes Programm beenden"> <img class="tbbImage" src="assets/Stop.png" /></button>
-							<button id="btnPuzzle" title="Puzzle Code eingeben">  <img class="tbbImage" src="assets/InputPuzzle.png" /></button>
-							<button id="btnBackToStart" title="Zurück zum Puzzleanfang" style="margin-left:15px">
-								<img class="tbbImage" src="assets/BackToStart.png" />
-							</button>
-							<select id="selTest" style="width:100px"><option>Test 1</option> </select>
-							<button id="btnRunAllTests" title="Alle Tests ausführen">  <img class="tbbImage" src="assets/RunAllTests.png" /></button>
-						</div>
-						<div style="margin-top:2px;">
-							Geschwindigkeit:<br />
-							<input type="range" min="0" max="35" value="20" step="1" class="slider" id="rangeSpeed">
-						</div>
-						<div style="margin-left: auto;margin-right:20px;vertical-align:middle;font-weight:600">
-							<p>
-								<a href="kurs/EleuKurs.html" target="_blank">Kurs</a>  &bull;
-								<a href="kurs/Functions.html" target="_blank">Funktionen</a>  &bull;
-								<a href="kurs/CatFunctions.html" target="_blank">Puzzlefunktionen</a>  &bull;
-								<a href="kurs/Impressum.html" target="_blank">Impressum</a>
-							</p>
-						</div>
-					</div>
-				</td>
-			</tr>
-			<tr style="height:60%">
-				<td style="width:60vw; vertical-align:top;">
-					<div id="editor"></div>
-				</td>
-				<td style="width:40vw; vertical-align:top;">
-					<div style="height:100%; background-color:white; padding:-6px;">
-						<div id="puzzDiv" style="margin-left:6px; padding-top:6px"></div>
-						<div id="puzzCanvasDiv">
-							<canvas id="puzzCanvas" width="300" height="200" >
-							</canvas>
-						</div>
-					</div>
-				</td>
-			</tr>
-			<tr style="height:29%">
-				<td colspan="2">
-					<!--Logger-->
-					<div style="height: 100%; padding:4px;">
-						<div class="blueDarkerBackground ausgabe">Ausgabe</div>
-						<div class="talog" id="log"></div>
-					</div>
-				</td>
-			</tr>
-		</table>
-	</div>
-	<div id="puzzInputDiv" style="display:none">
-		<h2>Gib den Puzzle-Code in das Textfeld ein:</h2>
-		<div>
-			<textarea id="puzzleInputText" spellcheck="false">
+  <div id="waitDiv">
+    <div class="loader"></div>
+    <div>
+      Bitte Warten!<br />
+      EleuStudio wird geladen. <br />
+      Da die App sehr groß ist, kann es etwas dauern.
+    </div>
+  </div>
+  <div id="mainDiv" style="display:none">
+    <!--Main view-->
+    <table style="height:98vh;width:98vw">
+      <tr style="height:44px;">
+        <td colspan="2" style="vertical-align:middle">
+          <!--Menue bar-->
+          <table id="menuBar">
+            <tr class="menu-row">
+              <td id="td-menu-left" >
+                <button id="btnRun" title="Programm ausführen"> <img class="tbbImage" src="assets/Run.png" /></button>
+                <button id="btnRunAllTests" title="Alle Tests ausführen">  <img class="tbbImage" src="assets/RunAllTests.png" /></button>
+                <button disabled id="btnStop" title="Laufendes Programm beenden"> <img class="tbbImage" src="assets/Stop.png" /></button>
+                <button id="btnPuzzle" title="Puzzle Code eingeben">  <img class="tbbImage" src="assets/InputPuzzle.png" /></button>
+                <button id="btnBackToStart" title="Zurück zum Puzzleanfang" style="margin-left:15px">
+                  <img class="tbbImage" src="assets/BackToStart.png" />
+                </button>
+                <select id="selTest" style="width:100px"><option>Test 1</option> </select>
+                <input type="range" min="0" max="35" value="20" step="1" class="slider" id="rangeSpeed"
+                       title="Geschwindigkeit des Puzzles festlegen">
+              </td>
+              <td  id="td-menu-right">
+                <a href="kurs/EleuKurs.html" target="_blank">Kurs</a>  &bull;
+                <a href="kurs/Functions.html" target="_blank">Funktionen</a>  &bull;
+                <a href="kurs/CatFunctions.html" target="_blank">Puzzlefunktionen</a>  &bull;
+                <a href="kurs/Impressum.html" target="_blank">Impressum</a>
+              </td>
+            </tr>
+
+          </table>
+        </td>
+      </tr>
+      <tr style="height:60%;">
+        <td style="width: 60vw; vertical-align: top; min-height: 100%; padding-right:4px">
+          <div id="editor" style="height:100%"></div>
+        </td>
+        <td style="width:40vw; vertical-align:top; min-height:100%">
+          <div style="height:100%; background-color:white; padding:-6px;">
+            <div id="puzzDiv" style="margin-left:6px; padding-top:6px"></div>
+            <div id="puzzCanvasDiv">
+              <canvas id="puzzCanvas" width="300" height="200">
+              </canvas>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr style="height:29%">
+        <td colspan="2" style="padding-top:6px;">
+          <!--Logger-->
+          <div style="height: 100%;">
+            <div class="blueDarkerBackground ausgabe">Ausgabe</div>
+            <div class="talog" id="log"></div>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
+  <div id="puzzInputDiv" style="display:none">
+    <h2>Gib den Puzzle-Code in das Textfeld ein:</h2>
+    <div>
+      <textarea id="puzzleInputText" spellcheck="false">
       </textarea>
-		</div>
-		<div style="margin:auto;text-align:center;"><button id="puzzInput_btnOk">OK</button></div>
+    </div>
+    <div style="margin:auto;text-align:center;"><button id="puzzInput_btnOk">OK</button></div>
 
-	</div>
-	<div style="display:none;">
-		<img id="catImg" src="assets/Cat.png" />
-		<img id="wallImg" src="assets/Wall.png" />
-		<img id="bowlImg" src="assets/bowl.png" />
-		<img id="mouseImg" src="assets/Mouse.png" />
-	</div>
+  </div>
+  <div style="display:none;">
+    <img id="catImg" src="assets/Cat.png" />
+    <img id="wallImg" src="assets/Wall.png" />
+    <img id="bowlImg" src="assets/bowl.png" />
+    <img id="mouseImg" src="assets/Mouse.png" />
+  </div>
 
-	<script>
-		var editor = ace.edit("editor");
+  <script>
+    var editor = ace.edit("editor");
 
-	</script>
-	<script type='module' src="./main.js"></script>
-	<script src="assets/app.js"></script>
+  </script>
+  <script type='module' src="./main.js"></script>
+  <script src="assets/app.js"></script>
 </body>
 
 </html>

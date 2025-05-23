@@ -12,12 +12,12 @@
 }
 
 td {
-	padding: 4px;
+	padding: 0px;
 }
 
 tr 
 {
-	vertical-align:top;
+	/*vertical-align:top;*/
 
 }
 button {
@@ -25,7 +25,8 @@ button {
 	/*border: 1px solid yellow;*/
 	border: none;
 	height: 85%;
-	margin: 2px 4px 0px 4px;
+/*	margin: 4px 4px 0px 4px;
+*/	margin: 0px;
 	padding: 0;
 }
 
@@ -60,17 +61,55 @@ button {
 }
 
 .tbbImage {
-	height: 100%;
-	width: 100%;
+	height: 35px;
+	max-width: 100%;
+	object-fit:fill;
 }
 
 #menuBar {
-	height: 40px; 
+	height: 35px; 
+	max-height: 40px;
 	width: 100%;
 	background-color: #CCD5F0;
-	margin: 0px;
+	margin: 0px 0 4px 0;
 	padding: 0px;
-	display:flex;
+/*	display:flex;*/
+	
+}
+
+#td-menu-left {
+	max-height: 40px;
+
+	object-fit: contain;
+	vertical-align: middle;
+	border-top: 8px solid transparent;
+	white-space: nowrap;
+	
+}
+#td-menu-right {
+	max-height: 40px;
+	vertical-align: middle;
+	text-align:right;
+	padding-right:10px;
+}
+
+.menu-row{
+	padding:0px;
+	margin:0px;
+
+}
+
+#selTest {
+	width: 80px;
+	vertical-align: top;
+	margin: 10px 5px 0px 5px;
+	
+}
+
+#rangeSpeed {
+	width: 140px;
+	vertical-align: top;
+	margin: 10px 5px 0px 5px;
 }
 
 #editor {
@@ -179,12 +218,6 @@ button {
 	margin: auto;
 }
 
-#selTest {
-	width: 80px;
-	vertical-align: middle;
-	margin: 0 10px 20px 10px;
-
-}
 
 .compError {
 	background: rgba(255, 50, 50, 0.3);
