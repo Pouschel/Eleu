@@ -119,6 +119,8 @@ public class WasmExecuter
           {
             App.Println(line, viewOptions.LogTeacherColor);
           }
+          App.Options.Puzzle.Text = pcode.Compressed;
+          App.Options.Puzzle.TestIndex = pcode.TestIndex;
         }
         break;
 
