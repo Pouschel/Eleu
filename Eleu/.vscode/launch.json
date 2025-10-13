@@ -5,7 +5,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "node",
+      "type": "mock",
       "name": "Eleu Release",
       "request": "launch",
       "preLaunchTask": "build",

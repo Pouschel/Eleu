@@ -1,22 +1,4 @@
-var s="bbb
-afda
-last line
-";
 
-var produkt = 1; // Lücke 1
-var x;
-repeat(3)  // Lücke 2
-{
-  x = parseInt(read());  // Lücke 3
-  produkt = produkt * x; // Lücke 4
-  move();
-}
-move();
-write(produkt); // Lücke 5
-print(x);
+print("Hallo");
 
-fun f()
-{
-    
-}
 
