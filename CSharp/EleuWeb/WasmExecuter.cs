@@ -114,11 +114,12 @@ public class WasmExecuter
       case "_pcall":
         if (arg is PuzzCode pcode)
         {
-          var lines=pcode.Compressed.Split('\n');
-          foreach (var line in lines)
-          {
-            App.Println(line, viewOptions.LogTeacherColor);
-          }
+          var lines = pcode.Compressed.Split('\n');
+          if (pcode.ShowCompressedCode)
+            foreach (var line in lines)
+            {
+              App.Println(line, viewOptions.LogTeacherColor);
+            }
           App.Options.Puzzle.Text = pcode.Compressed;
           App.Options.Puzzle.TestIndex = pcode.TestIndex;
         }

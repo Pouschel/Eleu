@@ -6,11 +6,13 @@ public class PuzzCode
   public readonly string Text;
   public readonly string Compressed = "";
   public readonly int TestIndex;
+  public readonly bool ShowCompressedCode;
 
-  public PuzzCode(string text, int testIndex)
+  public PuzzCode(string text, int testIndex, bool showCompressedCode)
   {
     this.Text = text; this.TestIndex = testIndex;
     Compressed = PuzzleStatics.EncodePuzzle(text);
+    this.ShowCompressedCode = showCompressedCode;
   }
 }
 

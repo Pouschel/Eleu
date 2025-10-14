@@ -29,7 +29,7 @@ record struct Cmd(string Name, object Arg)
 
 public class EleuLanguageServer : IDisposable
 {
-  public const string Version = "25.1";
+  public const string Version = "25.2";
   BlockingCollection<Cmd> queue = new(new ConcurrentQueue<Cmd>());
   Action<string, object> responseAction;
   Thread? worker;
@@ -104,9 +104,9 @@ public class EleuLanguageServer : IDisposable
     if (puzzle != null) Response("puzzle", puzzle);
     _outStateChanged = true;
   }
-  void OnPuzzleSet(string code, int testIndex)
+  void OnPuzzleSet(string code, int testIndex, bool showPCode)
   {
-    Response("_pcall", new PuzzCode(code, testIndex));
+    Response("_pcall", new PuzzCode(code, testIndex, showPCode));
   }
 
   bool HandleCmd(Cmd cmd)
@@ -255,7 +255,7 @@ public class EleuLanguageServer : IDisposable
         if (puzzleIndex < this._bundle?.Count - 1)
         {
           puzzleIndex++;
-          OnPuzzleSet(_bundle!.Code, puzzleIndex);
+          OnPuzzleSet(_bundle!.Code, puzzleIndex, false);
           EndCodeHandler(this.curFileName ?? "", this.curCode);   // run code with next puzzle
         }
         else

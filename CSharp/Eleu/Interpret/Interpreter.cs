@@ -11,7 +11,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<InterpretResult>
   internal InputStatus currentStatus;
   public Puzzle? Puzzle;
   public Action<Puzzle?>? PuzzleStateChanged;
-  public Action<string, int>? PuzzleCalled;
+  public Action<string, int, bool>? PuzzleCalled;
   private List<Stmt> statements;
   internal EleuEnvironment globals = new();
   internal Func<Stmt, bool>? canContinueFunc;

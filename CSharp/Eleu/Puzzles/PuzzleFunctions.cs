@@ -35,7 +35,7 @@ public class PuzzleFunctions : NativeFunctionBase
   private Directions CheckDirection(string s, bool onlyNSEW)
   {
     bool b = Enum.TryParse<Directions>(s, true, out var edir);
-    if (b && int.TryParse(s, out var _)) b = false; 
+    if (b && int.TryParse(s, out var _)) b = false;
     if (b && onlyNSEW && edir > Directions.S)
       b = false;
     if (!b)
@@ -57,7 +57,7 @@ public class PuzzleFunctions : NativeFunctionBase
     if (!string.IsNullOrEmpty(fn))
       bundle.SetImageNameHints(fn);
     var puzzle = Vm.Puzzle = bundle[index].Copy();
-    Vm.PuzzleCalled?.Invoke(bundle.Code, index);
+    Vm.PuzzleCalled?.Invoke(bundle.Code, index, true);
     Vm.NotifyPuzzleChange(puzzle, -1);
     puzzle.ImageNameHint = "";
     Animate(puzzle);
@@ -77,7 +77,7 @@ public class PuzzleFunctions : NativeFunctionBase
       obst = true;
     if (obst)
       throw new PException($"Die Katze ist bei den Koordinaten ({col}|{row}) " +
-        $"gegen folgendes Hindernis gelaufen: {field.Object.GetObjectName()}."); 
+        $"gegen folgendes Hindernis gelaufen: {field.Object.GetObjectName()}.");
   }
   private void moveDir(Directions dir, int dist, [CallerMemberName] string funcname = "")
   {
