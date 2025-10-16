@@ -1,4 +1,7 @@
+function f()
+{
+  return 3;
+}
 
-print("Hallo");
-
-
+int x=f;
+print(x);
