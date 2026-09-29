@@ -84,6 +84,8 @@ metrics.width+""|""+(metrics.actualBoundingBoxAscent + metrics.actualBoundingBox
 
     canvasWidth = canvDiv.ClientWidth;
     canvasHeight = canvDiv.ClientHeight;
+    if (canvasWidth == 0 || canvasHeight == 0)
+      canvasWidth = canvasHeight = 200;
     //Dom.SetStyle("puzzCanvasDiv", "display", "none");
 
     if (canvasWidth != state.Width || canvasHeight != state.Height)
