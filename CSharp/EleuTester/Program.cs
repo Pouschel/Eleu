@@ -110,7 +110,7 @@ class Program
   {
     lock (this) Console.Write($"\r{file[testDirLen..]}           ");
     var baseName = Path.GetFileName(file);
-    if (baseName[0] == '-')
+    if (baseName[0] == '-' || ScriptExpectation.IsNoTest(File.ReadAllText(file)))
     {
       Interlocked.Increment(ref nSkipped);
       return true;

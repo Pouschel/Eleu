@@ -9,12 +9,27 @@ public static class ScriptExpectation
 {
   static readonly string[] searches = ["// expect: ", "//? ", "// expect runtime error: ", "//Rerr: ", "//Cerr: "];
 
+  /// <summary>
+  /// A script with a line "//notest" (also "// notest", any case) is no test, e.g. a small program for the pupils.
+  /// </summary>
+  public static bool IsNoTest(string source) =>
+    source.Split('\n').Any(line => line.Trim().Replace(" ", "").Equals("//notest", StringComparison.OrdinalIgnoreCase));
+
   public static string ExpectedOutput(string source)
   {
     var sw = new StringWriter();
+    foreach (var (_, text) in Expectations(source))
+      sw.WriteLine(text);
+    return sw.ToString();
+  }
+
+  /// <summary>The expectations with the lines (from 1) of their comments.</summary>
+  public static IEnumerable<(int Line, string Text)> Expectations(string source)
+  {
     var lines = source.Split('\n');
-    foreach (var line in lines)
+    for (int lineIndex = 0; lineIndex < lines.Length; lineIndex++)
     {
+      var line = lines[lineIndex];
       for (int i = 0; i < searches.Length; i++)
       {
         string search = searches[i];
@@ -22,12 +37,10 @@ public static class ScriptExpectation
         if (idx < 0) continue;
         // "//Cerr: " keeps "Cerr: " in the expectation, like the compiler writes it
         int start = idx + (i < 4 ? search.Length : 2);
-        var resString = line[start..].TrimEnd();
-        sw.WriteLine(resString);
+        yield return (lineIndex + 1, line[start..].TrimEnd());
         break;
       }
     }
-    return sw.ToString();
   }
 
   /// <summary>Removes the position prefixes ("file(line,col): ") and the puzzle override notice.</summary>

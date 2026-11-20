@@ -49,11 +49,11 @@ public class ScriptFileTests
     }
     catch (EleuAssertionFail ex)
     {
-      var location = ex.Status.HasValue ? ex.Status.Value.Message : "";
-      Assert.Fail($"{location}: {ex.Message}\n{sw}");
+      var line = ex.Status.HasValue ? ex.Status.Value.LineStart : 1;
+      ScriptLocation.Fail(file, line, $"assert in Zeile {line}: {ex.Message}\n{sw}");
     }
     var actual = ScriptExpectation.NormalizeOutput(sw.ToString()).ReplaceLineEndings().TrimEnd();
     var expected = ScriptExpectation.ExpectedOutput(source).ReplaceLineEndings().TrimEnd();
-    Assert.Equal(expected, actual);
+    ScriptLocation.Equal(file, source, expected, actual);
   }
 }

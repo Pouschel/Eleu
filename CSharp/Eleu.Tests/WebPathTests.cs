@@ -26,7 +26,8 @@ public partial class WebPathTests
   {
     var source = TestFiles.Read(file);
     var session = new WebSession().Run(source);
-    Assert.True(session.InternalErrors.Count == 0, $"Internal errors (e.g. while rendering a puzzle):\n{session}");
+    if (session.InternalErrors.Count > 0)
+      ScriptLocation.Fail(file, 1, $"Internal errors (e.g. while rendering a puzzle):\n{session}");
 
     var shown = session.Log
       .Where(l => l.StartsWith("out: ") || l.StartsWith("err: "))
@@ -41,7 +42,7 @@ public partial class WebPathTests
     if (firstCerr >= 0) expectedLines = expectedLines[..(firstCerr + 1)];
     var expected = string.Join(Environment.NewLine, expectedLines).TrimEnd();
 
-    Assert.Equal(expected, actual);
+    ScriptLocation.Equal(file, source, expected, actual);
   }
 
   [Theory]

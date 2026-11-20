@@ -1,9 +1,11 @@
+using Eleu.Testing;
+
 namespace Eleu.Tests;
 
 /// <summary>
 /// The test scripts in the folders listed in TestDirs.txt and TestDirs.local.txt (beside this file).
 /// A script is named "&lt;folder name&gt;/&lt;path in the folder&gt;", e.g. "Tests/closure/nested_closure.eleu".
-/// Files and folders starting with '-' are skipped (as in EleuTester).
+/// Files and folders starting with '-' are skipped (as in EleuTester), and scripts with a line "//notest".
 /// </summary>
 internal static class TestFiles
 {
@@ -60,6 +62,7 @@ internal static class TestFiles
       foreach (var file in Directory.GetFiles(dir, "*.eleu"))
       {
         if (Path.GetFileName(file).StartsWith('-')) continue;
+        if (ScriptExpectation.IsNoTest(File.ReadAllText(file))) continue;
         result[label + "/" + Path.GetRelativePath(root, file).Replace('\\', '/')] = file;
       }
       foreach (var sub in Directory.GetDirectories(dir))
