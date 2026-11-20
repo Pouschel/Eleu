@@ -487,6 +487,125 @@ async function reveal (line, column) {
   editor.revealRange(new vscode.Range(position, position), vscode.TextEditorRevealType.InCenterIfOutsideViewport)
 }
 
+// ------------------------------------------------------------------ names: definition, references, rename, outline
+
+// the analysis of a document (eleu-cli "analyze"), kept per version
+const analyses = new Map()
+
+async function analysisOf (document) {
+  const key = document.uri.toString()
+  const cached = analyses.get(key)
+  if (cached && cached.version === document.version) {
+    return cached.result
+  }
+  const result = request({ type: 'analyze', text: document.getText() }).then(answer => answer.fatal ? null : answer).catch(() => null)
+  analyses.set(key, { version: document.version, result })
+  return result
+}
+
+// [line, column, endLine, endColumn] from 1 → a range
+const spanRange = s => new vscode.Range(s[0] - 1, s[1] - 1, s[2] - 1, s[3] - 1)
+
+function containsPosition (span, position) {
+  const range = spanRange(span)
+  // also right after the name (the cursor at its end)
+  return range.contains(position)
+}
+
+async function symbolAt (document, position) {
+  const analysis = await analysisOf(document)
+  if (!analysis) {
+    return null
+  }
+  for (const symbol of analysis.symbols) {
+    for (const span of [...symbol.declarations, ...symbol.references]) {
+      if (containsPosition(span, position)) {
+        return { symbol, span }
+      }
+    }
+  }
+  return null
+}
+
+async function provideDefinition (document, position) {
+  const found = await symbolAt(document, position)
+  return found ? found.symbol.declarations.map(d => new vscode.Location(document.uri, spanRange(d))) : null
+}
+
+async function provideReferences (document, position, context) {
+  const found = await symbolAt(document, position)
+  if (!found) {
+    return null
+  }
+  const spans = context.includeDeclaration ? [...found.symbol.declarations, ...found.symbol.references] : found.symbol.references
+  return spans.map(s => new vscode.Location(document.uri, spanRange(s)))
+}
+
+async function provideDocumentHighlights (document, position) {
+  const found = await symbolAt(document, position)
+  if (!found) {
+    return null
+  }
+  return [
+    ...found.symbol.declarations.map(d => new vscode.DocumentHighlight(spanRange(d), vscode.DocumentHighlightKind.Write)),
+    ...found.symbol.references.map(r => new vscode.DocumentHighlight(spanRange(r), vscode.DocumentHighlightKind.Read))
+  ]
+}
+
+const KEYWORDS = ['and', 'assert', 'break', 'class', 'continue', 'else', 'false', 'for', 'fun', 'if', 'nil', 'or', 'repeat',
+  'return', 'super', 'this', 'true', 'var', 'while']
+
+async function prepareRename (document, position) {
+  const found = await symbolAt(document, position)
+  if (!found) {
+    throw new Error('Hier steht kein Name aus diesem Programm (eingebaute Funktionen lassen sich nicht umbenennen).')
+  }
+  return { range: spanRange(found.span), placeholder: found.symbol.name }
+}
+
+async function provideRenameEdits (document, position, newName) {
+  const found = await symbolAt(document, position)
+  if (!found) {
+    return null
+  }
+  if (!/^[\p{L}_][\p{L}\p{N}_]*$/u.test(newName) || KEYWORDS.includes(newName)) {
+    throw new Error(`"${newName}" ist kein gültiger Name.`)
+  }
+  const edit = new vscode.WorkspaceEdit()
+  for (const span of [...found.symbol.declarations, ...found.symbol.references]) {
+    edit.replace(document.uri, spanRange(span), newName)
+  }
+  return edit
+}
+
+const SYMBOL_KINDS = {
+  Function: vscode.SymbolKind.Function,
+  Class: vscode.SymbolKind.Class,
+  Method: vscode.SymbolKind.Method,
+  Variable: vscode.SymbolKind.Variable,
+  Field: vscode.SymbolKind.Field,
+  Parameter: vscode.SymbolKind.Variable
+}
+
+async function provideDocumentSymbols (document) {
+  const analysis = await analysisOf(document)
+  if (!analysis) {
+    return []
+  }
+  const toSymbol = item => {
+    const full = spanRange(item.full)
+    let selection = spanRange(item.selection)
+    // VS Code wants the name inside the whole range
+    if (!full.contains(selection)) {
+      selection = new vscode.Range(full.start, full.start)
+    }
+    const symbol = new vscode.DocumentSymbol(item.name, '', SYMBOL_KINDS[item.kind] ?? vscode.SymbolKind.Variable, full, selection)
+    symbol.children = item.children.map(toSymbol)
+    return symbol
+  }
+  return analysis.outline.map(toSymbol)
+}
+
 // ------------------------------------------------------------------ formatting
 
 // the whole document, as the web app formats it (PrettyPrinter in eleu-cli)
@@ -561,6 +680,11 @@ function activate (context) {
     vscode.commands.registerCommand('eleu.restart', restart),
     vscode.languages.registerCompletionItemProvider({ language: 'eleu' }, { provideCompletionItems }),
     vscode.languages.registerDocumentFormattingEditProvider({ language: 'eleu' }, { provideDocumentFormattingEdits }),
+    vscode.languages.registerDefinitionProvider({ language: 'eleu' }, { provideDefinition }),
+    vscode.languages.registerReferenceProvider({ language: 'eleu' }, { provideReferences }),
+    vscode.languages.registerDocumentHighlightProvider({ language: 'eleu' }, { provideDocumentHighlights }),
+    vscode.languages.registerRenameProvider({ language: 'eleu' }, { prepareRename, provideRenameEdits }),
+    vscode.languages.registerDocumentSymbolProvider({ language: 'eleu' }, { provideDocumentSymbols }),
     vscode.workspace.onDidOpenTextDocument(document => { if (isEleu(document)) schedule(document) }),
     vscode.workspace.onDidChangeTextDocument(event => {
       if (!isEleu(event.document)) {
@@ -573,6 +697,7 @@ function activate (context) {
       schedule(event.document)
     }),
     vscode.workspace.onDidCloseTextDocument(document => {
+      analyses.delete(document.uri.toString())
       diagnostics.delete(document.uri)
       runDiagnostics.delete(document.uri)
     }),

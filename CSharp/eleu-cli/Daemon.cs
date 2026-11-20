@@ -21,6 +21,10 @@ namespace Eleu.Cli;
 /// the puzzle by the ids of their img elements (from EleuWeb/wwwroot/assets, embedded in eleu-cli).</item>
 /// <item>{"id": 4, "type": "format", "text": "…", "newLine": "\r\n"} → {"id": 4, "text": "…"} – the code formatted
 /// (PrettyPrinter, as in the web app); unchanged if the scanner cannot read it.</item>
+/// <item>{"id": 5, "type": "analyze", "text": "…"} → {"id": 5, "symbols": [{"name": "f", "kind": "Function", "global": true,
+/// "declarations": [[2, 5, 2, 6]], "references": [[4, 1, 4, 2], …]}, …], "outline": [{"name": "f", "kind": "Function",
+/// "full": [2, 1, 7, 2], "selection": [2, 5, 2, 6], "children": […]}, …]} – declarations and their uses for the editor
+/// (lines and columns from 1, end column after the name).</item>
 /// <item>{"type": "run", "file": "…", "text": "…", "runAll": false} – runs the program stepwise like the web app.</item>
 /// <item>{"type": "stop"} – stops the running program.</item>
 /// <item>{"type": "puzzle", "text": "…" (optional: the last puzzle of _puzzle()), "index": 0} – shows a test of a
@@ -137,6 +141,9 @@ internal sealed class Daemon : IDisposable
             json.WriteString("text", formatted);
           });
           break;
+        case "analyze":
+          Analyze(id, Str("text"));
+          break;
         case "run":
           stopRequested = false;
           frameDelay = 0;
@@ -200,6 +207,58 @@ internal sealed class Daemon : IDisposable
         json.WriteString("message", message.StartsWith("Cerr: ") ? message[6..] : message);
         json.WriteEndObject();
       }
+      json.WriteEndArray();
+    });
+  }
+
+  void Analyze(JsonElement id, string text)
+  {
+    var symbols = Analysis.CodeAnalyzer.Analyze(text);
+    var outline = Analysis.CodeAnalyzer.Outline(text);
+    static void WriteSpan(Utf8JsonWriter json, Analysis.Span s)
+    {
+      json.WriteStartArray();
+      json.WriteNumberValue(s.Line);
+      json.WriteNumberValue(s.Column);
+      json.WriteNumberValue(s.EndLine);
+      json.WriteNumberValue(s.EndColumn);
+      json.WriteEndArray();
+    }
+    static void WriteItem(Utf8JsonWriter json, Analysis.OutlineItem item)
+    {
+      json.WriteStartObject();
+      json.WriteString("name", item.Name);
+      json.WriteString("kind", item.Kind.ToString());
+      json.WritePropertyName("full");
+      WriteSpan(json, item.Full);
+      json.WritePropertyName("selection");
+      WriteSpan(json, item.Selection);
+      json.WriteStartArray("children");
+      foreach (var child in item.Children) WriteItem(json, child);
+      json.WriteEndArray();
+      json.WriteEndObject();
+    }
+    Write(json =>
+    {
+      WriteId(json, id);
+      json.WriteStartArray("symbols");
+      foreach (var s in symbols)
+      {
+        json.WriteStartObject();
+        json.WriteString("name", s.Name);
+        json.WriteString("kind", s.Kind.ToString());
+        json.WriteBoolean("global", s.IsGlobal);
+        json.WriteStartArray("declarations");
+        foreach (var d in s.Declarations) WriteSpan(json, d);
+        json.WriteEndArray();
+        json.WriteStartArray("references");
+        foreach (var r in s.References) WriteSpan(json, r);
+        json.WriteEndArray();
+        json.WriteEndObject();
+      }
+      json.WriteEndArray();
+      json.WriteStartArray("outline");
+      foreach (var item in outline) WriteItem(json, item);
       json.WriteEndArray();
     });
   }

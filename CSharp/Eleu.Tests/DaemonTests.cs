@@ -99,6 +99,18 @@ public sealed class DaemonTests : IDisposable
   }
 
   [Fact]
+  public void Analyze_sends_symbols_and_outline()
+  {
+    Send(new { id = 7, type = "analyze", text = "fun f(a) { return a; }\nprint(f(1));" });
+    var answer = messages.Next(m => m.Has("id", 7));
+    var f = answer.GetProperty("symbols").EnumerateArray().First(s => s.Has("name", "f"));
+    Assert.Equal("Function", f.GetProperty("kind").GetString());
+    Assert.Equal([1, 5, 1, 6], f.GetProperty("declarations")[0].EnumerateArray().Select(n => n.GetInt32()));
+    Assert.Equal([2, 7, 2, 8], f.GetProperty("references")[0].EnumerateArray().Select(n => n.GetInt32()));
+    Assert.Equal("f", answer.GetProperty("outline")[0].GetProperty("name").GetString());
+  }
+
+  [Fact]
   public void Run_sends_output_and_end()
   {
     Send(new { type = "run", file = "a.eleu", text = "print(1 + 2);", runAll = false });
