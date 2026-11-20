@@ -1,7 +1,7 @@
 // The preview of the Eleu extension: buttons like the web app, the puzzle (drawn by eleu-cli, carried out here) and
 // the log. Talks only to the extension (extension.js).
 'use strict'
-/* global acquireVsCodeApi, ResizeObserver */
+/* global acquireVsCodeApi */
 
 const vscode = acquireVsCodeApi()
 const $ = id => document.getElementById(id)
@@ -12,8 +12,6 @@ const btnBack = $('btnBack')
 const selTest = $('selTest')
 const rangeSpeed = $('rangeSpeed')
 const log = $('log')
-const state = vscode.getState() || { speed: 20 }
-rangeSpeed.value = state.speed
 
 // width, ascent and descent of the characters in 100px Arial: eleu-cli fits the numbers on the fields with them
 function measureFont () {
@@ -35,28 +33,14 @@ function measureFont () {
 }
 const metrics = measureFont()
 
-function canvasSize () {
-  const div = $('puzzCanvasDiv')
-  if (div.clientWidth > 0 && div.clientHeight > 0) {
-    return { width: div.clientWidth, height: div.clientHeight }
-  }
-  // no puzzle shown yet: the size it will get (see preview.css: the width of the page, 42% of its height)
-  return { width: Math.max(120, document.body.clientWidth - 24), height: Math.max(120, Math.round(window.innerHeight * 0.42)) }
-}
-
-function sendView (withMetrics) {
-  vscode.postMessage({ type: 'view', ...canvasSize(), metrics: withMetrics ? metrics : undefined })
+// the text measurements for eleu-cli; the canvas gets its size from eleu-cli (the grid) and is scaled by preview.css
+function sendView () {
+  vscode.postMessage({ type: 'view', metrics })
 }
 
 function sendSpeed () {
   vscode.postMessage({ type: 'speed', value: +rangeSpeed.value })
 }
-
-let resizeTimer = null
-new ResizeObserver(() => {
-  clearTimeout(resizeTimer)
-  resizeTimer = setTimeout(() => sendView(false), 200)
-}).observe($('puzzCanvasDiv'))
 
 // ------------------------------------------------------------------ log
 
@@ -100,7 +84,7 @@ function applyOps (ops) {
 }
 
 function setTests (count, index) {
-  if (selTest.options.length !== count) {
+  if (selTest.options.length !== count || selTest.options[0].textContent !== 'Test Nr. 1') {
     selTest.innerHTML = ''
     for (let i = 0; i < count; i++) {
       const option = document.createElement('option')
@@ -128,7 +112,7 @@ window.addEventListener('message', ({ data: message }) => {
       break
     // eleu-cli restarted: it needs the size and the speed again
     case 'resend':
-      sendView(true)
+      sendView()
       sendSpeed()
       break
     case 'event':
@@ -191,13 +175,14 @@ btnRunAll.addEventListener('click', () => vscode.postMessage({ type: 'run', runA
 btnStop.addEventListener('click', () => vscode.postMessage({ type: 'stop' }))
 btnBack.addEventListener('click', () => vscode.postMessage({ type: 'puzzle', index: selTest.selectedIndex }))
 selTest.addEventListener('change', () => vscode.postMessage({ type: 'puzzle', index: selTest.selectedIndex }))
-rangeSpeed.addEventListener('input', () => {
-  state.speed = +rangeSpeed.value
-  vscode.setState(state)
-  sendSpeed()
+// the extension keeps the speed (also for the next preview and the next start of VS Code)
+rangeSpeed.addEventListener('input', sendSpeed)
+$('btnCopy').addEventListener('click', event => {
+  // the button sits in the summary: copy without opening or closing the code
+  event.preventDefault()
+  vscode.postMessage({ type: 'copy', text: $('puzzleCode').textContent })
 })
-$('btnCopy').addEventListener('click', () => vscode.postMessage({ type: 'copy', text: $('puzzleCode').textContent }))
 
-sendView(true)
+sendView()
 sendSpeed()
 vscode.postMessage({ type: 'ready' })

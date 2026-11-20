@@ -50,21 +50,32 @@ body {
 }
 #puzzle[hidden] { display: none; }
 .puzzTitle { font-size: 1.3em; }
-#puzzCanvasDiv { height: 42vh; min-height: 120px; }
-#puzzCanvas { display: block; }
+/* the canvas has the size of the grid (eleu-cli): scaled to the width of the preview, at most 55% of its height,
+   keeping its proportions */
+#puzzCanvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 55vh;
+  object-fit: contain;
+}
 
 #codeBox {
   margin-top: 6px;
   border: 1px solid var(--vscode-panel-border);
 }
 #codeBox[hidden] { display: none; }
-.codeHead {
+#codeBox summary {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 2px 6px;
+  cursor: pointer;
   background: var(--vscode-sideBarSectionHeader-background);
 }
+#codeBox summary::before { content: "▸ "; }
+#codeBox details[open] summary::before { content: "▾ "; }
+#codeBox summary span { margin-right: auto; }
 #puzzleCode {
   margin: 0;
   padding: 4px 6px;

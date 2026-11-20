@@ -26,12 +26,13 @@ namespace Eleu.Cli;
 /// <item>{"type": "puzzle", "text": "…" (optional: the last puzzle of _puzzle()), "index": 0} – shows a test of a
 /// puzzle (the test selection and "back to start" of the web app).</item>
 /// <item>{"type": "speed", "value": 20} – the speed slider of the web app (0 … 35).</item>
-/// <item>{"type": "view", "width": 480, "height": 360, "metrics": {"a": [55.6, 52.1, 1.2], …}} – the size of the
-/// puzzle canvas and the width, ascent and descent of the characters in 100px Arial.</item>
+/// <item>{"type": "view", "metrics": {"a": [55.6, 52.1, 1.2], …}} – the width, ascent and descent of the characters in
+/// 100px Arial (a new or reloaded preview sends it; the shown puzzle is drawn again).</item>
 /// </list>
 /// Events: {"event": "out" | "err" | "info" | "pout" | "i_err", "text": "…"}, {"event": "state", "running": true},
 /// {"event": "end", "ok": true}, {"event": "puzzle", "name": "…", "index": 0, "count": 4, "ops": [{"eval": "…"} |
-/// {"set": "puzzDiv", "prop": "innerHTML", "value": "…"}]} (what PuzzleHtmlCreator does with the page),
+/// {"set": "puzzDiv", "prop": "innerHTML", "value": "…"}]} (what PuzzleHtmlCreator does with the page; the canvas gets
+/// the size of the grid, <see cref="CellSize"/> pixels per field, and the preview scales it to its room),
 /// {"event": "pcall", "code": "…" (compressed), "index": 0, "show": true} (a call of _puzzle()).
 /// </summary>
 internal sealed class Daemon : IDisposable
@@ -40,7 +41,9 @@ internal sealed class Daemon : IDisposable
   readonly object writeLock = new();
   readonly WebviewDom dom = new();
   EleuLanguageServer? server;
-  PuzzleHtmlCreator.RenderState renderState = new();
+
+  /// <summary>Pixels per field of the puzzle's canvas: the preview scales the canvas (keeping its proportions).</summary>
+  public const int CellSize = 64;
   volatile bool stopRequested, running;
   volatile int frameDelay;
   double speed = 20;
@@ -251,7 +254,9 @@ internal sealed class Daemon : IDisposable
     List<WebviewDom.Op> ops;
     lock (dom)
     {
-      dom.Begin();
+      // the canvas fits the grid (with a field's room for the coordinates); its size is set with every picture
+      dom.Begin((puzzle.ColCount + 1) * CellSize, (puzzle.RowCount + 1) * CellSize);
+      var renderState = new PuzzleHtmlCreator.RenderState();
       new PuzzleHtmlCreator(puzzle).Render(ref renderState);
       ops = dom.End();
     }
@@ -324,8 +329,8 @@ internal sealed class Daemon : IDisposable
 }
 
 /// <summary>
-/// The page of the preview as seen by <see cref="PuzzleHtmlCreator"/>: answers the size of the canvas and the text
-/// measurements (from the webview), writes down everything else as operations for the webview.
+/// The page of the preview as seen by <see cref="PuzzleHtmlCreator"/>: answers the size of the canvas (chosen by the
+/// daemon) and the text measurements (from the webview), writes down everything else as operations for the webview.
 /// </summary>
 internal sealed partial class WebviewDom : IDomProvider
 {
@@ -338,8 +343,6 @@ internal sealed partial class WebviewDom : IDomProvider
 
   public void SetView(JsonElement root)
   {
-    if (root.TryGetProperty("width", out var w) && w.ValueKind == JsonValueKind.Number) width = Math.Max(1, (int)w.GetDouble());
-    if (root.TryGetProperty("height", out var h) && h.ValueKind == JsonValueKind.Number) height = Math.Max(1, (int)h.GetDouble());
     if (root.TryGetProperty("metrics", out var m) && m.ValueKind == JsonValueKind.Object)
     {
       var table = new Dictionary<string, double[]>();
@@ -349,7 +352,12 @@ internal sealed partial class WebviewDom : IDomProvider
     }
   }
 
-  public void Begin() => ops = [];
+  public void Begin(int canvasWidth, int canvasHeight)
+  {
+    width = canvasWidth;
+    height = canvasHeight;
+    ops = [];
+  }
   public List<Op> End() => ops;
 
   public string JsEvalWithResult(string jsCode)

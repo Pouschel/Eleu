@@ -119,7 +119,6 @@ public sealed class DaemonTests : IDisposable
   public void Puzzle_is_drawn_and_its_code_sent()
   {
     Send(new { type = "speed", value = 35 });
-    Send(new { type = "view", width = 300, height = 200 });
     Send(new { type = "run", file = "a.eleu", text = MiniPuzzle, runAll = false });
     var call = messages.Next(m => m.IsEvent("pcall"));
     Assert.StartsWith(">:)", call.GetProperty("code").GetString());
@@ -131,6 +130,37 @@ public sealed class DaemonTests : IDisposable
     var end = messages.Next(m => m.IsEvent("end"));
     Assert.True(end.GetProperty("ok").GetBoolean());
     Assert.Contains(messages.All, m => m.IsEvent("pout") && m.GetProperty("text").GetString()!.Contains("gelöst"));
+  }
+
+  [Fact]
+  public void Canvas_has_the_size_of_the_grid_in_every_picture()
+  {
+    Send(new { type = "speed", value = 35 });
+    Send(new { type = "run", file = "a.eleu", text = MiniPuzzle, runAll = false });
+    messages.Next(m => m.IsEvent("end"));
+    // the grid "cg": 2 × 1 fields, plus a field's room for the coordinates
+    var width = (3 * Daemon.CellSize).ToString();
+    var height = (2 * Daemon.CellSize).ToString();
+    var pictures = messages.All.Where(m => m.IsEvent("puzzle")).ToList();
+    Assert.NotEmpty(pictures);
+    Assert.All(pictures, p =>
+    {
+      var ops = p.GetProperty("ops").EnumerateArray().ToList();
+      Assert.Contains(ops, o => o.Has("set", "puzzCanvas") && o.Has("prop", "width") && o.Has("value", width));
+      Assert.Contains(ops, o => o.Has("set", "puzzCanvas") && o.Has("prop", "height") && o.Has("value", height));
+    });
+  }
+
+  [Fact]
+  public void Reloaded_preview_gets_the_shown_puzzle_again()
+  {
+    Send(new { type = "speed", value = 35 });
+    Send(new { type = "run", file = "a.eleu", text = MiniPuzzle, runAll = false });
+    messages.Next(m => m.IsEvent("end"));
+    var count = messages.All.Count;
+    Send(new { type = "view" });
+    Thread.Sleep(200);
+    Assert.Contains(messages.All.Skip(count), m => m.IsEvent("puzzle"));
   }
 
   [Fact]

@@ -29,6 +29,10 @@ let previewReady = false
 let runDocument = null
 let running = false
 let extensionUri
+let globalState
+// the speed of the puzzle (0 … 35, as the slider of the web app), kept across previews and starts of VS Code
+const SPEED_KEY = 'eleu.speed'
+const speed = () => globalState ? globalState.get(SPEED_KEY, 20) : 20
 
 // ------------------------------------------------------------------ finding and starting eleu-cli
 
@@ -183,6 +187,7 @@ function startDaemon () {
   // writing to a process that could not start: the 'error' handler above reports it
   started.stdin.on('error', () => {})
   daemon = started
+  started.stdin.write(JSON.stringify({ type: 'speed', value: speed() }) + '\n')
   if (preview && previewReady) {
     preview.webview.postMessage({ type: 'resend' })
     sendImages()
@@ -374,7 +379,7 @@ function previewHtml (webview) {
   <button id="btnStop" title="Laufendes Programm beenden (Umschalt+F5)" disabled>■</button>
   <button id="btnBack" title="Zurück zum Puzzleanfang" disabled>⏮</button>
   <select id="selTest" title="Test des Puzzles" disabled><option>Kein Puzzle</option></select>
-  <input type="range" id="rangeSpeed" min="0" max="35" step="1" value="20" title="Geschwindigkeit des Puzzles">
+  <input type="range" id="rangeSpeed" min="0" max="35" step="1" value="${speed()}" title="Geschwindigkeit des Puzzles">
   <span id="fileName"></span>
 </div>
 <div id="puzzle" hidden>
@@ -382,8 +387,10 @@ function previewHtml (webview) {
   <div id="puzzCanvasDiv"><canvas id="puzzCanvas" width="300" height="200"></canvas></div>
 </div>
 <div id="codeBox" hidden>
-  <div class="codeHead"><span>Puzzle-Code</span><button id="btnCopy" title="Puzzle-Code kopieren">Kopieren</button></div>
-  <pre id="puzzleCode"></pre>
+  <details>
+    <summary><span>Puzzle-Code</span><button id="btnCopy" title="Puzzle-Code kopieren">Kopieren</button></summary>
+    <pre id="puzzleCode"></pre>
+  </details>
 </div>
 <div id="logHead">Ausgabe</div>
 <div id="log"></div>
@@ -422,11 +429,12 @@ function openPreview (document) {
           resolve()
         }
         break
-      // the size of the canvas and the text measurements, the speed: for eleu-cli
+      // the text measurements and the speed: for eleu-cli
       case 'view':
-        send({ type: 'view', width: message.width, height: message.height, metrics: message.metrics })
+        send({ type: 'view', metrics: message.metrics })
         break
       case 'speed':
+        globalState.update(SPEED_KEY, message.value)
         send({ type: 'speed', value: message.value })
         break
       case 'run':
@@ -535,6 +543,7 @@ async function provideCompletionItems (document, position) {
 
 function activate (context) {
   extensionUri = context.extensionUri
+  globalState = context.globalState
   output = vscode.window.createOutputChannel('Eleu')
   diagnostics = vscode.languages.createDiagnosticCollection('eleu')
   runDiagnostics = vscode.languages.createDiagnosticCollection('eleu-run')
