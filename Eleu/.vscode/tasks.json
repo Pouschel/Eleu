@@ -3,7 +3,7 @@
     "tasks": [
         {
             "label": "eleurun",
-            "command": "${workspaceFolder}\\..\\CSharp\\eleu-cli\\bin\\Debug\\net9.0\\eleu-cli.exe",
+            "command": "${workspaceFolder}\\..\\CSharp\\eleu-cli\\bin\\Debug\\net10.0\\eleu-cli.exe",
             "args": [
                 "${file}"
             ],
@@ -18,7 +18,7 @@
         },
         {
             "label": "build",
-            "command": "${workspaceFolder}\\..\\CSharp\\eleu-cli\\bin\\Debug\\net9.0\\eleu-cli.exe",
+            "command": "${workspaceFolder}\\..\\CSharp\\eleu-cli\\bin\\Debug\\net10.0\\eleu-cli.exe",
             "args": [
                 "${file}"
             ],
@@ -48,7 +48,7 @@
         },
         {
             "label": "EleuTests",
-            "command": "${workspaceFolder}\\..\\CSharp\\EleuTester\\bin\\Debug\\net9.0\\eleutester.exe",
+            "command": "${workspaceFolder}\\..\\CSharp\\EleuTester\\bin\\Debug\\net10.0\\eleutester.exe",
             "args": [
                 "-vm","-test",
                 "C:\\Code\\Eleu\\Eleu\\Tests"

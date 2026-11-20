@@ -1,0 +1,180 @@
+##### funcnames
+puzzleFuncs: _puzzle _isSolved move push take drop turn paint setShape color seeing read readNumber write _energyUsed
+nativeFuncs: clock sqrt abs acos asin ceil cos floor log10 sin pow random typeof toString print toFixed parseInt parseFloat parseNum parseNumber len charAt at setAt substr indexOf lastIndexOf toLowerCase toUpperCase _catch _newList PI
+##### pupil-run-all
+puzzle: 'Maximum finden' test 1/4; cat (0|1)->E None; energy 0; read 0; render 1cd428a8e402
+  | . | . | . | . | . | . | . | . | . | . | . | . | . | . |
+  | . | 11 | 6 | 3 | 13 | 2 | 4 | 11 | 6 | 3 | 1 | . | Green Square | . |
+  | . | . | . | . | . | . | . | . | . | . | . | . | . | . |
+info: Skript übersetzt in # ms
+state: running
+puzzle: 'Maximum finden' test 1/4; cat (0|1)->E None; energy 1; read 1; render b99d6c80680f
+puzzle: 'Maximum finden' test 1/4; cat (1|1)->E None; energy 2; read 1; render dfb906275f78
+puzzle: 'Maximum finden' test 1/4; cat (1|1)->E None; energy 3; read 2; render dfb906275f78
+puzzle: 'Maximum finden' test 1/4; cat (2|1)->E None; energy 4; read 2; render 08da44833513
+puzzle: 'Maximum finden' test 1/4; cat (2|1)->E None; energy 5; read 3; render 08da44833513
+puzzle: 'Maximum finden' test 1/4; cat (3|1)->E None; energy 6; read 3; render 1589c6129eb4
+puzzle: 'Maximum finden' test 1/4; cat (3|1)->E None; energy 7; read 4; render 1589c6129eb4
+puzzle: 'Maximum finden' test 1/4; cat (4|1)->E None; energy 8; read 4; render b3bbc26115f9
+puzzle: 'Maximum finden' test 1/4; cat (4|1)->E None; energy 9; read 5; render b3bbc26115f9
+puzzle: 'Maximum finden' test 1/4; cat (5|1)->E None; energy 10; read 5; render da732df0c2c6
+puzzle: 'Maximum finden' test 1/4; cat (5|1)->E None; energy 11; read 6; render da732df0c2c6
+puzzle: 'Maximum finden' test 1/4; cat (6|1)->E None; energy 12; read 6; render 6851157d0152
+puzzle: 'Maximum finden' test 1/4; cat (6|1)->E None; energy 13; read 7; render 6851157d0152
+puzzle: 'Maximum finden' test 1/4; cat (7|1)->E None; energy 14; read 7; render 0dbf3979225e
+puzzle: 'Maximum finden' test 1/4; cat (7|1)->E None; energy 15; read 8; render 0dbf3979225e
+puzzle: 'Maximum finden' test 1/4; cat (8|1)->E None; energy 16; read 8; render 21673f895388
+puzzle: 'Maximum finden' test 1/4; cat (8|1)->E None; energy 17; read 9; render 21673f895388
+puzzle: 'Maximum finden' test 1/4; cat (9|1)->E None; energy 18; read 9; render 21bc696891a7
+puzzle: 'Maximum finden' test 1/4; cat (9|1)->E None; energy 19; read 10; render 21bc696891a7
+puzzle: 'Maximum finden' test 1/4; cat (10|1)->E None; energy 20; read 10; render fbeb7f5bff8d
+puzzle: 'Maximum finden' test 1/4; cat (11|1)->E None; energy 21; read 10; render 2f4a0038870f
+puzzle: 'Maximum finden' test 1/4; cat (11|1)->E None; energy 23; read 10; render bad91cab6663
+  | . | . | . | . | . | . | . | . | . | . | . | . | . | . |
+  | . | 11 | 6 | 3 | 13 | 2 | 4 | 11 | 6 | 3 | 1 | . | 13, Green Square | . |
+  | . | . | . | . | . | . | . | . | . | . | . | . | . | . |
+info: Skriptausführung wurde normal beendet.
+info: 210 Befehle in # ms verarbeitet (# Bef./s).
+pout: Puzzle (Test 1) gelöst (Energie: 23; Länge: 23; Anweisungen: 210; Score: 884).
+end: True
+_pcall: test 2, show code False, puzzle text 532432fcbc0b
+info: Skript übersetzt in # ms
+puzzle: 'Maximum finden' test 2/4; cat (0|1)->E None; energy 1; read 1; render 0b331b1524e4
+  | . | . | . | . | . | . | . | . | . | . | . | . | . | . |
+  | . | 10 | 1 | 1 | 7 | 5 | 4 | 10 | 4 | 10 | 2 | . | Green Square | . |
+  | . | . | . | . | . | . | . | . | . | . | . | . | . | . |
+puzzle: 'Maximum finden' test 2/4; cat (1|1)->E None; energy 2; read 1; render ed494c79629f
+puzzle: 'Maximum finden' test 2/4; cat (1|1)->E None; energy 3; read 2; render ed494c79629f
+puzzle: 'Maximum finden' test 2/4; cat (2|1)->E None; energy 4; read 2; render 5e7d62dd3eaf
+puzzle: 'Maximum finden' test 2/4; cat (2|1)->E None; energy 5; read 3; render 5e7d62dd3eaf
+puzzle: 'Maximum finden' test 2/4; cat (3|1)->E None; energy 6; read 3; render 81d1820db531
+puzzle: 'Maximum finden' test 2/4; cat (3|1)->E None; energy 7; read 4; render 81d1820db531
+puzzle: 'Maximum finden' test 2/4; cat (4|1)->E None; energy 8; read 4; render aac1bd2eed38
+puzzle: 'Maximum finden' test 2/4; cat (4|1)->E None; energy 9; read 5; render aac1bd2eed38
+puzzle: 'Maximum finden' test 2/4; cat (5|1)->E None; energy 10; read 5; render 8cb2ac03a832
+puzzle: 'Maximum finden' test 2/4; cat (5|1)->E None; energy 11; read 6; render 8cb2ac03a832
+puzzle: 'Maximum finden' test 2/4; cat (6|1)->E None; energy 12; read 6; render 443f94099b1f
+puzzle: 'Maximum finden' test 2/4; cat (6|1)->E None; energy 13; read 7; render 443f94099b1f
+puzzle: 'Maximum finden' test 2/4; cat (7|1)->E None; energy 14; read 7; render 2b81e95934f3
+puzzle: 'Maximum finden' test 2/4; cat (7|1)->E None; energy 15; read 8; render 2b81e95934f3
+puzzle: 'Maximum finden' test 2/4; cat (8|1)->E None; energy 16; read 8; render 07e5a97983ac
+puzzle: 'Maximum finden' test 2/4; cat (8|1)->E None; energy 17; read 9; render 07e5a97983ac
+puzzle: 'Maximum finden' test 2/4; cat (9|1)->E None; energy 18; read 9; render c1a1ce2ab386
+puzzle: 'Maximum finden' test 2/4; cat (9|1)->E None; energy 19; read 10; render c1a1ce2ab386
+puzzle: 'Maximum finden' test 2/4; cat (10|1)->E None; energy 20; read 10; render 41ad72d2db65
+puzzle: 'Maximum finden' test 2/4; cat (11|1)->E None; energy 21; read 10; render 5f8a9e3b0c55
+puzzle: 'Maximum finden' test 2/4; cat (11|1)->E None; energy 23; read 10; render 2c0159f2349d
+  | . | . | . | . | . | . | . | . | . | . | . | . | . | . |
+  | . | 10 | 1 | 1 | 7 | 5 | 4 | 10 | 4 | 10 | 2 | . | 10, Green Square | . |
+  | . | . | . | . | . | . | . | . | . | . | . | . | . | . |
+info: Skriptausführung wurde normal beendet.
+info: 206 Befehle in # ms verarbeitet (# Bef./s).
+pout: Puzzle (Test 2) gelöst (Energie: 23; Länge: 23; Anweisungen: 206; Score: 886).
+end: True
+_pcall: test 3, show code False, puzzle text 532432fcbc0b
+info: Skript übersetzt in # ms
+puzzle: 'Maximum finden' test 3/4; cat (0|1)->E None; energy 1; read 1; render 8c5e55dcf7c6
+  | . | . | . | . | . | . | . | . | . | . | . | . | . | . |
+  | . | 1 | 5 | 5 | 11 | 14 | 13 | 10 | 14 | 1 | 11 | . | Green Square | . |
+  | . | . | . | . | . | . | . | . | . | . | . | . | . | . |
+puzzle: 'Maximum finden' test 3/4; cat (1|1)->E None; energy 2; read 1; render 4bb5c9654ddd
+puzzle: 'Maximum finden' test 3/4; cat (1|1)->E None; energy 3; read 2; render 4bb5c9654ddd
+puzzle: 'Maximum finden' test 3/4; cat (2|1)->E None; energy 4; read 2; render 871d47eee2be
+puzzle: 'Maximum finden' test 3/4; cat (2|1)->E None; energy 5; read 3; render 871d47eee2be
+puzzle: 'Maximum finden' test 3/4; cat (3|1)->E None; energy 6; read 3; render 8a3f6e522eae
+puzzle: 'Maximum finden' test 3/4; cat (3|1)->E None; energy 7; read 4; render 8a3f6e522eae
+puzzle: 'Maximum finden' test 3/4; cat (4|1)->E None; energy 8; read 4; render 295d71e6516f
+puzzle: 'Maximum finden' test 3/4; cat (4|1)->E None; energy 9; read 5; render 295d71e6516f
+puzzle: 'Maximum finden' test 3/4; cat (5|1)->E None; energy 10; read 5; render 839b74bdf64d
+puzzle: 'Maximum finden' test 3/4; cat (5|1)->E None; energy 11; read 6; render 839b74bdf64d
+puzzle: 'Maximum finden' test 3/4; cat (6|1)->E None; energy 12; read 6; render 5e12bd518f41
+puzzle: 'Maximum finden' test 3/4; cat (6|1)->E None; energy 13; read 7; render 5e12bd518f41
+puzzle: 'Maximum finden' test 3/4; cat (7|1)->E None; energy 14; read 7; render 68ff45f56dba
+puzzle: 'Maximum finden' test 3/4; cat (7|1)->E None; energy 15; read 8; render 68ff45f56dba
+puzzle: 'Maximum finden' test 3/4; cat (8|1)->E None; energy 16; read 8; render 1cea24ddbfdc
+puzzle: 'Maximum finden' test 3/4; cat (8|1)->E None; energy 17; read 9; render 1cea24ddbfdc
+puzzle: 'Maximum finden' test 3/4; cat (9|1)->E None; energy 18; read 9; render 3d0d51201bff
+puzzle: 'Maximum finden' test 3/4; cat (9|1)->E None; energy 19; read 10; render 3d0d51201bff
+puzzle: 'Maximum finden' test 3/4; cat (10|1)->E None; energy 20; read 10; render 45e8faee8242
+puzzle: 'Maximum finden' test 3/4; cat (11|1)->E None; energy 21; read 10; render 6baacf193de8
+puzzle: 'Maximum finden' test 3/4; cat (11|1)->E None; energy 23; read 10; render e66167d3781d
+  | . | . | . | . | . | . | . | . | . | . | . | . | . | . |
+  | . | 1 | 5 | 5 | 11 | 14 | 13 | 10 | 14 | 1 | 11 | . | 14, Green Square | . |
+  | . | . | . | . | . | . | . | . | . | . | . | . | . | . |
+info: Skriptausführung wurde normal beendet.
+info: 218 Befehle in # ms verarbeitet (# Bef./s).
+pout: Puzzle (Test 3) gelöst (Energie: 23; Länge: 23; Anweisungen: 218; Score: 882).
+end: True
+_pcall: test 4, show code False, puzzle text 532432fcbc0b
+info: Skript übersetzt in # ms
+puzzle: 'Maximum finden' test 4/4; cat (0|1)->E None; energy 1; read 1; render 1889304fe83a
+  | . | . | . | . | . | . | . | . | . | . | . | . | . | . |
+  | . | 16 | 17 | 1 | 0 | 6 | 15 | 12 | 13 | 12 | 1 | . | Green Square | . |
+  | . | . | . | . | . | . | . | . | . | . | . | . | . | . |
+puzzle: 'Maximum finden' test 4/4; cat (1|1)->E None; energy 2; read 1; render 22d9b5445ec9
+puzzle: 'Maximum finden' test 4/4; cat (1|1)->E None; energy 3; read 2; render 22d9b5445ec9
+puzzle: 'Maximum finden' test 4/4; cat (2|1)->E None; energy 4; read 2; render d2f3c2ddbf08
+puzzle: 'Maximum finden' test 4/4; cat (2|1)->E None; energy 5; read 3; render d2f3c2ddbf08
+puzzle: 'Maximum finden' test 4/4; cat (3|1)->E None; energy 6; read 3; render 213097c5e7b5
+puzzle: 'Maximum finden' test 4/4; cat (3|1)->E None; energy 7; read 4; render 213097c5e7b5
+puzzle: 'Maximum finden' test 4/4; cat (4|1)->E None; energy 8; read 4; render c12e45e9fbce
+puzzle: 'Maximum finden' test 4/4; cat (4|1)->E None; energy 9; read 5; render c12e45e9fbce
+puzzle: 'Maximum finden' test 4/4; cat (5|1)->E None; energy 10; read 5; render 29d2a6be97b5
+puzzle: 'Maximum finden' test 4/4; cat (5|1)->E None; energy 11; read 6; render 29d2a6be97b5
+puzzle: 'Maximum finden' test 4/4; cat (6|1)->E None; energy 12; read 6; render 94901dd81a75
+puzzle: 'Maximum finden' test 4/4; cat (6|1)->E None; energy 13; read 7; render 94901dd81a75
+puzzle: 'Maximum finden' test 4/4; cat (7|1)->E None; energy 14; read 7; render 09d7ef1f4c81
+puzzle: 'Maximum finden' test 4/4; cat (7|1)->E None; energy 15; read 8; render 09d7ef1f4c81
+puzzle: 'Maximum finden' test 4/4; cat (8|1)->E None; energy 16; read 8; render 5beda3753700
+puzzle: 'Maximum finden' test 4/4; cat (8|1)->E None; energy 17; read 9; render 5beda3753700
+puzzle: 'Maximum finden' test 4/4; cat (9|1)->E None; energy 18; read 9; render fe29277bc6ce
+puzzle: 'Maximum finden' test 4/4; cat (9|1)->E None; energy 19; read 10; render fe29277bc6ce
+puzzle: 'Maximum finden' test 4/4; cat (10|1)->E None; energy 20; read 10; render 843fb81cb083
+puzzle: 'Maximum finden' test 4/4; cat (11|1)->E None; energy 21; read 10; render 1990938e66b9
+puzzle: 'Maximum finden' test 4/4; cat (11|1)->E None; energy 23; read 10; render 82fa501f4b48
+  | . | . | . | . | . | . | . | . | . | . | . | . | . | . |
+  | . | 16 | 17 | 1 | 0 | 6 | 15 | 12 | 13 | 12 | 1 | . | 17, Green Square | . |
+  | . | . | . | . | . | . | . | . | . | . | . | . | . | . |
+info: Skriptausführung wurde normal beendet.
+info: 210 Befehle in # ms verarbeitet (# Bef./s).
+pout: Puzzle (Test 4) gelöst (Energie: 23; Länge: 23; Anweisungen: 210; Score: 884).
+end: True
+pout: Alle Tests bestanden!
+state: stopped
+##### pupil-solves-test1
+puzzle: 'Maximum finden' test 1/4; cat (0|1)->E None; energy 0; read 0; render 1cd428a8e402
+  | . | . | . | . | . | . | . | . | . | . | . | . | . | . |
+  | . | 11 | 6 | 3 | 13 | 2 | 4 | 11 | 6 | 3 | 1 | . | Green Square | . |
+  | . | . | . | . | . | . | . | . | . | . | . | . | . | . |
+info: Skript übersetzt in # ms
+state: running
+puzzle: 'Maximum finden' test 1/4; cat (0|1)->E None; energy 1; read 1; render b99d6c80680f
+puzzle: 'Maximum finden' test 1/4; cat (1|1)->E None; energy 2; read 1; render dfb906275f78
+puzzle: 'Maximum finden' test 1/4; cat (1|1)->E None; energy 3; read 2; render dfb906275f78
+puzzle: 'Maximum finden' test 1/4; cat (2|1)->E None; energy 4; read 2; render 08da44833513
+puzzle: 'Maximum finden' test 1/4; cat (2|1)->E None; energy 5; read 3; render 08da44833513
+puzzle: 'Maximum finden' test 1/4; cat (3|1)->E None; energy 6; read 3; render 1589c6129eb4
+puzzle: 'Maximum finden' test 1/4; cat (3|1)->E None; energy 7; read 4; render 1589c6129eb4
+puzzle: 'Maximum finden' test 1/4; cat (4|1)->E None; energy 8; read 4; render b3bbc26115f9
+puzzle: 'Maximum finden' test 1/4; cat (4|1)->E None; energy 9; read 5; render b3bbc26115f9
+puzzle: 'Maximum finden' test 1/4; cat (5|1)->E None; energy 10; read 5; render da732df0c2c6
+puzzle: 'Maximum finden' test 1/4; cat (5|1)->E None; energy 11; read 6; render da732df0c2c6
+puzzle: 'Maximum finden' test 1/4; cat (6|1)->E None; energy 12; read 6; render 6851157d0152
+puzzle: 'Maximum finden' test 1/4; cat (6|1)->E None; energy 13; read 7; render 6851157d0152
+puzzle: 'Maximum finden' test 1/4; cat (7|1)->E None; energy 14; read 7; render 0dbf3979225e
+puzzle: 'Maximum finden' test 1/4; cat (7|1)->E None; energy 15; read 8; render 0dbf3979225e
+puzzle: 'Maximum finden' test 1/4; cat (8|1)->E None; energy 16; read 8; render 21673f895388
+puzzle: 'Maximum finden' test 1/4; cat (8|1)->E None; energy 17; read 9; render 21673f895388
+puzzle: 'Maximum finden' test 1/4; cat (9|1)->E None; energy 18; read 9; render 21bc696891a7
+puzzle: 'Maximum finden' test 1/4; cat (9|1)->E None; energy 19; read 10; render 21bc696891a7
+puzzle: 'Maximum finden' test 1/4; cat (10|1)->E None; energy 20; read 10; render fbeb7f5bff8d
+puzzle: 'Maximum finden' test 1/4; cat (11|1)->E None; energy 21; read 10; render 2f4a0038870f
+puzzle: 'Maximum finden' test 1/4; cat (11|1)->E None; energy 23; read 10; render bad91cab6663
+  | . | . | . | . | . | . | . | . | . | . | . | . | . | . |
+  | . | 11 | 6 | 3 | 13 | 2 | 4 | 11 | 6 | 3 | 1 | . | 13, Green Square | . |
+  | . | . | . | . | . | . | . | . | . | . | . | . | . | . |
+info: Skriptausführung wurde normal beendet.
+info: 210 Befehle in # ms verarbeitet (# Bef./s).
+pout: Puzzle (Test 1) gelöst (Energie: 23; Länge: 23; Anweisungen: 210; Score: 884).
+end: True
+state: stopped

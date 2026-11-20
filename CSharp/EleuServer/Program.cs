@@ -23,8 +23,8 @@ internal class Program
     }
     dir = Path.Combine(dir!, "EleuWeb");
     var d1 = Path.Combine(dir, "wwwroot");
-    var d2 = Path.Combine(dir, @"bin\debug\net9.0\wwwroot\_framework");
-    //var d2 = Path.Combine(dir, @"bin\Release\net9.0");
+    var d2 = Path.Combine(dir, @"bin\debug\net10.0\wwwroot\_framework");
+    //var d2 = Path.Combine(dir, @"bin\Release\net10.0");
     Start(1754, "/_framework", d2, "/", d1);
     Console.ReadLine();
   }

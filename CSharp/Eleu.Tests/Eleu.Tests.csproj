@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Eleu.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DomCask\DomCask.csproj" />
+    <ProjectReference Include="..\Eleu\Eleu.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\EleuTester\ScriptExpectation.cs" Link="ScriptExpectation.cs" />
+    <None Remove="Snapshots\**" />
+    <None Include="Snapshots\*.txt" Exclude="Snapshots\*.received.txt" />
+  </ItemGroup>
+
+</Project>

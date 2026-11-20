@@ -2,6 +2,7 @@
 using Eleu;
 using Eleu.Puzzles;
 using Eleu.Scanning;
+using Eleu.Testing;
 
 class Program
 {
@@ -20,8 +21,8 @@ class Program
       var source = File.ReadAllText(fileName);
       var sw = new StringWriter();
       RunTestCode(fileName, source, sw);
-      var res = ProcessScriptOutput(sw.ToString()).ReplaceLineEndings().TrimEnd();
-      var expected = GetSourceOutput(source).ReplaceLineEndings().TrimEnd();
+      var res = ScriptExpectation.NormalizeOutput(sw.ToString()).ReplaceLineEndings().TrimEnd();
+      var expected = ScriptExpectation.ExpectedOutput(source).ReplaceLineEndings().TrimEnd();
       if (res == expected)
       {
         Interlocked.Increment(ref nSuccess);
@@ -59,22 +60,6 @@ class Program
     }
   }
 
-  string ProcessScriptOutput(string s)
-  {
-    var lines = s.Split('\n');
-    var sw = new StringWriter();
-    foreach (var line in lines)
-    {
-      if (line.StartsWith("Die _puzzle() Funktion überschreibt das aktive Puzzle"))
-        continue;
-      var l = line.TrimEnd();
-      int idx = l.IndexOf("): ");
-      if (idx >= 0)
-        l = l[(idx + 3)..];
-      sw.WriteLine(l);
-    }
-    return sw.ToString();
-  }
   void BenchmarkFile(string fileName)
   {
     Interlocked.Increment(ref nTests);
@@ -102,32 +87,6 @@ class Program
     };
     var cres = Globals.CompileAndRunAst(source, path, opt, useVm);
     return cres == EEleuResult.Ok;
-  }
-
-  static string GetSourceOutput(string source)
-  {
-
-    string[] searches = new string[] { "// expect: ", "//? ", "// expect runtime error: ", "//Rerr: ", "//Cerr: " };
-
-    var sw = new StringWriter();
-    var lines = source.Split('\n');
-    foreach (var line in lines)
-    {
-      for (int i = 0; i < searches.Length; i++)
-      {
-        string? search = searches[i];
-        int idx = line.IndexOf(search);
-        if (idx < 0) continue;
-        if (idx >= 0)
-        {
-          int start = idx + (i < 4 ? search.Length : 2);
-          var resString = line[start..].TrimEnd();
-          sw.WriteLine(resString);
-          break;
-        }
-      }
-    }
-    return sw.ToString();
   }
 
   void RunActionInDir(string dir, Action<string> action)

@@ -37,3 +37,6 @@ out/
 *.old
 __pycache__
 /Palabras/Ts.Latinum/Data/lemmes_org.de
+
+# snapshot tests: differing outputs
+*.received.txt
