@@ -1,0 +1,5 @@
+# Folders with .eleu test scripts, one per line: relative to the repository root or absolute.
+# Files and folders whose name starts with '-' are skipped. Lines starting with # are comments.
+# Folders only for this computer go into TestDirs.local.txt beside this file (ignored by git).
+Eleu/Tests
+C:\Sync\_Schule\_Info\10\2-Programmieren

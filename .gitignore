@@ -37,3 +37,4 @@ out/
 *.old
 __pycache__
 /Palabras/Ts.Latinum/Data/lemmes_org.de
+CSharp/Eleu.Tests/TestDirs.local.txt

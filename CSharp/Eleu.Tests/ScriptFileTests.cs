@@ -21,6 +21,13 @@ public class ScriptFileTests
     return data;
   }
 
+  [Fact]
+  public void Configured_test_folders_exist()
+  {
+    Assert.NotEmpty(TestFiles.Dirs);
+    Assert.All(TestFiles.Dirs, dir => Assert.True(Directory.Exists(dir), $"Test folder not found: {dir} (see TestDirs.txt / TestDirs.local.txt)"));
+  }
+
   [Theory]
   [MemberData(nameof(Cases))]
   public void Output_matches_expectations(string file, Engine engine)

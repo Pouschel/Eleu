@@ -5,9 +5,6 @@ internal static class Repository
 {
   public static string Root { get; } = FindRoot();
 
-  /// <summary>The test scripts: Eleu/Tests.</summary>
-  public static string TestScripts => Path.Combine(Root, "Eleu", "Tests");
-
   static string FindRoot()
   {
     string? folder = AppContext.BaseDirectory;
