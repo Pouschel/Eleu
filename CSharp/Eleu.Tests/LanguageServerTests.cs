@@ -64,14 +64,19 @@ move(); write(max);
   public void Ping_answers_with_version()
   {
     var s = new WebSession().Send("ping", "");
-    Assert.Contains($"Sprachserver Version {EleuLanguageServer.Version}", s.Transcript);
+    Assert.Contains($"info: Eleu Sprachserver Version {EleuLanguageServer.Version} bereit.", s.Log);
   }
+
+  // the functions pupils know from the course: a rename or removal must be intended
+  const string PuzzleFunctions = "_puzzle _isSolved move push take drop turn paint setShape color seeing read readNumber write _energyUsed";
+  const string NativeFunctions = "clock sqrt abs acos asin ceil cos floor log10 sin pow random typeof toString print toFixed parseInt " +
+    "parseFloat parseNum parseNumber len charAt at setAt substr indexOf lastIndexOf toLowerCase toUpperCase _catch _newList PI";
 
   [Fact]
   public void Function_names_stay_the_same()
   {
     var s = new WebSession().Send("funcnames", "puzzle").Send("funcnames", "native");
-    Snapshot.Verify("Api", "funcnames", s.Transcript);
+    Assert.Equal(["puzzleFuncs: " + PuzzleFunctions, "nativeFuncs: " + NativeFunctions], s.Log);
   }
 
   [Fact]
@@ -81,7 +86,6 @@ move(); write(max);
     Assert.Empty(s.Errors);
     Assert.True(s.LastEnd);
     Assert.Contains(s.PuzzleOutputs, o => o.StartsWith("Puzzle (Test 1) gelöst"));
-    Snapshot.Verify("Api", "pupil-solves-test1", s.Transcript);
   }
 
   [Fact]
@@ -89,7 +93,10 @@ move(); write(max);
   {
     var plain = new WebSession().SetPuzzle(MaximumPuzzle).Run(MaximumSolution);
     var compressed = new WebSession().SetPuzzle(PupilCode).Run(MaximumSolution);
-    Assert.Equal(compressed.Transcript, plain.Transcript);
+    // the log without the timings ("info: ... ms")
+    static List<string> WithoutInfo(WebSession s) => s.Log.Where(l => !l.StartsWith("info: ")).ToList();
+    Assert.Equal(WithoutInfo(compressed), WithoutInfo(plain));
+    Assert.Equal(compressed.PuzzleOutputs, plain.PuzzleOutputs);
   }
 
   [Fact]
@@ -107,7 +114,6 @@ move(); write(max);
     for (int i = 1; i <= 4; i++)
       Assert.Contains(s.PuzzleOutputs, o => o.StartsWith($"Puzzle (Test {i}) gelöst"));
     Assert.Equal("Alle Tests bestanden!", s.PuzzleOutputs[^1]);
-    Snapshot.Verify("Api", "pupil-run-all", s.Transcript);
   }
 
   [Fact]

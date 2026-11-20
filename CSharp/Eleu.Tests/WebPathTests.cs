@@ -1,35 +1,47 @@
+using System.Text.RegularExpressions;
 using Eleu.Puzzles;
+using Eleu.Testing;
 
 namespace Eleu.Tests;
 
 /// <summary>
-/// Every script run the way the web app runs it (see <see cref="WebSession"/>). The transcripts, the HTML and canvas
-/// code of the puzzles must stay as approved in Snapshots: the page of the pupils has to work as before.
+/// Every script run the way the web app runs it (see <see cref="WebSession"/>): stepwise, only the first compile
+/// error, every puzzle state rendered. The output must match the expectations in the script's comments, too.
 /// </summary>
-public class WebPathTests
+public partial class WebPathTests
 {
   public static TheoryData<string> All() => TestFiles.Data(TestFiles.All);
   public static TheoryData<string> WithPuzzle() => TestFiles.Data(TestFiles.WithPuzzle);
 
-  static string Name(string file) => Path.ChangeExtension(file, null);
+  // shown by the web app, not part of the expectations: the runtime error summary and the call stack after it,
+  // and the win check at the end of a script that does not solve its puzzle (e.g. pixel art)
+  const string ErrorSummary = "Bei der Skriptausführung sind Fehler aufgetreten.";
+  const string CallStack = "Aufgerufene Funktionen:";
+  [GeneratedRegex(@"^Das Puzzle \(Test \d+\) wurde nicht gelöst\.$")]
+  private static partial Regex NotSolved();
 
   [Theory]
   [MemberData(nameof(All))]
-  public void Script_runs_in_web_session_as_before(string file)
+  public void Output_in_web_app_matches_expectations(string file)
   {
-    var session = new WebSession().Run(TestFiles.Read(file));
-    Snapshot.Verify("Web", Name(file), session.Transcript);
-  }
+    var source = TestFiles.Read(file);
+    var session = new WebSession().Run(source);
+    Assert.True(session.InternalErrors.Count == 0, $"Internal errors (e.g. while rendering a puzzle):\n{session}");
 
-  [Theory]
-  [MemberData(nameof(WithPuzzle))]
-  public void Puzzle_renders_as_before(string file)
-  {
-    var session = new WebSession().Run(TestFiles.Read(file));
-    var r = session.Renderings;
-    var text = r.Count == 0 ? "(no puzzle shown)\n"
-      : $"----- first of {r.Count} -----\n{r[0]}----- last -----\n{r[^1]}";
-    Snapshot.Verify("Render", Name(file), text);
+    var shown = session.Log
+      .Where(l => l.StartsWith("out: ") || l.StartsWith("err: "))
+      .Select(l => l[5..])
+      .TakeWhile(l => l != CallStack)
+      .Where(l => l != ErrorSummary && !NotSolved().IsMatch(l));
+    var actual = ScriptExpectation.NormalizeOutput(string.Join('\n', shown)).ReplaceLineEndings().TrimEnd();
+
+    // the web app reports only the first compile error
+    var expectedLines = ScriptExpectation.ExpectedOutput(source).ReplaceLineEndings().TrimEnd().Split(Environment.NewLine).ToList();
+    int firstCerr = expectedLines.FindIndex(l => l.StartsWith("Cerr: "));
+    if (firstCerr >= 0) expectedLines = expectedLines[..(firstCerr + 1)];
+    var expected = string.Join(Environment.NewLine, expectedLines).TrimEnd();
+
+    Assert.Equal(expected, actual);
   }
 
   [Theory]

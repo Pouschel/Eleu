@@ -24,8 +24,6 @@
 
   <ItemGroup>
     <Compile Include="..\EleuTester\ScriptExpectation.cs" Link="ScriptExpectation.cs" />
-    <None Remove="Snapshots\**" />
-    <None Include="Snapshots\*.txt" Exclude="Snapshots\*.received.txt" />
   </ItemGroup>
 
 </Project>

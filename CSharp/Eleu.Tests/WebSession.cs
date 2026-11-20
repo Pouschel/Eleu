@@ -1,5 +1,3 @@
-using System.Text;
-using System.Text.RegularExpressions;
 using Eleu.LangServer;
 using Eleu.Puzzles;
 
@@ -8,33 +6,31 @@ namespace Eleu.Tests;
 /// <summary>
 /// Talks to <see cref="EleuLanguageServer"/> the way the web app does (EleuWeb/WasmExecuter): direct callbacks,
 /// "steps 20" after every "state true", every puzzle rendered with <see cref="PuzzleHtmlCreator"/> as HUI.SetPuzzle
-/// does. Writes a transcript of the answers; timings are masked.
+/// does (into a <see cref="RecordingDom"/>).
 /// </summary>
-internal sealed partial class WebSession
+internal sealed class WebSession
 {
   public const string FileName = "[textfeld]";
   const int MaxCommands = 5_000_000;
 
   readonly EleuLanguageServer server;
   readonly Queue<(string Name, object Arg)> pending = new();
-  readonly StringBuilder transcript = new();
   PuzzleHtmlCreator.RenderState renderState = new();
   bool pumping;
-  bool running;
-  string? lastGrid;
 
+  /// <summary>The answers as the log of the page would show them: "out: ...", "err: ...", "pout: ...", "info: ...".</summary>
+  public List<string> Log { get; } = [];
+  public List<string> Errors { get; } = [];
+  public List<string> InternalErrors { get; } = [];
+  public List<string> PuzzleOutputs { get; } = [];
   public List<string> Renderings { get; } = [];
   public List<PuzzCode> PuzzleCalls { get; } = [];
-  public List<string> PuzzleOutputs { get; } = [];
-  public List<string> Errors { get; } = [];
   public bool? LastEnd { get; private set; }
 
   public WebSession()
   {
     server = new EleuLanguageServer(OnResponse, true);
   }
-
-  public string Transcript => transcript.ToString();
 
   /// <summary>The "Start" button (or "Alle Tests" with <paramref name="runAllTests"/>).</summary>
   public WebSession Run(string code, bool runAllTests = false) => Send("code", new object[] { FileName, code, runAllTests });
@@ -60,7 +56,8 @@ internal sealed partial class WebSession
     return this;
   }
 
-  void Log(string line) => transcript.Append(line).Append('\n');
+  /// <summary>The page log as text, for failure messages.</summary>
+  public override string ToString() => string.Join('\n', Log);
 
   void OnResponse(string name, object arg)
   {
@@ -68,57 +65,41 @@ internal sealed partial class WebSession
     {
       case "nativeFuncs":
       case "puzzleFuncs":
-        Log($"{name}: {string.Join(' ', (string[])arg)}");
+        Log.Add($"{name}: {string.Join(' ', (string[])arg)}");
         break;
       case "info":
-        Log($"info: {MaskTimes((string)arg)}");
+      case "out":
+        Log.Add($"{name}: {arg}");
         break;
       case "err":
-      case "i_err":
         Errors.Add((string)arg);
-        Log($"{name}: {arg}");
+        Log.Add($"err: {arg}");
         break;
-      case "out":
-        Log($"out: {arg}");
+      case "i_err":
+        // also exceptions thrown while rendering: the server catches them
+        InternalErrors.Add((string)arg);
+        Log.Add($"i_err: {arg}");
         break;
       case "pout":
         PuzzleOutputs.Add((string)arg);
-        Log($"pout: {arg}");
+        Log.Add($"pout: {arg}");
         break;
       case "state":
-        var nowRunning = (bool)arg;
-        if (nowRunning != running) Log($"state: {(nowRunning ? "running" : "stopped")}");
-        running = nowRunning;
-        if (nowRunning) pending.Enqueue(("steps", 20));
+        if ((bool)arg) pending.Enqueue(("steps", 20));
         break;
       case "end":
         LastEnd = (bool)arg;
-        Log($"end: {arg}");
         break;
       case "puzzle":
         var puzzle = (Puzzle)arg;
-        var html = RecordingDom.Capture(() => new PuzzleHtmlCreator(puzzle).Render(ref renderState));
-        Renderings.Add(html);
-        var (state, grid) = PuzzleText.Describe(puzzle);
-        Log($"puzzle: {state}; render {Snapshot.Hash(html)}");
-        if (grid != lastGrid) Log(grid);
-        lastGrid = grid;
+        Renderings.Add(RecordingDom.Capture(() => new PuzzleHtmlCreator(puzzle).Render(ref renderState)));
         break;
       case "_pcall":
-        var pc = (PuzzCode)arg;
-        PuzzleCalls.Add(pc);
-        Log($"_pcall: test {pc.TestIndex + 1}, show code {pc.ShowCompressedCode}, puzzle text {Snapshot.Hash(pc.Text)}");
+        PuzzleCalls.Add((PuzzCode)arg);
         break;
       default:
-        Log($"unknown answer {name}: {arg}");
+        InternalErrors.Add($"unknown answer {name}: {arg}");
         break;
     }
   }
-
-  [GeneratedRegex(@"\d[\d.,]* ms")]
-  private static partial Regex Millis();
-  [GeneratedRegex(@"\([^()]*Bef\./s\)")]
-  private static partial Regex Speed();
-
-  static string MaskTimes(string s) => Speed().Replace(Millis().Replace(s, "# ms"), "(# Bef./s)");
 }
