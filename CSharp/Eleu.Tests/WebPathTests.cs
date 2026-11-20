@@ -24,7 +24,9 @@ public partial class WebPathTests
   [MemberData(nameof(All))]
   public void Output_in_web_app_matches_expectations(string file)
   {
-    var source = TestFiles.Read(file);
+    var source = TestFiles.Source(file);
+    // marked //notest since the Test Explorer discovered the tests: nothing to test
+    if (source == null) return;
     var session = new WebSession().Run(source);
     if (session.InternalErrors.Count > 0)
       ScriptLocation.Fail(file, 1, $"Internal errors (e.g. while rendering a puzzle):\n{session}");
@@ -49,7 +51,9 @@ public partial class WebPathTests
   [MemberData(nameof(WithPuzzle))]
   public void Compressed_puzzle_code_decodes_to_the_same_puzzle(string file)
   {
-    var session = new WebSession().Run(TestFiles.Read(file));
+    var source = TestFiles.Source(file);
+    if (source == null) return;
+    var session = new WebSession().Run(source);
     foreach (var call in session.PuzzleCalls)
     {
       var original = PuzzleStatics.ParseBundle(call.Text);

@@ -14,16 +14,40 @@ internal static class TestFiles
   /// <summary>The configured folders (full paths), also those that do not exist.</summary>
   public static IReadOnlyList<string> Dirs { get; } = ReadDirs();
 
-  static readonly Dictionary<string, string> paths = Find();
+  /// <summary>The existing folders by their label (the first part of a script's name).</summary>
+  static readonly Dictionary<string, string> roots = Labels();
 
-  public static IReadOnlyList<string> All { get; } = paths.Keys.Order(StringComparer.Ordinal).ToList();
+  public static IReadOnlyList<string> All { get; } = Find();
 
   /// <summary>The scripts that set a puzzle with _puzzle().</summary>
   public static IReadOnlyList<string> WithPuzzle { get; } = All.Where(f => Read(f).Contains("_puzzle(")).ToList();
 
-  public static string FullPath(string name) => paths[name];
+  /// <summary>
+  /// The file of a script name – also of a name the Test Explorer remembers from an earlier discovery (the script
+  /// may have got "//notest" or be gone since).
+  /// </summary>
+  public static string FullPath(string name)
+  {
+    int slash = name.IndexOf('/');
+    if (slash < 0 || !roots.TryGetValue(name[..slash], out var root))
+      throw new InvalidOperationException($"No test folder for '{name}' (see TestDirs.txt / TestDirs.local.txt). Build the test project to discover the tests again.");
+    return Path.Combine(root, name[(slash + 1)..].Replace('/', Path.DirectorySeparatorChar));
+  }
 
   public static string Read(string name) => File.ReadAllText(FullPath(name));
+
+  /// <summary>
+  /// The text of a script to test, or null if it is marked "//notest" by now. A script that is gone fails with a
+  /// clear message (the Test Explorer still lists it until the project is built again).
+  /// </summary>
+  public static string? Source(string name)
+  {
+    var path = FullPath(name);
+    if (!File.Exists(path))
+      throw new FileNotFoundException($"Test script not found (anymore): {path}. Build the test project to discover the tests again.", path);
+    var source = File.ReadAllText(path);
+    return ScriptExpectation.IsNoTest(source) ? null : source;
+  }
 
   static List<string> ReadDirs()
   {
@@ -44,17 +68,26 @@ internal static class TestFiles
     return dirs;
   }
 
-  static Dictionary<string, string> Find()
+  static Dictionary<string, string> Labels()
   {
     var result = new Dictionary<string, string>();
-    var labels = new HashSet<string>();
     foreach (var root in Dirs.Where(Directory.Exists))
     {
       // the folder name; a second folder with the same name gets "#2" and so on
-      var label = Path.GetFileName(root.TrimEnd('/', '\\'));
-      for (int n = 2; !labels.Add(label); n++) label = $"{Path.GetFileName(root.TrimEnd('/', '\\'))}#{n}";
-      Collect(root, root, label);
+      var name = Path.GetFileName(root.TrimEnd('/', '\\'));
+      var label = name;
+      for (int n = 2; result.ContainsKey(label); n++) label = $"{name}#{n}";
+      result[label] = root;
     }
+    return result;
+  }
+
+  static List<string> Find()
+  {
+    var result = new List<string>();
+    foreach (var (label, root) in roots)
+      Collect(root, root, label);
+    result.Sort(StringComparer.Ordinal);
     return result;
 
     void Collect(string root, string dir, string label)
@@ -63,7 +96,7 @@ internal static class TestFiles
       {
         if (Path.GetFileName(file).StartsWith('-')) continue;
         if (ScriptExpectation.IsNoTest(File.ReadAllText(file))) continue;
-        result[label + "/" + Path.GetRelativePath(root, file).Replace('\\', '/')] = file;
+        result.Add(label + "/" + Path.GetRelativePath(root, file).Replace('\\', '/'));
       }
       foreach (var sub in Directory.GetDirectories(dir))
       {

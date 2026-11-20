@@ -33,7 +33,9 @@ public class ScriptFileTests
   public void Output_matches_expectations(string file, Engine engine)
   {
     var path = TestFiles.FullPath(file);
-    var source = File.ReadAllText(path);
+    var source = TestFiles.Source(file);
+    // marked //notest since the Test Explorer discovered the tests: nothing to test
+    if (source == null) return;
     var sw = new StringWriter();
     var opt = new EleuOptions()
     {
