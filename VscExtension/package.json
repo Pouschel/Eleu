@@ -1,33 +1,136 @@
 {
   "name": "eleu-lsp",
-  "displayName": "Eleu Syntax Highlight",
-  "description": "Syntax highlighting for Eleu.",
+  "displayName": "Eleu",
+  "description": "Eleu (.eleu): syntax highlighting, errors in the editor, completion of the functions and a preview that runs the program with its puzzle",
   "icon": "assets/eleu.png",
   "publisher": "tst",
-  "version": "25.1.0",
+  "version": "26.1.0",
   "engines": {
-    "vscode": "^1.76.0"
+    "vscode": "^1.80.0"
   },
   "categories": [
     "Programming Languages"
   ],
+  "main": "./extension.js",
+  "activationEvents": [
+    "onLanguage:eleu"
+  ],
   "contributes": {
     "languages": [
       {
-      "id": "eleu",
-      "icon": {
-        "light": "./assets/eleu.png",
-        "dark": "./assets/eleu.png"
+        "id": "eleu",
+        "icon": {
+          "light": "./assets/eleu.png",
+          "dark": "./assets/eleu.png"
+        },
+        "aliases": [
+          "Eleu",
+          "eleu"
+        ],
+        "extensions": [
+          ".eleu"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "eleu",
+        "scopeName": "source.eleu",
+        "path": "./syntaxes/eleu.tmLanguage.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "eleu.preview",
+        "title": "Vorschau öffnen",
+        "category": "Eleu",
+        "icon": "$(open-preview)"
       },
-      "aliases": ["Eleu", "eleu"],
-      "extensions": [".eleu"],
-      "configuration": "./language-configuration.json"
-    }],
-    "grammars": [{
-      "language": "eleu",
-      "scopeName": "source.eleu",
-      "path": "./syntaxes/eleu.tmLanguage.json"
-    }]
+      {
+        "command": "eleu.run",
+        "title": "Programm ausführen",
+        "category": "Eleu",
+        "icon": "$(play)"
+      },
+      {
+        "command": "eleu.runAll",
+        "title": "Alle Tests ausführen",
+        "category": "Eleu",
+        "icon": "$(run-all)"
+      },
+      {
+        "command": "eleu.stop",
+        "title": "Programm beenden",
+        "category": "Eleu",
+        "icon": "$(debug-stop)"
+      },
+      {
+        "command": "eleu.restart",
+        "title": "Neu starten",
+        "category": "Eleu"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "eleu.run",
+          "when": "resourceLangId == eleu",
+          "group": "navigation@1"
+        },
+        {
+          "command": "eleu.preview",
+          "when": "resourceLangId == eleu",
+          "group": "navigation@2"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "eleu.preview",
+          "when": "editorLangId == eleu"
+        },
+        {
+          "command": "eleu.run",
+          "when": "editorLangId == eleu"
+        },
+        {
+          "command": "eleu.runAll",
+          "when": "editorLangId == eleu"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "eleu.preview",
+        "key": "ctrl+k v",
+        "when": "editorLangId == eleu"
+      },
+      {
+        "command": "eleu.run",
+        "key": "f5",
+        "when": "editorLangId == eleu && !inDebugMode"
+      },
+      {
+        "command": "eleu.runAll",
+        "key": "ctrl+f5",
+        "when": "editorLangId == eleu && !inDebugMode"
+      },
+      {
+        "command": "eleu.stop",
+        "key": "shift+f5",
+        "when": "eleu.running && !inDebugMode"
+      }
+    ],
+    "configuration": {
+      "title": "Eleu",
+      "properties": {
+        "eleu.path": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Pfad zu `eleu-cli.exe` (oder `eleu-cli.dll`) oder zum Ordner des Eleu-Repositorys (dann gilt der neuere Build `CSharp/eleu-cli/bin/Debug|Release/net10.0` darin). Leer: dieser Build im Arbeitsbereich oder in einem Ordner darüber, auch in einem Ordner `Eleu` daneben, sonst `eleu-cli` aus dem Suchpfad. `${workspaceFolder}` ist erlaubt."
+        }
+      }
+    }
   },
   "repository": {
     "type": "git",

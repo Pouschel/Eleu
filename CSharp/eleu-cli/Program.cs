@@ -10,12 +10,18 @@ internal class Program
 
   static void Main(string[] args)
   {
+    if (args.Length == 1 && args[0] == "daemon")
+    {
+      Daemon.Run();
+      return;
+    }
 
     var msg = $@"Eleu CLI v{EleuLanguageServer.Version}
 Arguments: 
 -(vm|int)  use vm or interpreter version (default: vm)
 -puzzle    log puzzle output
 file       file to run
+daemon     run for an editor (VS Code): JSON messages on standard input and output
 ";
 
 

@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="Eleu.Tests" />
     <ProjectReference Include="..\Eleu\Eleu.csproj" />
   </ItemGroup>
 
