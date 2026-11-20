@@ -12,4 +12,10 @@
     <ProjectReference Include="..\Eleu\Eleu.csproj" />
   </ItemGroup>
 
+  <!-- the pictures of the puzzle, from the web app (one source): the daemon sends them to the VS Code preview -->
+  <ItemGroup>
+    <EmbeddedResource Include="..\EleuWeb\wwwroot\assets\Cat.png;..\EleuWeb\wwwroot\assets\Wall.png;..\EleuWeb\wwwroot\assets\bowl.png;..\EleuWeb\wwwroot\assets\Mouse.png"
+                      Link="assets\%(Filename)%(Extension)" LogicalName="assets.%(Filename)%(Extension)" />
+  </ItemGroup>
+
 </Project>

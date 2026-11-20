@@ -134,6 +134,15 @@ window.addEventListener('message', ({ data: message }) => {
     case 'event':
       onEvent(message)
       break
+    // the pictures of the puzzle (data URLs from eleu-cli)
+    case 'images':
+      for (const [id, src] of Object.entries(message.images)) {
+        const img = $(id)
+        if (img) {
+          img.src = src
+        }
+      }
+      break
   }
 })
 

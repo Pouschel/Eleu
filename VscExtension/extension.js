@@ -185,6 +185,7 @@ function startDaemon () {
   daemon = started
   if (preview && previewReady) {
     preview.webview.postMessage({ type: 'resend' })
+    sendImages()
   }
 }
 
@@ -387,10 +388,7 @@ function previewHtml (webview) {
 <div id="logHead">Ausgabe</div>
 <div id="log"></div>
 <div hidden>
-  <img id="catImg" src="${media('Cat.png')}">
-  <img id="wallImg" src="${media('Wall.png')}">
-  <img id="bowlImg" src="${media('bowl.png')}">
-  <img id="mouseImg" src="${media('Mouse.png')}">
+  <img id="catImg"><img id="wallImg"><img id="bowlImg"><img id="mouseImg">
 </div>
 <script nonce="${n}" src="${media('preview.js')}"></script>
 </body>
@@ -419,6 +417,7 @@ function openPreview (document) {
     switch (message.type) {
       case 'ready':
         previewReady = true
+        sendImages()
         for (const resolve of readyWaiters.splice(0)) {
           resolve()
         }
@@ -451,6 +450,18 @@ function openPreview (document) {
   })
   preview.webview.html = previewHtml(preview.webview)
   return waitForPreview()
+}
+
+// the pictures of the puzzle come from eleu-cli (embedded there from EleuWeb/wwwroot/assets)
+async function sendImages () {
+  try {
+    const answer = await request({ type: 'images' })
+    if (preview && answer.images) {
+      preview.webview.postMessage({ type: 'images', images: answer.images })
+    }
+  } catch (error) {
+    output.appendLine(`Bilder des Puzzles nicht erhalten: ${error.message}`)
+  }
 }
 
 const readyWaiters = []

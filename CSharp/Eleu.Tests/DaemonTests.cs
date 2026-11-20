@@ -83,6 +83,15 @@ public sealed class DaemonTests : IDisposable
   }
 
   [Fact]
+  public void Images_are_embedded()
+  {
+    Send(new { id = 5, type = "images" });
+    var images = messages.Next(m => m.Has("id", 5)).GetProperty("images").EnumerateObject().ToList();
+    Assert.Equal(["catImg", "wallImg", "bowlImg", "mouseImg"], images.Select(i => i.Name));
+    Assert.All(images, i => Assert.StartsWith("data:image/png;base64,iVBOR", i.Value.GetString()));
+  }
+
+  [Fact]
   public void Run_sends_output_and_end()
   {
     Send(new { type = "run", file = "a.eleu", text = "print(1 + 2);", runAll = false });

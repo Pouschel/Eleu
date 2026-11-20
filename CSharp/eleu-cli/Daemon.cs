@@ -17,6 +17,8 @@ namespace Eleu.Cli;
 /// <item>{"id": 1, "type": "check", "file": "C:\\…\\a.eleu", "text": "…"} → {"id": 1, "errors": [{"line": 3, "column": 7,
 /// "endLine": 3, "endColumn": 9, "message": "…"}]} – compile errors (parser and resolver), lines and columns from 1.</item>
 /// <item>{"id": 2, "type": "funcnames"} → {"id": 2, "native": ["sqrt", …], "puzzle": ["move", …]}</item>
+/// <item>{"id": 3, "type": "images"} → {"id": 3, "images": {"catImg": "data:image/png;base64,…", …}} – the pictures of
+/// the puzzle by the ids of their img elements (from EleuWeb/wwwroot/assets, embedded in eleu-cli).</item>
 /// <item>{"type": "run", "file": "…", "text": "…", "runAll": false} – runs the program stepwise like the web app.</item>
 /// <item>{"type": "stop"} – stops the running program.</item>
 /// <item>{"type": "puzzle", "text": "…" (optional: the last puzzle of _puzzle()), "index": 0} – shows a test of a
@@ -78,6 +80,10 @@ internal sealed class Daemon : IDisposable
     }
   }
 
+  // the img elements PuzzleHtmlCreator draws with, and their pictures
+  static readonly (string Element, string File)[] Images =
+    [("catImg", "Cat.png"), ("wallImg", "Wall.png"), ("bowlImg", "bowl.png"), ("mouseImg", "Mouse.png")];
+
   EleuLanguageServer Server => server ??= new EleuLanguageServer(OnResponse);
 
   public void Handle(string line)
@@ -99,6 +105,22 @@ internal sealed class Daemon : IDisposable
             WriteId(json, id);
             WriteArray(json, "native", new NativeFunctions().GetFunctions().Select(f => f.name).Append("PI"));
             WriteArray(json, "puzzle", new PuzzleFunctions().GetFunctions().Select(f => f.name));
+          });
+          break;
+        case "images":
+          Write(json =>
+          {
+            WriteId(json, id);
+            json.WriteStartObject("images");
+            foreach (var (element, file) in Images)
+            {
+              using var stream = typeof(Daemon).Assembly.GetManifestResourceStream("assets." + file)
+                ?? throw new InvalidOperationException($"Picture {file} is not embedded");
+              using var memory = new MemoryStream();
+              stream.CopyTo(memory);
+              json.WriteString(element, "data:image/png;base64," + Convert.ToBase64String(memory.ToArray()));
+            }
+            json.WriteEndObject();
           });
           break;
         case "run":
