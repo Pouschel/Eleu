@@ -15,8 +15,30 @@ public interface IDomProvider
 
 public static class Dom
 {
-  private static IDomProvider Provider = new DummyDom();
-  public static void SetProvider(IDomProvider provider) => Provider = provider;
+  private static IDomProvider globalProvider = new DummyDom();
+  // a provider for one piece of code (and the threads it starts), see Use
+  private static readonly AsyncLocal<IDomProvider?> scoped = new();
+  private static IDomProvider Provider => scoped.Value ?? globalProvider;
+
+  /// <summary>The provider of the page (the web app sets it once).</summary>
+  public static void SetProvider(IDomProvider provider) => globalProvider = provider;
+
+  /// <summary>
+  /// A provider only for the code until the result is disposed (e.g. a page drawn in another process, a test that
+  /// records what is drawn) – other threads keep theirs.
+  /// </summary>
+  public static IDisposable Use(IDomProvider provider)
+  {
+    var old = scoped.Value;
+    scoped.Value = provider;
+    return new Restore(old);
+  }
+
+  sealed class Restore(IDomProvider? old) : IDisposable
+  {
+    public void Dispose() => scoped.Value = old;
+  }
+
   public static string JsEvalWithResult(string jsCode) => Provider.JsEvalWithResult(jsCode);
   public static void JsEval(string jsCode) => Provider.JsEval(jsCode);
   public static void SetStyle(string elId, string propName, string propValue)

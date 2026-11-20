@@ -1,6 +1,5 @@
 using System.Globalization;
 using System.Runtime.CompilerServices;
-using DomCask;
 
 namespace Eleu.Tests;
 
@@ -17,7 +16,6 @@ internal static class TestSetup
     CultureInfo.DefaultThreadCurrentUICulture = German;
     CultureInfo.CurrentCulture = German;
     CultureInfo.CurrentUICulture = German;
-    Dom.SetProvider(RecordingDom.Router);
   }
 #pragma warning restore CA2255
 }

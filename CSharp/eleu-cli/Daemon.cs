@@ -54,14 +54,10 @@ internal sealed class Daemon : IDisposable
   string? lastPuzzleCode;
   Puzzle? lastPuzzle;
 
-  /// <param name="installDom">false in tests: they route the DOM themselves (see <see cref="PageDom"/>)</param>
-  public Daemon(TextWriter output, bool installDom = true)
+  public Daemon(TextWriter output)
   {
     this.output = output;
-    if (installDom) Dom.SetProvider(dom);
   }
-
-  internal WebviewDom PageDom => dom;
 
   public static int Run()
   {
@@ -311,7 +307,9 @@ internal sealed class Daemon : IDisposable
   void SendPuzzle(Puzzle puzzle)
   {
     List<WebviewDom.Op> ops;
+    // the daemon's page only for this drawing: nothing global (tests draw into pages of their own at the same time)
     lock (dom)
+    using (Dom.Use(dom))
     {
       // the canvas fits the grid (with a field's room for the coordinates); its size is set with every picture
       dom.Begin((puzzle.ColCount + 1) * CellSize, (puzzle.RowCount + 1) * CellSize);

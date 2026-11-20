@@ -31,15 +31,12 @@ public sealed class DaemonTests : IDisposable
 
   public DaemonTests()
   {
-    // the daemon draws in its own thread: the tests' DOM router hands that to the daemon's page
-    daemon = new Daemon(messages, installDom: false);
-    RecordingDom.Fallback = daemon.PageDom;
+    daemon = new Daemon(messages);
   }
 
   public void Dispose()
   {
     daemon.Dispose();
-    RecordingDom.Fallback = null;
   }
 
   void Send(object request) => daemon.Handle(JsonSerializer.Serialize(request));
