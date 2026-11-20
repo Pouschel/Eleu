@@ -19,6 +19,8 @@ namespace Eleu.Cli;
 /// <item>{"id": 2, "type": "funcnames"} → {"id": 2, "native": ["sqrt", …], "puzzle": ["move", …]}</item>
 /// <item>{"id": 3, "type": "images"} → {"id": 3, "images": {"catImg": "data:image/png;base64,…", …}} – the pictures of
 /// the puzzle by the ids of their img elements (from EleuWeb/wwwroot/assets, embedded in eleu-cli).</item>
+/// <item>{"id": 4, "type": "format", "text": "…", "newLine": "\r\n"} → {"id": 4, "text": "…"} – the code formatted
+/// (PrettyPrinter, as in the web app); unchanged if the scanner cannot read it.</item>
 /// <item>{"type": "run", "file": "…", "text": "…", "runAll": false} – runs the program stepwise like the web app.</item>
 /// <item>{"type": "stop"} – stops the running program.</item>
 /// <item>{"type": "puzzle", "text": "…" (optional: the last puzzle of _puzzle()), "index": 0} – shows a test of a
@@ -121,6 +123,15 @@ internal sealed class Daemon : IDisposable
               json.WriteString(element, "data:image/png;base64," + Convert.ToBase64String(memory.ToArray()));
             }
             json.WriteEndObject();
+          });
+          break;
+        case "format":
+          var newLine = Str("newLine");
+          var formatted = new PrettyPrinter(Str("text")) { NewLine = newLine.Length > 0 ? newLine : "\n" }.Format();
+          Write(json =>
+          {
+            WriteId(json, id);
+            json.WriteString("text", formatted);
           });
           break;
         case "run":

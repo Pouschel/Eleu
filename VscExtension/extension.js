@@ -479,6 +479,27 @@ async function reveal (line, column) {
   editor.revealRange(new vscode.Range(position, position), vscode.TextEditorRevealType.InCenterIfOutsideViewport)
 }
 
+// ------------------------------------------------------------------ formatting
+
+// the whole document, as the web app formats it (PrettyPrinter in eleu-cli)
+async function provideDocumentFormattingEdits (document) {
+  let answer
+  try {
+    answer = await request({ type: 'format', text: document.getText(), newLine: document.eol === vscode.EndOfLine.CRLF ? '\r\n' : '\n' })
+  } catch (error) {
+    return []
+  }
+  if (answer.fatal) {
+    output.appendLine(`Formatieren nicht möglich: ${answer.fatal}`)
+    return []
+  }
+  if (typeof answer.text !== 'string' || answer.text === document.getText()) {
+    return []
+  }
+  const all = new vscode.Range(document.positionAt(0), document.positionAt(document.getText().length))
+  return [vscode.TextEdit.replace(all, answer.text)]
+}
+
 // ------------------------------------------------------------------ completion
 
 async function provideCompletionItems (document, position) {
@@ -530,6 +551,7 @@ function activate (context) {
     vscode.commands.registerCommand('eleu.stop', stop),
     vscode.commands.registerCommand('eleu.restart', restart),
     vscode.languages.registerCompletionItemProvider({ language: 'eleu' }, { provideCompletionItems }),
+    vscode.languages.registerDocumentFormattingEditProvider({ language: 'eleu' }, { provideDocumentFormattingEdits }),
     vscode.workspace.onDidOpenTextDocument(document => { if (isEleu(document)) schedule(document) }),
     vscode.workspace.onDidChangeTextDocument(event => {
       if (!isEleu(event.document)) {

@@ -92,6 +92,13 @@ public sealed class DaemonTests : IDisposable
   }
 
   [Fact]
+  public void Format_formats_with_the_given_line_breaks()
+  {
+    Send(new { id = 6, type = "format", text = "if(a){print(1);}", newLine = "\r\n" });
+    Assert.Equal("if (a)\r\n{\r\n  print(1);\r\n}\r\n", messages.Next(m => m.Has("id", 6)).GetProperty("text").GetString());
+  }
+
+  [Fact]
   public void Run_sends_output_and_end()
   {
     Send(new { type = "run", file = "a.eleu", text = "print(1 + 2);", runAll = false });

@@ -17,6 +17,7 @@ mklink /J "%USERPROFILE%\.vscode\extensions\tst.eleu-lsp" "%CD%\VscExtension"
 * Syntax highlighting and file icons for `.eleu` files
 * Errors in the editor while typing (compiler and resolver), errors of a run as well
 * Completion of the Eleu and puzzle functions
+* Formatting (`Umschalt+Alt+F`, or on save with `"editor.formatOnSave": true`) as in the web app
 * Preview (`Strg+K V` or the button in the editor title): runs the program like eleu.app – puzzle, test selection,
   „Alle Tests“, speed, output with links to the errors, the full puzzle code of `_puzzle()` to copy
 * `F5` run, `Strg+F5` all tests, `Umschalt+F5` stop

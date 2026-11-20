@@ -30,6 +30,7 @@
 
 
   <ItemGroup>
+    <InternalsVisibleTo Include="Eleu.Tests" />
     <ProjectReference Include="..\DomCask\DomCask.csproj" />
   </ItemGroup>
 
