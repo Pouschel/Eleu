@@ -43,7 +43,8 @@ public class EleuLanguageServer : IDisposable
   bool directCallback = false;
   bool runAllTests = false;
   string? curFileName, curCode;
-  List<Type> additionalNativeFunctions = [];
+  // further native functions: a new object per run (DefineAll binds it to the interpreter)
+  readonly List<Func<NativeFunctionBase>> additionalNativeFunctions = [];
   public EleuLanguageServer(Action<string, object> responseAction, bool directCallback = false)
   {
     this.responseAction = responseAction;
@@ -56,9 +57,13 @@ public class EleuLanguageServer : IDisposable
     };
     worker.Start();
   }
-  public void RegisterNativeFunctions(Type type)
+  /// <summary>Native functions of a further class (derived from <see cref="NativeFunctionBase"/>) for every run.</summary>
+  public void RegisterNativeFunctions(
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type type)
   {
-    additionalNativeFunctions.Add(type);
+    if (!typeof(NativeFunctionBase).IsAssignableFrom(type))
+      throw new ArgumentException($"type {type.Name} is no native function type", nameof(type));
+    additionalNativeFunctions.Add(() => (NativeFunctionBase)Activator.CreateInstance(type)!);
   }
 
   public void Dispose()
@@ -206,13 +211,8 @@ public class EleuLanguageServer : IDisposable
     if (result == Ok)
     {
       interpreter = interp!;
-      foreach (var type in additionalNativeFunctions)
-      {
-        if (Activator.CreateInstance(type) is not NativeFunctionBase func)
-          SendInternalError($"type {type.Name} is no native function type");
-        else
-          NativeFunctionBase.DefineAll(func, interpreter);
-      }
+      foreach (var create in additionalNativeFunctions)
+        NativeFunctionBase.DefineAll(create(), interpreter);
       interpreter.Puzzle = _bundle?[puzzleIndex];
       interpreter.PuzzleStateChanged = OnPuzzleStateChanged;
       interpreter.PuzzleCalled = OnPuzzleSet;

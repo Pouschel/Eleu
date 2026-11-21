@@ -49,7 +49,7 @@ class App
     try
     {
       var otext = LocalStoragGet("options");
-      Options = otext == null ? new OptionsModel() : JsonLoadString<OptionsModel>(otext);
+      Options = otext == null ? new OptionsModel() : OptionsFromJson(otext) ?? new OptionsModel();
       Options.Puzzle.Text = LocalStoragGet("puzzle") ?? "";
     }
     catch (Exception ex)
@@ -63,7 +63,7 @@ class App
   public static void SaveOptions()
   {
     LocalStoragSet("puzzle", Options.Puzzle.Text);
-    LocalStoragSet("options", Statics.JsonSaveString(Options));
+    LocalStoragSet("options", OptionsToJson(Options));
   }
   static void AutoSave()
   {

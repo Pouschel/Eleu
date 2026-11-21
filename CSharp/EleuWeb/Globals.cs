@@ -4,47 +4,21 @@ global using System;
 global using static Statics;
 global using static DomCask.Dom;
 using System.Text.Json;
-using System.Text.Encodings.Web;
-using System.Globalization;
 using System.Text.Json.Serialization;
 
-[JsonSourceGenerationOptions(WriteIndented = true)]
+// the options of the web app in local storage: serialized by the source generator (trimming safe), with the settings
+// they always had (fields included, read-only fields ignored, indented)
+[JsonSourceGenerationOptions(WriteIndented = true, IncludeFields = true, IgnoreReadOnlyFields = true)]
 [JsonSerializable(typeof(OptionsModel))]
 internal partial class SourceGenContext : JsonSerializerContext
 {
-
 }
 
 static class Statics
 {
-  internal static readonly JsonSerializerOptions jsonOptions = new()
-  {
-    IgnoreReadOnlyFields = true,
-    IncludeFields = true,
-    WriteIndented = true,
-    Encoder = JavaScriptEncoder.Default,
-    TypeInfoResolver = SourceGenContext.Default,
+  public static OptionsModel? OptionsFromJson(string text) => JsonSerializer.Deserialize(text, SourceGenContext.Default.OptionsModel);
 
-  };
-#pragma warning disable CS8603 // Possible null reference return.
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-#pragma warning disable IL2026 // Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code
-
-  public static T JsonLoadString<T>(string text)
-  {
-    return (T)JsonSerializer.Deserialize(text, typeof(T), jsonOptions);
-
-  }
-
-  public static string JsonSaveString<T>(T data)
-  {
-    return JsonSerializer.Serialize(data, jsonOptions);
-  }
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
-#pragma warning restore CS8603 // Possible null reference return.
-#pragma warning restore IL2026 // Members annotated with 'RequiresUnreferencedCodeAttribute' require dynamic access otherwise can break functionality when trimming application code
-
- 
+  public static string OptionsToJson(OptionsModel options) => JsonSerializer.Serialize(options, SourceGenContext.Default.OptionsModel);
 }
 
 class HtmlLogger

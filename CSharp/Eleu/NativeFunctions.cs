@@ -15,7 +15,8 @@ public class EleuNativeError : EleuRuntimeError
   { }
 }
 
-[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
+// the native functions are found by reflection (GetFunctions): keep their methods when trimming
+[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.NonPublicMethods)]
 public class NativeFunctionBase
 {
   private Interpreter? vm;
@@ -93,7 +94,8 @@ public class NativeFunctionBase
   }
 }
 
-[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
+// the native functions are found by reflection (GetFunctions): keep their methods when trimming
+[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.NonPublicMethods)]
 public class NativeFunctions : NativeFunctionBase
 {
   Random rand = new();

@@ -9,7 +9,8 @@ using Ts;
 
 namespace Eleu.Puzzles;
 
-[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.All)]
+// the native functions are found by reflection (GetFunctions): keep their methods when trimming
+[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.NonPublicMethods)]
 public class PuzzleFunctions : NativeFunctionBase
 {
   class PException : EleuRuntimeError
