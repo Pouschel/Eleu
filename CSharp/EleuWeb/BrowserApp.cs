@@ -63,7 +63,7 @@ public partial class EditorApp
 
   public static void SetText(string text)
   {
-    JsEval($"editor.setValue(`{text}`, -1);");
+    JsEval($"editor.setValue({JsString(text)}, -1);");
   }
 
   [JSExport]

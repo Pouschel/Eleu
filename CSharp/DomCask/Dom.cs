@@ -62,11 +62,39 @@ public static class Dom
 
   public static void InsertAdjacentHTML(string elId, string position, string htmlText)
   {
-    JsEval($"document.getElementById('{elId}').insertAdjacentHTML('{position}', `{htmlText}`);");
+    JsEval($"document.getElementById({JsString(elId)}).insertAdjacentHTML({JsString(position)}, {JsString(htmlText)});");
   }
   public static void LocalStoragSet(string key, string value)
   {
-    JsEval($"window.localStorage.setItem('{key}',`{value}`);");
+    JsEval($"window.localStorage.setItem({JsString(key)}, {JsString(value)});");
+  }
+
+  /// <summary>
+  /// A text as a JavaScript string literal, for code given to JsEval: quotes, backslashes, line breaks escaped. (A
+  /// text put into `…` as it is breaks the code with a backtick, and "${…}" in it would run.)
+  /// </summary>
+  public static string JsString(string text)
+  {
+    var sb = new System.Text.StringBuilder(text.Length + 2);
+    sb.Append('"');
+    foreach (var c in text)
+    {
+      switch (c)
+      {
+        case '\\': sb.Append("\\\\"); break;
+        case '"': sb.Append("\\\""); break;
+        case '\n': sb.Append("\\n"); break;
+        case '\r': sb.Append("\\r"); break;
+        case '\u2028': sb.Append("\\u2028"); break;
+        case '\u2029': sb.Append("\\u2029"); break;
+        default:
+          if (c < ' ') sb.Append("\\u").Append(((int)c).ToString("x4"));
+          else sb.Append(c);
+          break;
+      }
+    }
+    sb.Append('"');
+    return sb.ToString();
   }
   public static string LocalStoragGet(string key)
   {

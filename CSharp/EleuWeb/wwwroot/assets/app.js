@@ -15,6 +15,17 @@ editor.getSession().on('change', function ()
 });
 
 
+// a line of the output, as text (HtmlLogger.AddLine); an empty line keeps its height
+function addLogLine(logId, id, text, color)
+{
+  const div = document.createElement("div");
+  div.id = id;
+  div.style.color = color;
+  div.textContent = text === "" ? "\u00a0" : text;
+  document.getElementById(logId).appendChild(div);
+  div.scrollIntoView({ block: "nearest" });
+}
+
 var marker = null;
 
 function setEleuError(l0, c0, l1, c1)

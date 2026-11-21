@@ -26,10 +26,13 @@ const config = getConfig();
 const exports = await getAssemblyExports(config.mainAssemblyName);
 const app = exports.EditorApp;
 
+// C# expects a string (BrowserApp.JsEval): any other result (undefined of a statement, a number of an assignment)
+// made the interop throw "Assert failed: Value is not a String" – and stopped the caller midway, e.g. before an
+// error was marked in the editor
 function evalCode(code)
 {
- // console.log(code);
-  return eval(code);
+  const result = eval(code);
+  return result === undefined || result === null ? null : String(result);
 }
 function getProp(elId, propName)
 {

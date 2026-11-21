@@ -56,14 +56,11 @@ class HtmlLogger
   {
     this.elId = elId;
   }
+  /// <summary>A line of the output: as text (not HTML), see addLogLine in app.js.</summary>
   public void AddLine(string text, string color = "black")
   {
-    var fullId = $"{elId}_{curId}";
-    if (string.IsNullOrEmpty(text)) text = "&nbsp;";
-    var line = $@"<div id=""{fullId}"" style=""color:{color}"">{text}</div>";
-    InsertAdjacentHTML(elId, "beforeend", line);
-    ScrollIntoView(fullId);
-    curId++;
+    var fullId = $"{elId}_{curId++}";
+    JsEval($"addLogLine({JsString(elId)}, {JsString(fullId)}, {JsString(text)}, {JsString(color)});");
   }
 
   public void Clear()
